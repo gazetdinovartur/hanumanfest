@@ -139,11 +139,12 @@ if ($video_left && $video_right):
 
 <section class="schedule-section py-5 bg-light" id="program">
   <div class="container">
-    <h2 class="text-center text-brand-main mb-5">Программа фестиваля</h2>
-    <?php //get_template_part('template-parts/section', 'program'); ?>
-    <h4 class="text-brand-accent mt-5" style="text-align: center;"><a href="https://clck.su/peQdI" class="contact-link" target="blank">Подробное расписание Хануман-Феста 2026</a> <br /> Возможны корректировки в расписании и расширение программы.
-    </h4>
-    </div>
+    <h2 class="text-center text-brand-main mb-4">Программа фестиваля</h2>
+    <?php get_template_part('template-parts/section', 'schedule', ['layout' => 'compact']); ?>
+    <p class="text-center mt-4 mb-0">
+      <a href="<?php echo esc_url(home_url('/program/')); ?>" class="contact-link fw-semibold">Полное расписание на отдельной странице →</a>
+    </p>
+  </div>
 </section>
 
 <section class="how-it-was py-5 bg-light" id="late">

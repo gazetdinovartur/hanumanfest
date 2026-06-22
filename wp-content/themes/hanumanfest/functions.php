@@ -1,4 +1,9 @@
 <?php
+// === Hanuman Fest API (Symfony) ===
+if (!defined('HANUMANFEST_API_BASE')) {
+    define('HANUMANFEST_API_BASE', 'https://апи.хануманфест.рф/api');
+}
+
 // === Подключаем стили и скрипты ===
 function hanumanfest_cleanup_wp_styles() {
     // Отключаем лишние системные стили WordPress
@@ -94,8 +99,34 @@ function hanumanfest_enqueue_assets() {
         'restUrl' => esc_url_raw(rest_url('yk/v1/')),
         'nonce'   => wp_create_nonce('wp_rest')
     ]);
+
+    if (hanumanfest_needs_schedule_assets()) {
+        wp_enqueue_style(
+            'hf-schedule',
+            $theme_dir . '/assets/css/hf-schedule.css',
+            ['hanumanfest-style'],
+            filemtime($theme_path . '/assets/css/hf-schedule.css')
+        );
+
+        wp_enqueue_script(
+            'hf-schedule',
+            $theme_dir . '/assets/js/hf-schedule.js',
+            [],
+            filemtime($theme_path . '/assets/js/hf-schedule.js'),
+            true
+        );
+
+        wp_localize_script('hf-schedule', 'hfSchedule', [
+            'apiBase'     => apply_filters('hanumanfest_schedule_api_base', HANUMANFEST_API_BASE),
+            'productSlug' => apply_filters('hanumanfest_schedule_product_slug', 'hanuman-fest-2026'),
+        ]);
+    }
 }
 add_action('wp_enqueue_scripts', 'hanumanfest_enqueue_assets', 20);
+
+function hanumanfest_needs_schedule_assets(): bool {
+    return is_front_page() || is_page_template('page-schedule.php');
+}
 
 
 // === Регистрируем меню ===
