@@ -1,0 +1,94 @@
+.hf-lightbox {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(8,8,8,0.92);
+  z-index: 99999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+
+.hf-lightbox.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hf-lightbox__inner {
+  position: relative;
+  max-width: 94%;
+  max-height: 94%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.hf-lightbox img {
+  max-width: 100vw;   /* не шире 90% от ширины экрана */
+  max-height: 100vh;  /* не выше 90% от высоты экрана */
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  transition: transform .25s ease, opacity .25s ease;
+}
+
+/* Стрелки */
+.hf-lightbox__arrow {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255,255,255,0.3);
+  border-radius: 999px;
+  width: 45px;
+  height: 45px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background .18s ease, transform .18s;
+  user-select: none;
+  z-index: 10;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.hf-lightbox__arrow--prev {
+  top: 1%;
+  transform: translate(-50%, 0) rotate(180deg);
+}
+
+.hf-lightbox__arrow--next {
+  bottom: 1%;
+  transform: translate(-50%, 0) rotate(180deg);
+}
+
+.hf-lightbox__arrow:hover {
+  background: rgba(255,255,255,0.5);
+}
+
+/* Кнопка закрытия */
+.hf-lightbox__close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background: rgba(255,255,255,0.3);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 12;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.3);
+  transition: background .18s ease, transform .18s;
+}
+
+.hf-lightbox__close:hover {
+  background: rgba(255,255,255,0.5);
+}
+
+@media (max-width: 576px) {
+  .hf-lightbox__arrow { width: 48px; height: 48px; }
+}

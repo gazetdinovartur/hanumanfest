@@ -1,0 +1,109 @@
+/*
+	This font software is the property of Commercial Type.
+
+	You may not modify the font software, use it on another website, or install it on a computer.
+
+	License information is available at http://commercialtype.com/eula
+	For more information please visit Commercial Type at http://commercialtype.com or email us at info[at]commercialtype.com
+
+	Copyright (C) 2016 Schwartzco Inc.
+
+*/
+
+.YSText-Thin {
+    font-family: "YS Text";
+    font-weight: 100;
+    font-style: normal;
+    font-stretch: normal;
+}
+
+.YSText-ThinItalic {
+    font-family: "YS Text";
+    font-weight: 100;
+    font-style: italic;
+    font-stretch: normal;
+}
+
+.YSText-Light {
+    font-family: "YS Text";
+    font-weight: 300;
+    font-style: normal;
+    font-stretch: normal;
+}
+
+.YSText-LightItalic {
+    font-family: "YS Text";
+    font-weight: 300;
+    font-style: italic;
+    font-stretch: normal;
+}
+
+.YSText-Regular {
+    font-family: "YS Text";
+    font-weight: 400;
+    font-style: normal;
+    font-stretch: normal;
+}
+
+.YSText-RegularItalic {
+    font-family: "YS Text";
+    font-weight: 400;
+    font-style: italic;
+    font-stretch: normal;
+}
+
+.YSText-Medium {
+    font-family: "YS Text";
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+}
+
+.YSText-MediumItalic {
+    font-family: "YS Text";
+    font-weight: 500;
+    font-style: italic;
+    font-stretch: normal;
+}
+
+.YSText-Bold {
+    font-family: "YS Text";
+    font-weight: 700;
+    font-style: normal;
+    font-stretch: normal;
+}
+
+.YSText-BoldItalic {
+    font-family: "YS Text";
+    font-weight: 700;
+    font-style: italic;
+    font-stretch: normal;
+}
+
+.YSText-Heavy {
+    font-family: "YS Text";
+    font-weight: 800;
+    font-style: normal;
+    font-stretch: normal;
+}
+
+.YSText-HeavyItalic {
+    font-family: "YS Text";
+    font-weight: 800;
+    font-style: italic;
+    font-stretch: normal;
+}
+
+.YSText-Fat {
+    font-family: "YS Text";
+    font-weight: 900;
+    font-style: normal;
+    font-stretch: normal;
+}
+
+.YSText-FatItalic {
+    font-family: "YS Text";
+    font-weight: 900;
+    font-style: italic;
+    font-stretch: normal;
+}

@@ -1,0 +1,76 @@
+{
+    "key": "group_landing_settings",
+    "title": "Настройки лендинга",
+    "fields": [
+        {
+            "key": "field_event_dates",
+            "label": "Даты проведения",
+            "name": "event_dates",
+            "type": "text"
+        },
+        {
+            "key": "field_title_text_1",
+            "label": "Титульный текст",
+            "name": "title_text_1",
+            "type": "text"
+        },
+        {
+            "key": "field_title_text_2",
+            "label": "Титульный текст 2",
+            "name": "title_text_2",
+            "type": "text"
+        },
+        {
+            "key": "field_hero_image",
+            "label": "Титульная картинка",
+            "name": "hero_image",
+            "type": "image",
+            "return_format": "url",
+            "preview_size": "medium",
+            "library": "all"
+        },
+        {
+            "key": "field_promo_video_youtube",
+            "label": "Ссылка на YouTube",
+            "name": "promo_video_youtube",
+            "type": "url"
+        },
+        {
+            "key": "field_promo_video_file",
+            "label": "Загрузка видеофайла",
+            "name": "promo_video_file",
+            "type": "file",
+            "return_format": "url"
+        },
+        {
+            "key": "field_gallery_slider",
+            "label": "Галерея для слайдера",
+            "name": "gallery_slider",
+            "type": "gallery",
+            "return_format": "url",
+            "preview_size": "thumbnail",
+            "insert": "append",
+            "library": "all"
+        },
+        {
+            "key": "field_contacts_text",
+            "label": "Контакты",
+            "name": "contacts_text",
+            "type": "textarea"
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "page_template",
+                "operator": "==",
+                "value": "page-landing.php"
+            }
+        ]
+    ],
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "active": true
+}

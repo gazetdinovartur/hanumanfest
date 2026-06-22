@@ -1,0 +1,772 @@
+@font-face {
+    font-family: "YS Text";
+    src: url("./fonts/YS Text-Thin.woff2") format("woff2"),
+    url("./fonts/YS Text-Thin.woff") format("woff");
+    font-weight: 100;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "YS Text";
+    src: url("./fonts/YS Text-Thin Italic.woff2") format("woff2"),
+    url("./fonts/YS Text-Thin Italic.woff") format("woff");
+    font-weight: 100;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "YS Text";
+    src: url("./fonts/YS Text-Light.woff2") format("woff2"),
+    url("./fonts/YS Text-Light.woff") format("woff");
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "YS Text";
+    src: url("./fonts/YS Text-Light Italic.woff2") format("woff2"),
+    url("./fonts/YS Text-Light Italic.woff") format("woff");
+    font-weight: 300;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "YS Text";
+    src: url("./fonts/YS Text-Regular.woff2") format("woff2"),
+    url("./fonts/YS Text-Regular.woff") format("woff");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "YS Text";
+    src: url("./fonts/YS Text-Regular Italic.woff2") format("woff2"),
+    url("./fonts/YS Text-Regular Italic.woff") format("woff");
+    font-weight: 400;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "YS Text";
+    src: url("./fonts/YS Text-Medium.woff2") format("woff2"),
+    url("./fonts/YS Text-Medium.woff") format("woff");
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "YS Text";
+    src: url("./fonts/YS Text-Medium Italic.woff2") format("woff2"),
+    url("./fonts/YS Text-Medium Italic.woff") format("woff");
+    font-weight: 500;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "YS Text";
+    src: url("./fonts/YS Text-Bold.woff2") format("woff2"),
+    url("./fonts/YS Text-Bold.woff") format("woff");
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "YS Text";
+    src: url("./fonts/YS Text-Bold Italic.woff2") format("woff2"),
+    url("./fonts/YS Text-Bold Italic.woff") format("woff");
+    font-weight: 700;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "YS Text";
+    src: url("./fonts/YS Text-Heavy.woff2") format("woff2"),
+    url("./fonts/YS Text-Heavy.woff") format("woff");
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "YS Text";
+    src: url("./fonts/YS Text-Heavy Italic.woff2") format("woff2"),
+    url("./fonts/YS Text-Heavy Italic.woff") format("woff");
+    font-weight: 800;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "YS Text";
+    src: url("./fonts/YS Text-Fat.woff2") format("woff2"),
+    url("./fonts/YS Text-Fat.woff") format("woff");
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "YS Text";
+    src: url("./fonts/YS Text-Fat Italic.woff2") format("woff2"),
+    url("./fonts/YS Text-Fat Italic.woff") format("woff");
+    font-weight: 900;
+    font-style: italic;
+}
+
+.yam {
+    font-family: "YS Text", -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+}
+
+.yam select:focus,
+.yam input[type="text"]:focus {
+    box-shadow: none;
+}
+
+.yam select,
+.yam input[type="text"],
+.yam .select2-container,
+.yam .select2-container:not(.select2-container--open) {
+    width: 360px;
+    height: 44px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(165, 177, 202, 0.3);
+    border-radius: 14px;
+    padding: 10px 34px 10px 20px;
+    margin: 0;
+    font-size: 16px;
+    line-height: 24px;
+}
+
+.yam .select2-container.select2-container--open {
+    border-color: rgba(165, 177, 202, 0.6);
+}
+
+.yam .select2-container:not(.select2-container--open) {
+    cursor: pointer;
+}
+
+.yam input[type="text"]::placeholder {
+    color: rgba(26, 43, 77, 0.6);
+}
+
+.yam .custom-targets input[type="text"]::placeholder {
+    color: rgba(71, 90, 128, 0.5);
+}
+
+.yam select:hover,
+.yam input[type="text"]:hover {
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(134, 148, 176, 0.4);
+}
+
+.yam input[type="text"].disabled {
+    color: rgba(71, 90, 128, 0.5);
+    background: rgba(176, 189, 214, 0.2);
+    pointer-events: none;
+}
+
+.yam input[type="checkbox"] {
+    border: 1px solid rgba(165, 177, 202, 0.3);
+    border-radius: 4px;
+    background: #fff;
+    box-shadow: none !important;
+    height: 20px;
+    width: 20px;
+    line-height: normal;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.yam input[type="checkbox"]:checked {
+    border: 1px solid #FFDD57;
+    background: #FFDD57;
+}
+
+.yam input[type=checkbox]:checked::before {
+    content: url('./ui-icons/checkbox.svg');
+    width: 12px;
+    height: 9px;
+    /*margin: 6px 4px 5px;*/
+
+    margin: 0;
+    position: absolute;
+    top: 0;
+    font-size: 14px;
+}
+
+.yam__description{
+    font-size: 14px;
+    line-height: 20px;
+    color: rgba(26, 43, 77, 0.6);
+}
+
+.yam__wrapper{
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+}
+
+.yam__header{
+    border-bottom: 2px solid #f0f0f1;
+    padding: 24px 0 32px;
+    margin: 0 32px;
+}
+
+.yam__description{
+    border-bottom: 2px solid #f0f0f1;
+    /*padding: 20px 30px;*/
+    padding: 20px 0;
+    margin: 0 32px;
+    font-size: 15px;
+    line-height: normal;
+}
+
+.yam__logo{
+    display: block;
+    width: 100%;
+    max-width: 147px;
+    /*margin: 0 auto;*/
+}
+
+.yam__settings{
+    padding: 0 32px 23px;
+}
+
+@media (max-width: 480px) {
+    .yam__header{
+        padding: 12px 20px;
+    }
+
+    .yam__description{
+        padding: 12px 20px;
+    }
+
+    .yam__settings{
+        padding: 12px 20px;
+    }
+}
+
+.yam-repeater-field{}
+.yam-repeater-field__row{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.yam-repeater-field__row_tpl{
+    display: none;
+}
+
+.yam-repeater-field__input-wrap{
+    /*padding: 3px 9px 3px 0;*/
+    padding: 0 9px 0 0;
+    position: relative;
+}
+
+.brand .yam-repeater-field__input-wrap{
+    padding: 0 16px 0 0;
+}
+
+.yam-repeater-field__input-wrap--large {
+    display: flex;
+    flex-direction: column;
+}
+
+.yam-repeater-field__label {
+    font-size: 16px;
+    line-height: 24px;
+    color: #2F3747;
+    margin-bottom: 6px;
+    font-weight: 400;
+    cursor: default;
+}
+
+.yam-repeater-field__input:hover {
+    color: inherit !important;
+}
+
+.yam .tooltip {
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    /*right: 20px;*/
+    /*bottom: 17px;*/
+    right: 21px;
+    bottom: 14px;
+    cursor: pointer;
+    background: url('./yam-question-mark.svg') no-repeat center/contain;
+}
+
+.yam .tooltip__inner {
+    display: none;
+    position: absolute;
+    z-index: 20;
+    padding: 14px 20px;
+    width: 360px;
+    background: #252A38;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 20px;
+    color: rgba(209, 225, 255, 0.8);
+    bottom: 24px;
+    right: -14px;
+
+}
+
+.yam .tooltip:hover .tooltip__inner {
+    display: flex;
+}
+
+.yam .brand .tooltip {
+    right: 27px;
+}
+
+/*.yam-repeater-field__input[type="text"] {*/
+/*    position: relative;*/
+/*}*/
+
+.yam-repeater-field__row:nth-child(2):last-child .yam-repeater-field__remove-btn{
+   display: none !important;
+}
+
+/*.yam-repeater-field__add-wrap{*/
+/*    margin-top: 5px;*/
+/*}*/
+
+
+.yam-spoiler__btn{
+    color: #498BFF;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 24px;
+    display: none;
+    padding: 10px 20px;
+    border-radius: 14px;
+    margin-top: 18px;
+}
+
+.yam-spoiler__btn.active {
+    display: inline-block;
+}
+
+.yam-spoiler__btn:hover{
+    background: rgba(176, 189, 214, 0.2);
+    color: #2F3747;
+}
+
+.yam-spoiler__content{
+    display: none;
+}
+
+.yam-spoiler__content.active{
+    display: block;
+    position: relative;
+}
+
+
+.yam-logs{
+    min-height: 354px;
+    background: rgba(176, 189, 214, 0.2);
+    padding: 12px;
+    overflow: auto;
+    white-space: nowrap;
+    border-radius: 12px;
+    color: rgba(26, 43, 77, 0.6);
+    font-size: 14px;
+    line-height: 20px;
+    margin-top: 32px;
+}
+
+.yam-copy-button {
+    width: 20px;
+    height: 20px;
+    background: url('./ui-icons/logs-copy.svg') no-repeat center/contain;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    cursor: pointer;
+}
+
+.yam-repeater-field__btn,
+.yam__settings input[type="submit"].button-primary {
+    padding: 10px 20px !important;
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+    border-radius: 14px !important;
+    color: #2F3747 !important;
+    border: none !important;
+    height: auto !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+}
+
+.yam-repeater-field__add-btn {
+    margin-top: 16px !important;
+}
+
+.yam-repeater-field__add-btn:not(.yam-repeater-field__remove-btn) {
+    background: rgba(176, 189, 214, 0.2) !important;
+}
+
+.yam-repeater-field__add-btn:not(.yam-repeater-field__remove-btn).disabled {
+    color: rgba(71, 90, 128, 0.5) !important;
+    background: rgba(176, 189, 214, 0.2) !important;
+    pointer-events: none;
+}
+
+.yam-repeater-field__remove-btn {
+    background: none !important;
+}
+
+.yam-repeater-field__remove-btn:hover,
+.yam-repeater-field__add-btn:not(.yam-repeater-field__remove-btn):hover {
+    background: rgba(165, 177, 202, 0.3) !important;
+}
+
+.yam-repeater-field__remove-btn:active {
+    background: rgba(176, 189, 214, 0.2) !important;
+}
+
+.yam-repeater-field__btn--primary:hover {
+    background: rgba(165, 177, 202, 0.3); !important;
+}
+
+.yam-repeater-field__btn--primary:active {
+    background: rgba(176, 189, 214, 0.2) !important;
+}
+
+.yam__settings input[type="submit"].button-primary {
+    background: #FFDD57 !important;
+    box-shadow: none !important;
+}
+
+.yam__settings input[type="submit"].button-primary:focus {
+    box-shadow: none !important;
+}
+
+.yam__settings input[type="submit"].button-primary:hover {
+    background: #FFD21F !important;
+}
+
+.yam__settings input[type="submit"].button-primary:active {
+    background: #FFDD57 !important;
+}
+
+.yam-repeater-field__remove-btn {
+    padding: 0 !important;
+    margin-left: auto !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px !important;
+}
+
+.yam .form-table {
+    margin-top: 32px;
+}
+
+.yam .form-table.custom-targets-table {
+    padding-top: 32px;
+    border-top: 2px solid #f0f0f1;
+}
+
+.yam .row-blank {
+    display: none;
+}
+
+.yam .table-row {
+    display: flex;
+    flex-direction: column;
+}
+
+.yam th.row-header {
+    color: #2F3747;
+    font-size: 16px;
+    width: 100%;
+    font-weight: 500;
+    padding: 0;
+    margin: 16px 0;
+}
+
+.yam .table-row.targets-header {
+    margin: 16px 0;
+}
+
+.yam .row-header.targets-header {
+    margin: 0;
+}
+
+.yam td.row-content {
+    position: relative;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.yam .custom-targets select,
+.yam .custom-targets input[type="text"] {
+    width: 256px
+}
+
+.yam .custom-targets .yam-repeater-field__remove-btn {
+    margin-top: auto;
+}
+
+.yam-buttons-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 2px solid #f0f0f1;
+    margin-top: 32px;
+}
+
+.yam .yam-buttons-wrap p.submit {
+    /*margin: 0 0 42px;*/
+    /*padding: 18px 0 0;*/
+    padding: 0;
+    margin: 19px 0 0;
+}
+
+.custom-targets-table,
+.brand-settings-table {
+    display: none;
+}
+
+.table-shown {
+    display: table;
+}
+
+.show-button__wrap {
+    margin-top: 32px;
+}
+
+.show-button__wrap .show-button {
+    color: #498BFF;
+    font-size: 16px;
+    line-height: 20px;
+    cursor: pointer;
+    display: inline-flex;
+}
+
+.show-button__wrap .show-button:hover {
+    color: #1469FF;
+}
+
+.show-button .show-button__arrow {
+    width: 13px;
+    height: 8px;
+    background: url('./ui-icons/extra-arrow.svg') no-repeat center/contain;
+    align-self: center;
+    margin-left: 10px;
+    transform-origin: center;
+    transform: rotate(180deg);
+}
+
+.show-button .show-button__arrow--open {
+    transform: rotate(0);
+}
+
+.yam .select2-container .selection {
+    line-height: inherit;
+    font-size: inherit;
+}
+
+.yam .select2-container .select2-selection--single {
+    background-color: unset;
+    border: unset;
+    display: inline-block;
+    height: 100%;
+    width: 100%
+}
+
+.yam-option__wrap {
+    display: inline-flex;
+    flex-direction: column;
+}
+
+.yam-option__val {
+    color: #2F3747;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.yam-option__description {
+    color: rgba(26, 43, 77, 0.6);
+    font-size: 12px;
+    line-height: 16px;
+}
+
+.select2-results__option {
+    padding: 5px 12px !important;
+    margin: 0 !important;
+}
+
+.select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+    background-color: #EFF2F7 !important;
+    color: unset !important;
+}
+
+.select2-container--default .select2-results__option--selected {
+    background-color: inherit !important;
+    position: relative;
+}
+
+.select2-container--default .select2-results__option--selected:after {
+    content: '';
+    position: absolute;
+    width: 15px;
+    height: 13px;
+    top: 8px;
+    right: 8px;
+    background: url('./ui-icons/dropdown-check.svg') no-repeat center/contain;
+}
+
+.select2-results {
+    /*width: 256px;*/
+}
+.select2-results__options {
+    scrollbar-width: thin;
+    scrollbar-color: #93a0a9 transparent;
+}
+
+.select2-results__options::-webkit-scrollbar {
+     width: 3px;
+ }
+
+.select2-results__options::-webkit-scrollbar-thumb {
+     background: #93a0a9;
+ }
+
+.yam .select2-container--open .select2-dropdown--below.yam-dropdown {
+    border: none;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.yam .select2-dropdown.yam-dropdown {
+    border: none;
+    margin-top: 8px;
+    overflow: hidden;
+    box-shadow: 0px 0px 3px rgba(165, 177, 202, 0.3), 0px 10px 40px rgba(165, 177, 202, 0.3);
+}
+
+.yam .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: unset;
+    padding: 0;
+    line-height: inherit;
+}
+
+.yam .select2-selection__arrow {
+    width: 16px !important;
+    height: 9px !important;
+    top: 18px !important;
+    right: 18px !important;
+}
+
+.yam .select2-selection__arrow b {
+    background: url('./ui-icons/dropdown-arrow.svg') no-repeat center/contain !important;
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+    left: 0 !important;
+    top: 0 !important;
+    margin-left: 0 !important;
+    margin-top: 0 !important;
+}
+
+.yam .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+    transform-origin: center;
+    transform: rotate(180deg);
+}
+
+.suggestion__wrap {
+    position: absolute;
+    margin-top: 82px;
+    background: #fff;
+    display: none;
+    box-shadow: 0px 0px 3px rgba(165, 177, 202, 0.3), 0px 10px 40px rgba(165, 177, 202, 0.3);
+    border-radius: 12px;
+    width: 256px;
+    height: auto;
+    padding: 8px 0;
+    z-index: 10;
+}
+
+.suggestion__wrap.suggestion__wrap--show {
+    display: block
+}
+
+.suggestion__option {
+    cursor: pointer;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 20px;
+    color: #2F3747;
+    margin: 0;
+}
+
+.suggestion__option.not-found {
+    cursor: default;
+}
+
+.suggestion__list {
+    margin: 0;
+}
+
+/*/===========/*/
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    width: 100%;
+    height: 100%;
+    padding: 0 0 0 20px;
+    background: white;
+    font-size: 16px;
+    outline: none !important;
+    border: 1px solid rgba(134, 148, 176, 0.4) !important;
+    border-right: none !important;
+    border-radius: 14px 0 0 14px !important;
+    margin: 0;
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field:focus,
+.select2-container--default .select2-search--dropdown .select2-search__field:active {
+    outline: none !important;
+    border: 1px solid rgba(134, 148, 176, 0.4) !important;
+    border-right: none !important;
+    border-radius: 14px 0 0 14px !important;
+    box-shadow: none !important;
+}
+
+.select2-search--dropdown {
+    position: absolute;
+    top: -44px;
+    /*top: -52px;*/
+    left: 0;
+    right: 40px;
+    height: 44px;
+    padding: 0 !important;
+}
+
+.select2-container--open .select2-dropdown.select2-dropdown--above .select2-search--dropdown {
+    top: auto;
+    bottom: -44px;
+    /*bottom: -52px;*/
+}
+
+.select2-results {
+    margin: 8px 0;
+    box-shadow: 0 0 3px rgba(165, 177, 202, 0.7), 0 5px 5px rgba(165, 177, 202, 0.5);
+    /*box-shadow: 0px 0px 3px rgba(165, 177, 202, 0.3), 0px 10px 40px rgba(165, 177, 202, 0.3);*/
+    border-radius: 12px;
+    background-color: #fff;
+}
+
+.select2-dropdown.yam-dropdown {
+    border: none !important;
+    background-color: unset !important;
+}
+
+*:focus {
+    outline: none !important;
+}

@@ -1,0 +1,124 @@
+#wpwrap {
+	background-color: #f1f1f1;
+}
+
+.jivosite-form-first-col {
+	max-width: 90%;
+}
+
+.jivosite-form-second-col {
+	max-width: 10%;
+}
+
+.jivosite-form-bottom-link {
+	border-top-style: solid;
+	border-top-color: rgba(0,0,0,0.125);
+	border-top-width: 0.075em;
+	margin-top: 5%;
+	padding-top: 7%;
+	padding-bottom: 7%;
+}
+
+.jivosite-content {
+	background-color: #f9f9f9;
+	border-radius: 2.5%;
+	border-style: solid;
+	border-color: white;
+	border-width: 0.5em
+}
+
+form.jivosite-content {
+	max-width: 70%;
+	padding-left: 10%;
+	padding-right: 5%;
+}
+
+.jivosite-center {
+	text-align: center;
+}
+
+.jivosite-caption {
+	color: gray;
+	text-align: center;
+}
+
+a.jivosite-caption {
+	color: gray;
+	text-decoration: underline;
+}
+
+div h5.jivosite-form-caption {
+	color: gray;
+	text-align: center;
+}
+
+.jivosite-redirect {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+a.jivosite-redirect {
+	color: black;
+}
+
+.jivosite-base-button {
+	background: #00bf54;
+	color: #ffffff;
+	letter-spacing: .025em;
+	padding-bottom: .2875em;
+	padding-top: .2875em;
+	margin-bottom: 10px;
+}
+
+.jivosite-black {
+	background-color: black;
+}
+
+.jivosite-black:hover {
+	color: lightcoral;
+}
+
+.jivosite-help-container {
+	position: relative;
+}
+
+.jivosite-help {
+	position: absolute;
+	top: 1.75em;
+}
+
+.jivosite-big {
+	margin-top: 5vh;
+}
+
+.jivosite-small {
+	min-width: 400px;
+	margin-top: 15vh;
+}
+
+.jivosite-form-margin {
+	margin-bottom: 2vh;
+}
+
+.jivosite-margin {
+	margin-left: 5%;
+	margin-right: 5%;
+	margin-bottom: 3%;
+	justify-content: center;
+}
+
+.jivosite-question-svg {
+	width: 2em;
+	height: 2em;
+	cursor: help;
+}
+
+.jivosite-logo-svg {
+	width: 80%;
+	height: 80%;
+}
+
+.jivosite-tooltip > .tooltip-inner {
+	background: #00bf54; !important;
+	color: #ffffff; !important;
+}

@@ -1,0 +1,432 @@
+@keyframes kofi-wiggle {
+  0% {
+    transform: rotate(0) scale(1);
+  }
+  60% {
+    transform: rotate(0) scale(1);
+  }
+  75% {
+    transform: rotate(0) scale(1.12);
+  }
+  80% {
+    transform: rotate(0) scale(1.1);
+  }
+  84% {
+    transform: rotate(-10deg) scale(1.1);
+  }
+  88% {
+    transform: rotate(10deg) scale(1.1);
+  }
+  92% {
+    transform: rotate(-10deg) scale(1.1);
+  }
+  96% {
+    transform: rotate(10deg) scale(1.1);
+  }
+  100% {
+    transform: rotate(0) scale(1);
+  }
+}
+.header-panel {
+  margin-top: 25px;
+}
+.header-panel h2 {
+  margin-top: 0;
+  color: #fff;
+  font-size: 26px;
+  margin-bottom: 12px;
+}
+.header-panel span {
+  color: #fff;
+}
+.header-panel span a {
+  color: #fff;
+}
+.header-panel .rsmt-panel {
+  background-color: #91cbd8;
+  background: linear-gradient(90deg, #91cbd8 72%, #96c9a0 99%);
+  border-radius: 0.5rem;
+}
+
+.resmush-settings-ui {
+  /*select quality buttons*/
+  /*notice to seleect new quality settings*/
+}
+.resmush-settings-ui .nav-block {
+  background: #fff;
+  border-top-left-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
+}
+.resmush-settings-ui .nav-block .rsmt-tabs-nav {
+  list-style: none;
+  margin-top: 50px;
+}
+.resmush-settings-ui .nav-block .rsmt-tabs-nav li {
+  font-weight: 700;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  font-size: 16px;
+  margin: 10px 0;
+  padding: 5px 5px 5px 30px;
+}
+.resmush-settings-ui .nav-block .rsmt-tabs-nav li.active {
+  color: rgb(26, 189, 202);
+}
+.resmush-settings-ui .nav-block .rsmt-tabs-nav li a {
+  text-decoration: none;
+  color: #3c434a;
+}
+.resmush-settings-ui .nav-block .rsmt-tabs-nav li .kofi-support {
+  padding: 8px;
+  line-height: 15px;
+  vertical-align: bottom;
+  border: 1px solid #1abdca;
+  border-radius: 6px;
+  width: 120px;
+  box-sizing: border-box;
+  display: inline-block;
+  white-space: nowrap;
+}
+.resmush-settings-ui .nav-block .rsmt-tabs-nav li .kofi-support img {
+  vertical-align: bottom;
+  animation: kofi-wiggle 3s infinite;
+}
+.resmush-settings-ui .nav-block .rsmt-tabs-nav li .kofi-support .text {
+  font-size: 14px;
+  letter-spacing: -0.15px;
+  margin-left: 2px;
+  color: #1abdca;
+}
+@media (max-width: 1100px) {
+  .resmush-settings-ui .nav-block .rsmt-tabs-nav li {
+    float: left;
+  }
+  .resmush-settings-ui .nav-block .rsmt-tabs-nav .kofi-support {
+    margin-top: -5px;
+  }
+}
+@media (max-width: 560px) {
+  .resmush-settings-ui .nav-block .rsmt-tabs-nav li {
+    float: none;
+  }
+}
+.resmush-settings-ui .rsmt-cols {
+  background: #fff;
+  min-height: 500px;
+}
+.resmush-settings-ui .rsmt-cols.rsmt-tab {
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+.resmush-settings-ui .rsmt-cols .rsmt-panel {
+  margin-bottom: 0;
+  padding-left: 36px;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+.resmush-settings-ui .rsmt-cols .rsmt-panel h2.unoptimizedimages {
+  margin-top: 0;
+}
+.resmush-settings-ui .rsmt-cols .rsmt-panel:last-child {
+  margin-bottom: 0;
+}
+.resmush-settings-ui .rsmt-cols.message-wrapper {
+  background: none;
+}
+@media (max-width: 1100px) {
+  .resmush-settings-ui .rsmt-cols {
+    min-height: 0;
+  }
+}
+.resmush-settings-ui .rsmt-settings input[type=checkbox] {
+  margin-right: 6px;
+}
+.resmush-settings-ui .rsmt-settings span {
+  display: block;
+}
+.resmush-settings-ui .rsmt-settings .number-small {
+  width: 70px;
+  margin-top: 0;
+}
+.resmush-settings-ui .shortpixel-message {
+  background-color: #e6faff;
+  color: #1ABDCA;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  margin-left: 12px;
+  padding: 16px;
+}
+.resmush-settings-ui .shortpixel-message img {
+  width: 100%;
+}
+.resmush-settings-ui .shortpixel-message ul {
+  list-style: none;
+}
+.resmush-settings-ui .shortpixel-message ul li {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  text-align: center;
+}
+.resmush-settings-ui .shortpixel-message .button-wrapper {
+  text-align: center;
+  margin: 36px 0 10px;
+}
+.resmush-settings-ui .shortpixel-message .button-wrapper a {
+  font-size: 20px;
+  padding: 8px 8px;
+  width: 60%;
+  font-weight: 700;
+  color: #1ABDCA;
+  border-color: #1ABDCA;
+}
+.resmush-settings-ui .shortpixel-message .button-wrapper a:hover {
+  background-color: #1ABDCA;
+  color: #e6faff;
+}
+.resmush-settings-ui .shortpixel-message .link-under {
+  text-align: center;
+  margin-bottom: 16px;
+}
+.resmush-settings-ui .shortpixel-message .link-under a {
+  color: #1ABDCA;
+}
+@media (max-width: 1100px) {
+  .resmush-settings-ui .shortpixel-message {
+    max-width: 500px;
+    margin: 50px auto;
+  }
+}
+.resmush-settings-ui .rsmt-tab-feedback ul {
+  list-style: none;
+}
+.resmush-settings-ui .rsmt-tab-feedback ul li:before {
+  content: "\f147";
+  font-family: "dashicons";
+  font-size: 18px;
+  vertical-align: bottom;
+  line-height: 18px;
+  margin-right: 4px;
+}
+.resmush-settings-ui .rsmt-tab-actions .support {
+  padding-left: 60px;
+}
+.rsmt-pro-badge,
+.resmush-settings-ui .rsmt-settings .rsmt-pro-badge,
+.resmush-settings-ui .rsmt-settings span.rsmt-pro-badge {
+  display: inline-block;
+  width: auto;
+  vertical-align: middle;
+  margin: 0 0 0 8px;
+  padding: 1px 7px;
+  background-color: #1ABDCA;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+  border-radius: 3px;
+  text-transform: uppercase;
+  text-shadow: none;
+  white-space: nowrap;
+}
+
+.resmush-settings-ui .quality-buttons {
+  display: flex;
+  flex-wrap: wrap;
+}
+.resmush-settings-ui .quality-buttons .quality-button {
+  background-color: #fff;
+  border: 1px solid #1ABDCA;
+  color: #1ABDCA;
+  font-weight: bold;
+  padding: 8px 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  flex-grow: 1;
+  text-align: center;
+  margin: 0;
+  box-sizing: border-box;
+}
+.resmush-settings-ui .quality-buttons .quality-button:hover {
+  background-color: #1ABDCA;
+  border-color: #1ABDCA;
+  color: #ffffff;
+}
+.resmush-settings-ui .quality-buttons .quality-button.active {
+  background-color: #1ABDCA;
+  border-color: #1ABDCA;
+  color: #ffffff;
+  font-weight: bold;
+}
+@media (max-width: 600px) {
+  .resmush-settings-ui .quality-buttons .quality-button {
+    flex: 1 1 100%;
+    border-radius: 5px;
+  }
+}
+@media (min-width: 601px) {
+  .resmush-settings-ui .quality-buttons .quality-button {
+    flex: 1;
+    border-radius: 0;
+  }
+  .resmush-settings-ui .quality-buttons .quality-button:first-child {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+  }
+  .resmush-settings-ui .quality-buttons .quality-button:last-child {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+  .resmush-settings-ui .quality-buttons .quality-button:not(:last-child) {
+    border-right: none;
+  }
+}
+.resmush-settings-ui .update-nag {
+  background-color: #ffffe0;
+  border-color: #e6db55;
+  color: #333;
+  position: relative;
+  margin: 0;
+  padding: 10px 20px;
+}
+.resmush-settings-ui .update-nag p {
+  margin: 0;
+}
+.resmush-settings-ui .update-nag p:last-child {
+  margin-bottom: 0;
+}
+.resmush-settings-ui .update-nag a {
+  color: #0073aa;
+  text-decoration: none;
+  border-bottom: 1px dotted #0073aa;
+}
+.resmush-settings-ui .update-nag a:hover {
+  border-bottom-style: solid;
+}
+
+/* ShortPixel-style solid action buttons.
+   Blue variant: Optimize all / Save Changes / Stop bulk optimization.
+   Orange variant: Restore ALL my original images. */
+.rsmt-sp-button,
+.rsmt-sp-button.button,
+.rsmt-sp-button.button-primary,
+input.rsmt-sp-button[type=submit] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 22px;
+  min-height: 44px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+  color: #fff;
+  text-shadow: none;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 200ms linear, border-color 200ms linear, transform 60ms ease, box-shadow 200ms linear;
+  box-shadow: 0 1px 1px rgba(171, 170, 170, 0.3);
+  outline: none;
+  -webkit-appearance: none;
+}
+.rsmt-sp-button:active,
+.rsmt-sp-button.button:active,
+input.rsmt-sp-button[type=submit]:active {
+  transform: translateY(1px);
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+}
+.rsmt-sp-button:disabled,
+.rsmt-sp-button[disabled] {
+  cursor: progress;
+}
+
+/* Blue variant — Optimize all images, Save Changes, Stop bulk optimization */
+.rsmt-sp-button--blue,
+.rsmt-sp-button--blue.button-primary,
+input.rsmt-sp-button--blue[type=submit] {
+  background: #1ABDCA;
+  border-color: #1ABDCA;
+  color: #fff;
+}
+.rsmt-sp-button--blue:hover,
+.rsmt-sp-button--blue:focus,
+.rsmt-sp-button--blue:active,
+.rsmt-sp-button--blue.button-primary:hover,
+.rsmt-sp-button--blue.button-primary:focus,
+.rsmt-sp-button--blue.button-primary:active,
+input.rsmt-sp-button--blue[type=submit]:hover,
+input.rsmt-sp-button--blue[type=submit]:focus,
+input.rsmt-sp-button--blue[type=submit]:active {
+  background: #32d7e5;
+  border-color: #32d7e5;
+  color: #fff;
+}
+.rsmt-sp-button--blue:focus-visible {
+  box-shadow: 0 0 0 3px rgba(26, 189, 202, 0.35);
+}
+.rsmt-sp-button--blue:disabled,
+.rsmt-sp-button--blue[disabled] {
+  background: #1ABDCA;
+  border-color: #1ABDCA;
+  color: #fff;
+  opacity: 0.8;
+}
+
+/* Orange variant — Restore ALL my original images */
+.rsmt-sp-button.rsmt-sp-button--orange,
+.rsmt-sp-button--orange.button,
+.rsmt-sp-button--orange.button-primary,
+button.rsmt-sp-button--orange {
+  background: #f57224;
+  border-color: #f57224;
+  color: #fff;
+}
+.rsmt-sp-button.rsmt-sp-button--orange:hover,
+.rsmt-sp-button.rsmt-sp-button--orange:focus,
+.rsmt-sp-button.rsmt-sp-button--orange:active,
+.rsmt-sp-button--orange.button:hover,
+.rsmt-sp-button--orange.button:focus,
+.rsmt-sp-button--orange.button:active,
+button.rsmt-sp-button--orange:hover,
+button.rsmt-sp-button--orange:focus,
+button.rsmt-sp-button--orange:active {
+  background: #ff8c47;
+  border-color: #ff8c47;
+  color: #fff;
+}
+.rsmt-sp-button--orange:focus-visible {
+  box-shadow: 0 0 0 3px rgba(245, 114, 36, 0.35);
+}
+.rsmt-sp-button.rsmt-sp-button--orange:disabled,
+.rsmt-sp-button.rsmt-sp-button--orange[disabled],
+button.rsmt-sp-button--orange:disabled,
+button.rsmt-sp-button--orange[disabled] {
+  background: #ff8c47;
+  border-color: #ff8c47;
+  color: #fff;
+  opacity: 0.95;
+}
+
+/* Rotating SVG icon — only spins when the button has .is-spinning */
+.rsmt-sp-button .rsmt-spin-icon {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+}
+.rsmt-sp-button .rsmt-restore-label {
+  white-space: nowrap;
+}
+.rsmt-sp-button.is-spinning .rsmt-spin-icon {
+  animation: rsmt-spin 0.85s linear infinite;
+}
+@keyframes rsmt-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/*# sourceMappingURL=resmush_admin.css.map */

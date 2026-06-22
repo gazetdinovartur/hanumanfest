@@ -1,0 +1,195 @@
+# Copyright (C) 2020 JivoChat
+# This file is distributed under the same license as the JivoChat plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: JivoChat 1.3.5.2\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/JivoChat\n"
+"POT-Creation-Date: 2020-06-11T19:06:11+03:00\n"
+"PO-Revision-Date: 2022-05-06 20:05+1000\n"
+"Last-Translator:  Bakotin <bakotin@jivochat.com>\n"
+"Language-Team: \n"
+"Language: de_CH\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0.1\n"
+"X-Domain: jivochat\n"
+
+#. Plugin Name of the plugin
+#. Author of the plugin
+#: jivosite.php:44
+msgid "JivoChat"
+msgstr "JivoChat"
+
+#. Plugin URI of the plugin
+msgid "https://jivochat.com/"
+msgstr "https://jivochat.de/"
+
+#. Description of the plugin
+msgid "Omnichannel Live Chat and Help Desk plugin, optimized for WordPress. Free, fast, easy to install and to use. Turn your visitors into happy customers!"
+msgstr "Omnichannel Live Chat und Helpdesk-Plugin, optimiert für WordPress. Kostenlos, schnell, einfach zu installieren und zu verwenden."
+
+#. Author URI of the plugin
+#: templates/post-install.php:24 templates/post-install.php:35
+#: templates/post-install.php:36 templates/switch_off.php:10
+#: templates/switch_off.php:11 templates/switch_on.php:10
+#: templates/switch_on.php:11
+msgid "www.jivochat.com"
+msgstr "www.jivochat.de"
+
+#: templates/login.php:14
+msgid "Your Jivo E-mail Address"
+msgstr "Ihre Jivo-E-Mail-Adresse"
+
+#: templates/login.php:24
+msgid "Please enter the e-mail address you use for login."
+msgstr "Bitte geben Sie die E-Mail-Adresse ein, die Sie für die Anmeldung verwenden."
+
+#: templates/login.php:34 templates/signup.php:34
+msgid "Password"
+msgstr "Passwort"
+
+#: templates/login.php:44
+msgid "Please enter the password for your JivoChat account."
+msgstr "Bitte geben Sie das Passwort für Ihr JivoChat-Konto ein."
+
+#: templates/login.php:54
+msgid "Login"
+msgstr "Anmeldung"
+
+#: templates/login.php:60
+msgid "Forgot your password? You can reset it <a class=\"jivosite-redirect\" href=\"https://app.jivosite.com/password/reset?utm_source=wordpress\" target=\"_blank\">here</a>"
+msgstr "Haben Sie Ihr Passwort vergessen? Sie können es <a class=\"jivosite-redirect\" href=\"https://app.jivosite.com/password/reset?utm_source=wordpress\" target=\"_blank\">hier</a> zurücksetzen"
+
+#: templates/login.php:68
+msgid "You don't have a Jivo account? <span id=\"signup_link\" class=\"jivosite-redirect\">Sign up</span>"
+msgstr "Sie haben kein Jivo-Konto? <span id=\"signup_link\" class=\"jivosite-redirect\">Anmelden</span>"
+
+#: templates/page.php:20 templates/page.php:35 templates/page.php:49
+#: templates/page.php:63
+msgid "jivochat_logo.svg"
+msgstr "jivochat_logo.svg"
+
+#: templates/post-install.php:4
+msgid "Congratulations, you have successfully installed JivoChat widget to your website!"
+msgstr "Herzlichen Glückwunsch, Sie haben das JivoChat-Widget erfolgreich auf Ihrer Website installiert!"
+
+#: templates/post-install.php:9
+msgid "You are now able to see live chat widget on your webiste. Now you can customize & configure your JivoChat widget. Click the button below to go to web app and start testing it!"
+msgstr "Sie können jetzt das Live-Chat-Widget auf Ihrer Website sehen. Jetzt können Sie Ihr JivoChat-Widget anpassen und konfigurieren. Klicken Sie auf die Schaltfläche unten, um zur Web-App zu gelangen und sie zu testen!"
+
+#: templates/post-install.php:14
+msgid "Go to Web Application"
+msgstr "Gehen Sie zur Webanwendung"
+
+#: templates/post-install.php:19
+msgid "You can either use our web app, our desktop apps for Windows, macOS, or mobile apps for iOS and Android. We recommend using desktop and mobile apps simultaneously."
+msgstr "Sie können entweder unsere Web-App, unsere Desktop-Apps für Windows, macOS oder mobile Apps für iOS und Android verwenden. Wir empfehlen die gleichzeitige Verwendung von Desktop- und mobilen Apps."
+
+#: templates/post-install.php:24
+msgid "Install Apps"
+msgstr "Apps installieren"
+
+#: templates/post-install.php:29 templates/switch_off.php:4
+#: templates/switch_on.php:4
+msgid "Have questions? Don't worry, we offer 24/7 live support!"
+msgstr "Habe Fragen? Keine Sorge, wir bieten 24/7 Live-Support!"
+
+#: templates/post-install.php:30 templates/switch_off.php:5
+#: templates/switch_on.php:5
+msgid "Ask us anything and we will help you onboarding."
+msgstr "Fragen Sie uns etwas und wir helfen Ihnen beim Onboarding."
+
+#: templates/post-install.php:35 templates/switch_off.php:10
+#: templates/switch_on.php:10
+msgid "Live Chat with Us"
+msgstr "Live Chat mit uns"
+
+#: templates/post-install.php:36 templates/switch_off.php:11
+#: templates/switch_on.php:11
+msgid "Knowledge Base"
+msgstr "Wissensbasis"
+
+#: templates/signup.php:7
+msgid "Create a JivoChat account"
+msgstr "Erstellen Sie ein JivoChat-Konto"
+
+#: templates/signup.php:8
+msgid "to connect with your website"
+msgstr "um sich mit Ihrer Website zu verbinden"
+
+#: templates/signup.php:14
+msgid "Your Business E-mail Address"
+msgstr "Ihre geschäftliche E-Mail-Adresse"
+
+#: templates/signup.php:24
+msgid "Please specify the email you will use to login to the agent’s app and admin panel."
+msgstr "Bitte geben Sie die E-Mail-Adresse an, mit der Sie sich bei der App und im Admin-Bereich des Agenten anmelden."
+
+#: templates/signup.php:44
+msgid "Please create a new JivoChat account password. Password is least 6 characters long, contains at least one digit and uppercase letter."
+msgstr "Bitte erstellen Sie ein neues Passwort für das JivoChat-Konto. Das Passwort ist mindestens 6 Zeichen lang und enthält mindestens eine Ziffer und einen Großbuchstaben."
+
+#: templates/signup.php:54
+msgid "Agent Name"
+msgstr "Agentenname"
+
+#: templates/signup.php:64
+msgid "The agent name that will be displayed to website visitors in the JivoChat chat window."
+msgstr "Der Agentenname, der den Website-Besuchern im JivoChat-Chatfenster angezeigt wird."
+
+#: templates/signup.php:74
+msgid "Widget Language"
+msgstr "Widget-Sprache"
+
+#: templates/signup.php:85
+msgid "You can choose a language to have it in your JivoChat widget on your website. Suggested language for your JivoChat widget is: <b id=\"suggested_language\"></b><div>If you want to change it, please select an alternative at dropdown list.</div>"
+msgstr "Sie können eine Sprache auswählen, die in Ihrem JivoChat-Widget auf Ihrer Website enthalten sein soll. Die empfohlene Sprache für Ihr JivoChat-Widget lautet: <b id=\"suggested_language\"></b><div>Wenn Sie es ändern möchten, wählen Sie in der Dropdown-Liste eine Alternative aus.</div>"
+
+#: templates/signup.php:95
+msgid "Sign Up"
+msgstr "Anmelden"
+
+#: templates/signup.php:101
+msgid "By creating an account you agree to <a class=\"jivosite-caption\" href=\"https://www.jivochat.com/terms?utm_source=wordpress\" target=\"_blank\">Terms and Conditions</a> and <a class=\"jivosite-caption\" href=\"https://www.jivochat.com/files/privacy_policy.pdf?utm_source=wordpress\" target=\"_blank\">Privacy Policy</a>"
+msgstr "Durch die Erstellung eines Kontos stimmen Sie den <a class=\"jivosite-caption\" href=\"https://www.jivochat.de/terms?utm_source=wordpress\" target=\"_blank\">Allgemeinen Geschäftsbedingungen</a> und den <a class=\"jivosite-caption\" href=\"https://www.jivochat.com/files/privacy_policy.pdf?utm_source=wordpress\" target=\"_blank\">Datenschutzbestimmungen</a> zu"
+
+#: templates/signup.php:109
+msgid "Already have an account? <span id=\"login_link\" class=\"jivosite-redirect\">Log in</span>"
+msgstr "Sie haben bereits ein Konto? <span id=\"login_link\" class=\"jivosite-redirect\">Anmelden</span>"
+
+#: templates/switch_off.php:16
+msgid "If you would like to temporarily hide the JivoChat widget"
+msgstr "Wenn Sie das JivoChat-Widget vorübergehend ausblenden möchten"
+
+#: templates/switch_off.php:17
+msgid "from your website you can use the button below."
+msgstr "Von Ihrer Website aus können Sie die Schaltfläche unten verwenden."
+
+#: templates/switch_off.php:24
+msgid "Hide JivoChat Widget"
+msgstr "JivoChat-Widget ausblenden"
+
+#: templates/switch_on.php:16
+msgid "Your JivoChat widget is currently hidden, you are missing clients!"
+msgstr "Ihr JivoChat-Widget ist derzeit ausgeblendet, Sie vermissen Clients!"
+
+#: templates/switch_on.php:17
+msgid "Click the button below to show your JivoChat widget."
+msgstr "Klicken Sie auf die Schaltfläche unten, um Ihr JivoChat-Widget anzuzeigen."
+
+#: templates/switch_on.php:24
+msgid "Show JivoChat Widget"
+msgstr "JivoChat Widget anzeigen"
+
+msgid "Login to your JivoChat account"
+msgstr "Melden Sie sich bei Ihrem JivoChat-Konto an,"
+
+msgid "to connect it to your store"
+msgstr "um eine Verbindung zu Ihrem Geschäft herzustellen"
+
+msgid "If you would like to use another JivoChat account, you can use this log out button to login with another account."
+msgstr "Wenn Sie ein anderes JivoChat-Konto verwenden möchten, können Sie sich über diese Abmeldeschaltfläche mit einem anderen Konto anmelden."
+
+msgid "Log Out"
+msgstr "Ausloggen"

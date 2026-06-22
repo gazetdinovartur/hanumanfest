@@ -1,0 +1,386 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Package Name\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-08-18 22:20+0300\n"
+"PO-Revision-Date: 2022-08-18 22:44+0300\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"X-Generator: Eazy Po 1.0.0.0\n"
+
+#: includes/class.ya-metrika-backend.php:28
+msgid "Yandex.Metrica settings"
+msgstr "Яндекс.Метрика Нaстройки"
+
+#: includes/class.ya-metrika-backend.php:29
+msgid "Yandex.Metrica"
+msgstr "Яндекс.Метрика"
+
+#: includes/class.ya-metrika-backend.php:54
+msgid "Tags"
+msgstr "Cчётчики"
+
+#: includes/class.ya-metrika-backend.php:68
+msgid "Tag number"
+msgstr "Номер счетчика"
+
+#: includes/class.ya-metrika-backend.php:75
+msgid "Session Replay"
+msgstr "Вебвизор"
+
+#: includes/class.ya-metrika-backend.php:92
+msgid "Extra settings"
+msgstr "Дополнительные настройки"
+
+#: includes/class.ya-metrika-backend.php:102
+msgid "Brands properties"
+msgstr "Свойство Бренда"
+
+#: includes/class.ya-metrika-backend.php:108
+msgid ""
+"You can send information about the brands of your online store to Yandex."
+"Metrica. Based on this data, Yandex.Metrica generates a report that helps, "
+"for example, to determine the most popular or profitable brand. <a href="
+"\"https://yandex.ru/support/metrica/ecommerce/wordpress.html#wordpress__set"
+"\" target=\"_blank\">More</a>"
+msgstr ""
+"В Метрику можно передавать информацию о брендах вашего интернет-магазина. На "
+"основе этих данных в Метрике формируется отчет, который помогает, например, "
+"определить наиболее популярный или прибыльный бренд. <a href=\"https://"
+"yandex.ru/support/metrica/ecommerce/wordpress.html#wordpress__set\" target=\""
+"_blank\">Подробнее</a>"
+
+#: includes/class.ya-metrika-backend.php:132
+msgid "Brand type"
+msgstr "Тип бренда"
+
+#: includes/class.ya-metrika-backend.php:135
+msgid "Term"
+msgstr "Термин"
+
+#: includes/class.ya-metrika-backend.php:136
+msgid "Custom field"
+msgstr "Произвольное поле"
+
+#: includes/class.ya-metrika-backend.php:144
+msgid "Taxonomy or custom field of brand"
+msgstr "Таксономия или произвольное поле бренда"
+
+#: includes/class.ya-metrika-backend.php:147
+msgid ""
+"*To transfer the product's trademark to the \"brand\" field, specify the "
+"name of the field that is used on your site."
+msgstr ""
+"Для передачи торговой марки товара в поле \"brand\", необходимо указать "
+"название поля, которое используется на вашем сайте."
+
+#: includes/class.ya-metrika-backend.php:159
+msgid "Targets settings"
+msgstr "Настройка целей"
+
+#: includes/class.ya-metrika-backend.php:166
+msgid ""
+"Goals help track and analyze the meaningful actions of visitors on the site. "
+"<a href=\"https://yandex.ru/support/metrica/general/recommend-goals.html\" "
+"target=\"_blank\">List of goals</a>"
+msgstr ""
+"Цели помогают отследить и проанализировать значимые действия посетителей на "
+"сайте. <a href=\"https://yandex.ru/support/metrica/general/recommend-goals."
+"html\" target=\"_blank\">Список целей</a>"
+
+#: includes/class.ya-metrika-backend.php:191
+msgid "Target"
+msgstr "Цель"
+
+#: includes/class.ya-metrika-backend.php:194
+#: includes/class.ya-metrika-backend.php:197
+msgid "Target parameter"
+msgstr "Параметр цели"
+
+#: includes/class.ya-metrika-backend.php:200
+msgid "ym-register"
+msgstr "ym-register"
+
+#: includes/class.ya-metrika-backend.php:202
+msgid "The visitor has registered on the site"
+msgstr "Посетитель зарегистрировался на сайте"
+
+#: includes/class.ya-metrika-backend.php:205
+msgid "ym-submit-contacts"
+msgstr "ym-register"
+
+#: includes/class.ya-metrika-backend.php:207
+msgid "Left contact information"
+msgstr "Оставил контактную информацию"
+
+#: includes/class.ya-metrika-backend.php:210
+msgid "ym-confirm-contact"
+msgstr "ym-confirm-contact"
+
+#: includes/class.ya-metrika-backend.php:212
+msgid "Confirmed contact information"
+msgstr "Подтвердил контактную информацию"
+
+#: includes/class.ya-metrika-backend.php:215
+msgid "ym-login"
+msgstr "ym-login"
+
+#: includes/class.ya-metrika-backend.php:217
+msgid "The visitor is logged in to the site"
+msgstr "Посетитель авторизовался на сайте"
+
+#: includes/class.ya-metrika-backend.php:220
+msgid "ym-subscribe"
+msgstr "ym-subscribe"
+
+#: includes/class.ya-metrika-backend.php:222
+msgid "The visitor subscribed to the mailing list"
+msgstr "Посетитель подписался на рассылку"
+
+#: includes/class.ya-metrika-backend.php:225
+msgid "ym-open-leadform"
+msgstr "ym-open-leadform"
+
+#: includes/class.ya-metrika-backend.php:227
+msgid "The visitor opened the application form"
+msgstr "Посетитель открыл форму заявки"
+
+#: includes/class.ya-metrika-backend.php:230
+msgid "ym-submit-leadform"
+msgstr "ym-submit-leadform"
+
+#: includes/class.ya-metrika-backend.php:232
+msgid "The visitor filled out and sent the application"
+msgstr "Посетитель заполнил и отправил заявку"
+
+#: includes/class.ya-metrika-backend.php:235
+msgid "ym-open-chat"
+msgstr "ym-open-chat"
+
+#: includes/class.ya-metrika-backend.php:237
+msgid "The visitor opened the chat"
+msgstr "Посетитель открыл чат"
+
+#: includes/class.ya-metrika-backend.php:240
+msgid "ym-send-message"
+msgstr "ym-send-message"
+
+#: includes/class.ya-metrika-backend.php:242
+msgid "The visitor sent a message in the chat"
+msgstr "Посетитель отправил сообщение в чате"
+
+#: includes/class.ya-metrika-backend.php:245
+msgid "ym-add-to-wishlist"
+msgstr "ym-add-to-wishlist"
+
+#: includes/class.ya-metrika-backend.php:247
+msgid "The visitor added the service to favorites"
+msgstr "Посетитель добавил услугу в избранное"
+
+#: includes/class.ya-metrika-backend.php:250
+#: includes/class.ya-metrika-backend.php:275
+msgid "ym-begin-checkout"
+msgstr "ym-begin-checkout"
+
+#: includes/class.ya-metrika-backend.php:252
+#: includes/class.ya-metrika-backend.php:277
+msgid "The visitor started placing an order"
+msgstr "Посетитель начал оформление заказа"
+
+#: includes/class.ya-metrika-backend.php:255
+msgid "ym-add-payment-info"
+msgstr "ym-add-payment-info"
+
+#: includes/class.ya-metrika-backend.php:257
+msgid "The visitor has chosen a payment method"
+msgstr "Посетитель выбрал способ оплаты"
+
+#: includes/class.ya-metrika-backend.php:260
+msgid "ym-purchase"
+msgstr "ym-purchase"
+
+#: includes/class.ya-metrika-backend.php:262
+msgid "Successful payment"
+msgstr "Успешная оплата"
+
+#: includes/class.ya-metrika-backend.php:265
+msgid "ym-agree-meeting"
+msgstr "ym-agree-meeting"
+
+#: includes/class.ya-metrika-backend.php:267
+msgid "The visitor confirmed the meeting"
+msgstr "Посетитель подтвердил встречу"
+
+#: includes/class.ya-metrika-backend.php:270
+msgid "ym-add-to-cart"
+msgstr "ym-add-to-cart"
+
+#: includes/class.ya-metrika-backend.php:272
+msgid "The visitor added the product to the cart"
+msgstr "Посетитель добавил товар в корзину"
+
+#: includes/class.ya-metrika-backend.php:280
+msgid "ym-show-contacts"
+msgstr "ym-show-contacts"
+
+#: includes/class.ya-metrika-backend.php:282
+msgid "View contacts of a seller or contractor"
+msgstr "Просмотр контактов продавца или исполнителя"
+
+#: includes/class.ya-metrika-backend.php:285
+msgid "ym-successful-lead"
+msgstr "ym-successful-lead"
+
+#: includes/class.ya-metrika-backend.php:287
+msgid "Confirmed ad placement"
+msgstr "Подтвердил размещение объявления"
+
+#: includes/class.ya-metrika-backend.php:290
+msgid "ym-get-response"
+msgstr "ym-get-response"
+
+#: includes/class.ya-metrika-backend.php:292
+msgid "The visitor responded to the ad"
+msgstr "Посетитель откликнулся на объявление"
+
+#: includes/class.ya-metrika-backend.php:295
+msgid "ym-contact-constractor"
+msgstr "ym-contact-constractor"
+
+#: includes/class.ya-metrika-backend.php:297
+msgid "The visitor contacted the seller or contractor"
+msgstr "Посетитель связался с продавцом или исполнителем"
+
+#: includes/class.ya-metrika-backend.php:300
+msgid "ym-agree-constractor"
+msgstr "ym-agree-constractor"
+
+#: includes/class.ya-metrika-backend.php:302
+msgid "Successful contact"
+msgstr "Успешный контакт"
+
+#: includes/class.ya-metrika-backend.php:305
+msgid "ym-complete-order"
+msgstr "ym-complete-order"
+
+#: includes/class.ya-metrika-backend.php:307
+msgid "The contractor provided a service"
+msgstr "Исполнитель оказал услугу"
+
+#: includes/class.ya-metrika-backend.php:318
+msgid "Element selector"
+msgstr "Селектор элемента"
+
+#: includes/class.ya-metrika-backend.php:321
+msgid "Selector name"
+msgstr "Название селектора"
+
+#: includes/class.ya-metrika-backend.php:323
+msgid "Specify an element's CSS selector"
+msgstr "Укажите CSS-селектор элемента"
+
+#: includes/class.ya-metrika-backend.php:334
+msgid "Event"
+msgstr "Событие"
+
+#: includes/class.ya-metrika-backend.php:337
+msgid "Event property"
+msgstr "Свойство события"
+
+#: includes/class.ya-metrika-backend.php:338
+msgid "Specify a JS event to broadcast the target"
+msgstr "Укажите JS-событие для трансляции цели"
+
+#: includes/class.ya-metrika-backend.php:469
+msgid "Add"
+msgstr "Добавить"
+
+#: includes/class.ya-metrika-logs.php:28
+msgid "Error "
+msgstr "Error"
+
+#: includes/class.ya-metrika-logs.php:36
+msgid "There are no logs"
+msgstr "Логи отсутствуют"
+
+#: includes/class.ya-metrika-woocommerce.php:44
+msgid "Brand taxonomy not found on site"
+msgstr "Таксономия бренда отсутствует на сайте"
+
+#: includes/class.ya-metrika-woocommerce.php:68
+#, php-format
+msgid "In the theme \"%s\" there is no hook on the product page \"%s\""
+msgstr "В теме \\\"%s\\\" на странице товара отсутствует хук \\\"%s\\\""
+
+#: includes/class.ya-metrika.php:30
+#, php-format
+msgid "Invalid tag number for \"%s\""
+msgstr "Неверный номер счетчика \\\"%s\\\""
+
+#: includes/class.ya-metrika.php:49
+#, php-format
+msgid ""
+"No Yandex.Metrica tag has been installed on the site yet. To add a tag, <a "
+"href=\"%s\" target=\"_blank\">create one</a> and <a href=\"%s\" target="
+"\"_blank\">add its number</a> on <a href=\"%s\">the settings page</a> of the "
+"plugin."
+msgstr ""
+"На сайте еще не установлен ни один счетчик Яндекс Метрики. Для добавления "
+"\\\" \\\"счетчика <a href=\\\\\\\"%s\\\\\\\" target=\\\\\\\"_blank\\\\\\\">"
+"создайте его</a> и <a href=\\\\\\\"%s\\\\\\\" \\\" \\\"target=\\\\\\\"_"
+"blank\\\\\\\">добавьте его номер</a> на <a href=\\\\\\\"%s\\\\\\\">странице "
+"\\\" \\\"настроек</a> плагина."
+
+#: includes/class.ya-metrika.php:56
+#, php-format
+msgid ""
+"Yandex.Metrica tags were found installed on the site. We automatically added "
+"them to the <a href=\"%s\">settings</a>. We recommend disabling tags in all "
+"other plugins or deactivating other plugins that work with the Yandex."
+"Metrica tags."
+msgstr ""
+"На сайте были найдены установленные счетчики Яндекс Метрики. Мы "
+"автоматически добавили их в <a href=\\\"%s\\\">настройки</a>. Рекомендуем "
+"отключить счетчики во всех остальных плагинах или деактивировать другие "
+"плагины работающие с метрикой."
+
+#: includes/class.ya-metrika.php:93 includes/class.ya-metrika.php:94
+msgid "For the plugin to work, the WordPress version must be 5.2.9 or higher"
+msgstr "Для работы плагина версия WordPress должна быть 5.2.9 или выше"
+
+#: includes/class.ya-metrika.php:123
+msgid "Settings"
+msgstr "Настройки"
+
+#: view/index.php:8
+msgid ""
+"To get started, specify the numbers of the required Metrica counters and "
+"company details. The counter number is located on the page <a target=\"_blank"
+"\" href=\"https://metrika.yandex.ru/list?\">My counters</a> next to the "
+"website address. You can create a new counter in the Yandex.Metrica interface"
+msgstr ""
+"Для начала работы укажите номера нужных счётчиков Яндекс.Метрики и заполните "
+"данные о компании.\n"
+"Номер счётчика указан на странице \\\"Мои счетчики (<a href=\\\"%1$s\\\" "
+"target=\\\"_blank\\\">%1$s</a>)\\\" в Метрике рядом с адресом сайта.<br>\n"
+"Создать новый счётчик можно в интерфейсе Метрики по ссылке <a href=\\\"%2$"
+"s\\\" target=\\\"_blank\\\">%2$s</a>\""
+
+#: view/index.php:24
+msgid "View logs"
+msgstr "Посмотреть логи"
+
+#: view/index.php:25
+msgid "Hide logs"
+msgstr "Скрыть логи"
