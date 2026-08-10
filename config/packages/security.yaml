@@ -1,13 +1,17 @@
 security:
     password_hashers:
+        Symfony\Component\Security\Core\User\InMemoryUser: plaintext
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+    role_hierarchy:
+        ROLE_SUPER_ADMIN: [ROLE_ADMIN]
 
     providers:
         admin_users:
             memory:
                 users:
                     admin:
-                        password: '%app.admin_password_hash%'
+                        password: '%app.admin_password%'
                         roles: ['ROLE_SUPER_ADMIN']
 
     firewalls:
@@ -22,10 +26,13 @@ security:
         main:
             lazy: true
             provider: admin_users
+            login_throttling:
+                max_attempts: 5
+                interval: '15 minutes'
             form_login:
                 login_path: admin_login
                 check_path: admin_login
-                default_target_path: admin_application_index
+                default_target_path: admin
                 enable_csrf: true
                 csrf_token_id: authenticate
             logout:
@@ -35,7 +42,7 @@ security:
     access_control:
         - { path: ^/admin/login, roles: PUBLIC_ACCESS }
         - { path: ^/admin/logout, roles: PUBLIC_ACCESS }
-        - { path: ^/admin, roles: ROLE_SUPER_ADMIN }
+        - { path: ^/admin, roles: ROLE_ADMIN }
 
 when@test:
     security:

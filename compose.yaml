@@ -1,6 +1,6 @@
-
 services:
   php:
+    image: hanumanfest-php:latest
     build:
       context: .
       dockerfile: docker/php/Dockerfile

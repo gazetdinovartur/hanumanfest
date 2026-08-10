@@ -1,0 +1,112 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Галерея «Как это было»{% endblock %}
+
+{% block head_stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/admin-gallery.css') }}">
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+    <script src="{{ asset('js/admin-gallery.js') }}" defer></script>
+{% endblock %}
+
+{% block main %}
+<div
+    class="hf-gallery"
+    data-upload-url="{{ path('admin_gallery_upload') }}"
+    data-reorder-url="{{ path('admin_gallery_reorder') }}"
+    data-update-url="{{ path('admin_gallery_item', {id: 0})|replace({'/0': '/__ID__'}) }}"
+    data-delete-url="{{ path('admin_gallery_delete', {id: 0})|replace({'/0': '/__ID__'}) }}"
+    data-csrf="{{ galleryCsrf }}"
+>
+    <section class="hf-gallery__about">
+        <p class="hf-gallery__about-lead">
+            Фото для карусели на главной странице — блок <strong>«Как это было»</strong>
+            (<a href="{{ path('site_home') }}#late" target="_blank" rel="noopener">посмотреть на сайте ↗</a>).
+        </p>
+        <details class="hf-gallery__about-details">
+            <summary>Что сюда не кладём</summary>
+            <ul class="hf-gallery__about-list">
+                <li><strong>Главный экран</strong> — фон и промо-видео первого экрана</li>
+                <li><strong>Специальные гости / Музыканты / Мастера</strong> — портреты людей</li>
+                <li><strong>Отзывы</strong> — фото к отзывам участников</li>
+                <li><strong>Инфоблоки</strong> — иллюстрации к текстовым блокам</li>
+                <li><strong>Настройки</strong> — логотип и фон футера</li>
+            </ul>
+        </details>
+    </section>
+
+    <div class="hf-gallery__alert hf-gallery__alert--error is-hidden" data-alert-error role="alert"></div>
+    <div class="hf-gallery__alert hf-gallery__alert--success is-hidden" data-alert-success role="status"></div>
+
+    <section class="hf-gallery__upload">
+        <div class="hf-gallery__dropzone" data-dropzone tabindex="0" role="button" aria-label="Загрузить фото">
+            <input type="file" class="hf-gallery__input" data-file-input accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif" multiple hidden>
+            <div class="hf-gallery__dropzone-inner">
+                <p class="hf-gallery__dropzone-title">Добавить фото в карусель</p>
+                <p class="hf-gallery__dropzone-hint">Перетащите сюда или нажмите · JPG, PNG, WEBP · до 12 МБ</p>
+            </div>
+            <div class="hf-gallery__loading is-hidden" data-loading>Загружаем…</div>
+        </div>
+
+        <div class="hf-gallery__batch is-hidden" data-batch>
+            <div class="hf-gallery__batch-head">
+                <strong data-batch-count>0 файлов</strong>
+                <button type="button" class="btn btn-secondary btn-sm" data-batch-reset>Сбросить</button>
+                <button type="button" class="btn btn-primary btn-sm" data-batch-submit>Загрузить</button>
+            </div>
+            <ul class="hf-gallery__batch-list" data-batch-list></ul>
+        </div>
+    </section>
+
+    <section class="hf-gallery__library">
+        <header class="hf-gallery__library-head">
+            <div>
+                <h2 class="hf-gallery__library-title">Все фото</h2>
+                <p class="hf-gallery__library-hint">
+                    Порядок карточек = порядок в карусели на сайте · перетаскивайте ⋮⋮ · подпись — alt-текст при наведении
+                </p>
+            </div>
+            <div class="hf-gallery__stats">
+                <span class="hf-gallery__stat" title="Видны в карусели на главной">На сайте: <strong data-stat-published>{{ publishedCount }}</strong></span>
+                <span class="hf-gallery__stat" title="Только в админке, на сайте не показываются">Скрытые: <strong data-stat-hidden>{{ hiddenCount }}</strong></span>
+                <span class="hf-gallery__count" data-item-count>{{ items|length }}</span>
+            </div>
+        </header>
+
+        <div class="hf-gallery__filters" role="tablist" aria-label="Фильтр фото">
+            <button type="button" class="hf-gallery__filter is-active" data-filter="all" role="tab" aria-selected="true">Все</button>
+            <button type="button" class="hf-gallery__filter" data-filter="published" role="tab" aria-selected="false">На сайте</button>
+            <button type="button" class="hf-gallery__filter" data-filter="hidden" role="tab" aria-selected="false">Скрытые</button>
+        </div>
+
+        <p class="hf-gallery__empty{% if items|length %} is-hidden{% endif %}" data-empty>Фото пока нет — загрузите первые выше.</p>
+        <p class="hf-gallery__empty hf-gallery__empty--filter is-hidden" data-empty-filter>Нет фото в этой группе.</p>
+
+        <ul class="hf-gallery__grid" data-grid>
+            {% for item in items %}
+                <li class="hf-gallery__card" data-id="{{ item.id }}" data-published="{{ item.published ? '1' : '0' }}">
+                    <div class="hf-gallery__card-drag" data-drag-handle title="Перетащить" aria-label="Перетащить">⋮⋮</div>
+                    <div class="hf-gallery__card-image">
+                        <img src="{{ asset(public_upload_url(item.imagePath)) }}" alt="{{ item.caption|default('') }}">
+                        {% if not item.published %}
+                            <span class="hf-gallery__badge">Скрыто</span>
+                        {% endif %}
+                    </div>
+                    <div class="hf-gallery__card-body">
+                        <input type="text" class="hf-gallery__caption" value="{{ item.caption|default('') }}" placeholder="Подпись (необязательно)" maxlength="255" data-caption>
+                        <label class="hf-gallery__published">
+                            <input type="checkbox" data-published {% if item.published %}checked{% endif %}>
+                            Показывать на сайте
+                        </label>
+                        <button type="button" class="hf-gallery__delete" data-delete title="Удалить">Удалить</button>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+</div>
+{% endblock %}

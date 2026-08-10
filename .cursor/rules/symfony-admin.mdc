@@ -1,0 +1,32 @@
+---
+description: EasyAdmin 5 — стандарт студии (om-brand layout + om-player UX). При правках админки.
+globs: "**/src/Admin/**,**/Admin/*CrudController.php,**/Controller/Admin/**,**/templates/admin/**,**/templates/bundles/EasyAdminBundle/**,**/public/css/admin*.css,**/public/js/admin*.js"
+alwaysApply: false
+---
+
+# Symfony Admin (EasyAdmin 5)
+
+**Канон:** `/Users/arturlun/projects/ом личный бренд/corpus/studio/docs/admin-standard.md` (или @-файл в чате).
+
+**Эталоны:** layout/security/singleton/private uploads/splice DnD → **om-brand**; DnD UX/upload/form theme/`admin.css` → **om-player** `backend/`. Не копировать чужой проект без запроса в задаче.
+
+## Обязательно перед «админка готова»
+
+- [ ] Router/menu: dashboard и CRUD без 500
+- [ ] Create/Edit/Delete или осознанно отключены (singleton!)
+- [ ] Русские labels, кнопки, validation
+- [ ] Поля одной ширины; checkbox/TomSelect/Slug — смотреть в браузере
+- [ ] Upload public vs private download; DnD + CSRF; при фильтрах — splice, не полный rewrite
+- [ ] Observe через единый `qa` + чеклист в admin-standard
+
+## DO
+
+1. `App\Admin` (CRUD) + `App\Controller\Admin` (custom HTTP) с `#[IsGranted('ROLE_ADMIN')]`.
+2. Глобальный `css/admin-custom.css`, dashboard со счётчиками, `login_throttling` 5/15.
+3. Public uploads → `public/uploads/…`; физическое удаление файлов при delete/replace.
+
+## DON'T
+
+- НЕ текстовые поля вместо ImageField для картинок
+- НЕ JSON/path-строки вместо понятного UI
+- НЕ English leftovers в кнопках EA

@@ -70,7 +70,7 @@ header {
   color: var(--brand-accent);
 }
 
-#about, #program, #register, #contacts, #infoblocks, #guest {
+#about, #program, #register, #contacts, #infoblocks, #guest, #guests, #masters, #cost {
   scroll-margin-top: 70px;
 }
 
@@ -81,12 +81,6 @@ header {
 /* HERO */
 .hero {
   position: relative;
-  min-height: 85vh;
-  background:
-    linear-gradient(160deg, rgba(48, 48, 48, 0.55), rgba(246, 84, 20, 0.35)),
-    #303030;
-  background-size: cover;
-  background-position: center;
 }
 .hero-section {
   position: relative;
@@ -1207,5 +1201,23 @@ color: #fff;
 
 .forminator-select.forminator-select-dropdown-container--open .forminator-select-dropdown .select2-results {
   margin-top: 22px !important;
+}
+
+/* Registration widget: avoid layout jump on recalculate */
+.hf-reg-status {
+  min-height: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.hf-reg-meta {
+  min-height: 1.25rem;
+}
+
+.hf-reg-pricing {
+  transition: opacity 0.15s ease;
+}
+
+[data-uae-widget="registration"].is-calculating .hf-reg-pricing {
+  opacity: 0.65;
 }
 

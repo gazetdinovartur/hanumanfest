@@ -2,7 +2,11 @@
 
 namespace App\Admin;
 
+use App\Service\Admin\AdminDashboardStatsService;
+use App\Infrastructure\GoogleSheets\GoogleSheetsRegistrationsReference;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -11,32 +15,68 @@ use Symfony\Component\HttpFoundation\Response;
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
 class DashboardController extends AbstractDashboardController
 {
+    public function __construct(
+        private readonly AdminDashboardStatsService $dashboardStats,
+        private readonly GoogleSheetsRegistrationsReference $registrations,
+    ) {
+    }
+
     public function index(): Response
     {
-        return $this->redirectToRoute('admin_application_index');
+        $stats = $this->dashboardStats->getRegistrationStats();
+
+        return $this->render('admin/dashboard.html.twig', [
+            'unpaidApplications' => $stats['unpaidApplications'],
+            'paidApplications' => $stats['paidApplications'],
+            'receivedSum' => $stats['receivedSum'],
+            'registrationsTotal' => $stats['registrationsTotal'],
+            'registrationsSpreadsheetUrl' => $this->registrations->spreadsheetViewUrl(),
+        ]);
     }
 
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('Universal Application Engine');
+            ->setTitle('Хануман Фест');
+    }
+
+    public function configureCrud(): Crud
+    {
+        return Crud::new()
+            ->addFormTheme('admin/form/form_theme.html.twig');
+    }
+
+    public function configureAssets(): Assets
+    {
+        return Assets::new()
+            ->addCssFile('css/admin-custom.css');
     }
 
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::linkToDashboard('Главная', 'fa fa-home');
+        yield MenuItem::linkToDashboard('Навигация', 'fa fa-compass');
 
-        yield MenuItem::section('Основное');
+        yield MenuItem::section('Сайт');
+        yield MenuItem::linkTo(HomeHeroCrudController::class, 'Главный экран', 'fa fa-image');
+        yield MenuItem::linkTo(SiteSettingsCrudController::class, 'Настройки', 'fa fa-sliders');
+        yield MenuItem::linkTo(GuestPersonCrudController::class, 'Специальные гости', 'fa fa-star');
+        yield MenuItem::linkTo(MusicianPersonCrudController::class, 'Музыканты', 'fa fa-music');
+        yield MenuItem::linkTo(MasterPersonCrudController::class, 'Мастера и практики', 'fa fa-hands');
+        yield MenuItem::linkToRoute('Галерея «Как это было»', 'fa fa-images', 'admin_gallery');
+        yield MenuItem::linkTo(FaqItemCrudController::class, 'FAQ', 'fa fa-circle-question');
+        yield MenuItem::linkTo(InfoBlockCrudController::class, 'Инфоблоки', 'fa fa-info');
+        yield MenuItem::linkTo(ReviewCrudController::class, 'Отзывы', 'fa fa-comment');
+        yield MenuItem::linkToUrl('Открыть сайт', 'fa fa-external-link', '/');
+
+        yield MenuItem::section('Регистрация');
         yield MenuItem::linkTo(ApplicationCrudController::class, 'Заявки', 'fa fa-file-alt');
         yield MenuItem::linkTo(PaymentCrudController::class, 'Платежи', 'fa fa-credit-card');
-        yield MenuItem::linkTo(UserCrudController::class, 'Пользователи', 'fa fa-users');
+        yield MenuItem::linkTo(UserCrudController::class, 'Пользователи', 'fa fa-user');
 
-        yield MenuItem::section('Проекты и цены');
-        yield MenuItem::linkTo(ProductCrudController::class, 'Проекты', 'fa fa-box');
-        yield MenuItem::linkTo(PricingPeriodCrudController::class, 'Периоды стоимости', 'fa fa-calendar');
-        yield MenuItem::linkTo(ParticipationOptionCrudController::class, 'Варианты участия', 'fa fa-list');
+        yield MenuItem::section('Цены');
+        yield MenuItem::linkToRoute('Периоды и цены', 'fa fa-table', 'admin_pricing_matrix');
 
-        yield MenuItem::section('Расписание');
+        yield MenuItem::section('Программа');
         yield MenuItem::linkTo(ScheduleEventCrudController::class, 'События', 'fa fa-clock');
     }
 }

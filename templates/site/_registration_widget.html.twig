@@ -1,9 +1,8 @@
 <div class="container py-2" data-uae-widget="registration" >
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <p class="text-muted" data-uae-active-period></p>
-            <div class="alert alert-danger d-none" data-uae-error></div>
-            <p class="small text-muted" data-uae-status></p>
+            <div class="alert alert-danger d-none mb-2" data-uae-error></div>
+            <p class="small text-muted mb-2 hf-reg-status" data-uae-status></p>
 
             <form class="row g-3" data-uae-form>
                 <div class="col-md-6">
@@ -20,7 +19,7 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Вариант участия</label>
-                    <select class="form-select" name="participationOptionCode" required></select>
+                    <select class="form-select" name="participationOptionId" required></select>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Количество взрослых</label>
@@ -45,10 +44,10 @@
                 </div>
 
                 <div class="col-12">
-                    <div class="border rounded p-3 bg-light">
+                    <div class="border rounded p-3 bg-light hf-reg-pricing">
                         <div>Итого: <strong data-uae-total>—</strong></div>
                         <div>К оплате сейчас: <strong data-uae-now>—</strong></div>
-                        <div class="small text-muted" data-uae-meta></div>
+                        <div class="small text-muted hf-reg-meta" data-uae-meta>&nbsp;</div>
                     </div>
                 </div>
 

@@ -1,0 +1,121 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Периоды и цены{% endblock %}
+
+{% block head_stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/admin-pricing-matrix.css') }}">
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+    <script src="{{ asset('js/admin-pricing-matrix.js') }}" defer></script>
+{% endblock %}
+
+{% block main %}
+<div
+    class="hf-price"
+    data-hf-pricing-matrix
+    data-default-start="{{ defaultStart }}"
+    data-default-end="{{ defaultEnd }}"
+    style="--hf-option-name-ch: {{ optionNameWidthCh }}"
+>
+    <form method="post" novalidate class="hf-price__form" id="hf-pricing-form">
+        <input type="hidden" name="_token" value="{{ csrf_token('pricing_matrix') }}">
+        <div data-hf-delete-bin hidden></div>
+
+        <div class="hf-price__sheet-wrap">
+            <table class="hf-price__sheet">
+                <thead>
+                <tr data-hf-head-row>
+                    <th class="hf-price__sticky">Вариант участия</th>
+                    {% for col in columns %}
+                        <th class="hf-price__period" data-hf-period-col data-key="{{ col.key }}">
+                            <div class="hf-price__period-card{% if col.isActive %} is-active{% endif %}">
+                                <div class="hf-price__period-top">
+                                    <span class="hf-price__badge">{% if col.isNew %}новый{% else %}#{{ col.key }}{% endif %}</span>
+                                    <button type="button" class="hf-price__icon-btn" data-hf-remove-period title="Удалить период" aria-label="Удалить период">×</button>
+                                </div>
+                                <label class="hf-price__field">
+                                    <span>Название</span>
+                                    <input type="text" name="periods[{{ col.key }}][name]" value="{{ col.name }}" required placeholder="Например, До 1 июня">
+                                </label>
+                                <label class="hf-price__field">
+                                    <span>Начало</span>
+                                    <input type="datetime-local" name="periods[{{ col.key }}][startAt]" value="{{ col.startAt }}" required>
+                                </label>
+                                <label class="hf-price__field">
+                                    <span>Окончание</span>
+                                    <input type="datetime-local" name="periods[{{ col.key }}][endAt]" value="{{ col.endAt }}" required>
+                                </label>
+                                <label class="hf-price__switch">
+                                    <input type="checkbox" name="periods[{{ col.key }}][isActive]" value="1" {% if col.isActive %}checked{% endif %} data-hf-active-toggle>
+                                    <span>Активен</span>
+                                </label>
+                            </div>
+                        </th>
+                    {% endfor %}
+                    <th class="hf-price__add-col" data-hf-add-col>
+                        <button type="button" class="hf-price__add-tile" data-hf-add-period>
+                            <span class="hf-price__add-plus">+</span>
+                            <span>Период</span>
+                        </button>
+                    </th>
+                </tr>
+                </thead>
+                <tbody data-hf-body>
+                {% for row in optionRows %}
+                    <tr data-hf-option-row data-option-key="{{ row.key }}">
+                        <td class="hf-price__sticky hf-price__option">
+                            <div class="hf-price__option-line">
+                                <input
+                                    type="text"
+                                    class="hf-price__option-input"
+                                    name="options[{{ row.key }}][name]"
+                                    value="{{ row.name }}"
+                                    required
+                                    placeholder="Название варианта"
+                                >
+                                <button type="button" class="hf-price__icon-btn hf-price__icon-btn--compact" data-hf-remove-option title="Удалить вариант" aria-label="Удалить вариант">×</button>
+                            </div>
+                        </td>
+                        {% for col in columns %}
+                            <td data-hf-price-cell data-key="{{ col.key }}">
+                                <div class="hf-price__money">
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="1"
+                                        name="prices[{{ col.key }}][{{ row.key }}]"
+                                        value="{{ formPrices[col.key][row.key]|default(0) }}"
+                                        required
+                                        inputmode="numeric"
+                                    >
+                                    <span>₽</span>
+                                </div>
+                            </td>
+                        {% endfor %}
+                        <td class="hf-price__add-col" data-hf-add-col-spacer aria-hidden="true"></td>
+                    </tr>
+                {% endfor %}
+                <tr data-hf-add-option-row>
+                    <td class="hf-price__sticky">
+                        <button type="button" class="hf-price__add-tile hf-price__add-tile--row" data-hf-add-option>
+                            <span class="hf-price__add-plus">+</span>
+                            <span>Вариант</span>
+                        </button>
+                    </td>
+                    <td class="hf-price__add-col" colspan="{{ columns|length + 1 }}" aria-hidden="true"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="hf-price__bar">
+            <button type="submit" class="btn btn-primary hf-price__save">
+                Сохранить
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -25,24 +25,28 @@ class ApplicationController extends AbstractController
     #[Route('/calculate', name: 'api_calculate', methods: ['POST'])]
     public function calculate(Request $request): JsonResponse
     {
-        $data = $request->toArray();
-        $calculateRequest = new CalculatePriceRequest(
-            participationOptionCode: $data['participationOptionCode'] ?? '',
-            adultsCount: max(1, (int) ($data['adultsCount'] ?? 1)),
-            childrenCount: max(0, (int) ($data['childrenCount'] ?? 0)),
-            transferIncluded: (bool) ($data['transferIncluded'] ?? false),
-            paymentFactor: (float) ($data['paymentFactor'] ?? 1.0),
-        );
+        try {
+            $data = $request->toArray();
+            $calculateRequest = new CalculatePriceRequest(
+                participationOptionId: (int) ($data['participationOptionId'] ?? 0),
+                adultsCount: max(1, (int) ($data['adultsCount'] ?? 1)),
+                childrenCount: max(0, (int) ($data['childrenCount'] ?? 0)),
+                transferIncluded: (bool) ($data['transferIncluded'] ?? false),
+                paymentFactor: (float) ($data['paymentFactor'] ?? 1.0),
+            );
 
-        $result = $this->pricingCalculator->calculate($calculateRequest);
+            $result = $this->pricingCalculator->calculate($calculateRequest);
 
-        return $this->json([
-            'totalAmount' => $result->totalAmount,
-            'discountAmount' => $result->discountAmount,
-            'payNowAmount' => $result->payNowAmount,
-            'pricingPeriodName' => $result->pricingPeriodName,
-            'participationOptionName' => $result->participationOptionName,
-        ]);
+            return $this->json([
+                'totalAmount' => $result->totalAmount,
+                'discountAmount' => $result->discountAmount,
+                'payNowAmount' => $result->payNowAmount,
+                'pricingPeriodName' => $result->pricingPeriodName,
+                'participationOptionName' => $result->participationOptionName,
+            ]);
+        } catch (HttpExceptionInterface $e) {
+            return $this->json(['error' => $e->getMessage()], $e->getStatusCode());
+        }
     }
 
     #[Route('/applications', name: 'api_applications_create', methods: ['POST'])]
@@ -54,7 +58,7 @@ class ApplicationController extends AbstractController
                 name: $data['name'] ?? '',
                 email: $data['email'] ?? '',
                 phone: $data['phone'] ?? null,
-                participationOptionCode: $data['participationOptionCode'] ?? '',
+                participationOptionId: (int) ($data['participationOptionId'] ?? 0),
                 payload: $data['payload'] ?? [],
                 adultsCount: max(1, (int) ($data['adultsCount'] ?? 1)),
                 childrenCount: max(0, (int) ($data['childrenCount'] ?? 0)),

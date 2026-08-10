@@ -5,17 +5,12 @@ namespace App\Admin;
 use App\Entity\PricingPeriod;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
-use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
+/** CRUD kept for EasyAdmin entity registration; UI lives in pricing matrix. */
 class PricingPeriodCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
@@ -27,59 +22,31 @@ class PricingPeriodCrudController extends AbstractCrudController
     {
         return $crud
             ->setEntityLabelInSingular('Период стоимости')
-            ->setEntityLabelInPlural('Периоды стоимости')
-            ->setDefaultSort(['startAt' => 'ASC']);
+            ->setEntityLabelInPlural('Периоды стоимости');
     }
 
     public function configureActions(Actions $actions): Actions
     {
-        $editPrices = Action::new('editPrices', 'Цены')
-            ->setIcon('fa fa-table')
-            ->linkToRoute('admin_pricing_period_prices', static function (PricingPeriod $period): array {
-                return ['id' => $period->getId()];
-            });
-
-        return $actions
-            ->add(Crud::PAGE_INDEX, $editPrices)
-            ->add(Crud::PAGE_DETAIL, $editPrices);
+        return $actions->disable(Action::NEW, Action::EDIT, Action::DETAIL, Action::DELETE, Action::BATCH_DELETE);
     }
 
-    public function configureFields(string $pageName): iterable
+    public function index(AdminContext $context): RedirectResponse
     {
-        yield IdField::new('id')->hideOnForm();
-        yield AssociationField::new('product')->setLabel('Проект');
-        if (Crud::PAGE_INDEX === $pageName) {
-            yield TextField::new('name')->setLabel('Название периода')
-                ->formatValue(function ($value, PricingPeriod $period): string {
-                    $url = $this->generateUrl('admin_pricing_period_prices', ['id' => $period->getId()]);
-                    $label = htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-
-                    return sprintf('<a href="%s">%s</a>', $url, $label);
-                })
-                ->renderAsHtml();
-        } else {
-            yield TextField::new('name')->setLabel('Название периода');
-        }
-        yield DateTimeField::new('startAt')->setLabel('Начало');
-        yield DateTimeField::new('endAt')->setLabel('Окончание');
-        yield BooleanField::new('isActive')->setLabel('Активен');
-        yield ArrayField::new('participationPrices', 'Цены по вариантам участия')
-            ->formatValue(static function ($value, PricingPeriod $period): array {
-                $result = [];
-                foreach ($period->getParticipationPrices() as $price) {
-                    $optionName = $price->getParticipationOption()?->getName() ?? 'Вариант';
-                    $result[] = sprintf('%s — %d ₽', $optionName, $price->getPrice());
-                }
-
-                return $result;
-            })
-            ->onlyOnDetail();
+        return $this->redirectToRoute('admin_pricing_matrix');
     }
 
-    public function detail(AdminContext $context): KeyValueStore|\Symfony\Component\HttpFoundation\RedirectResponse
+    public function new(AdminContext $context): RedirectResponse
     {
-        $periodId = (int) $context->getEntity()->getPrimaryKeyValue();
+        return $this->redirectToRoute('admin_pricing_matrix');
+    }
 
-        return $this->redirectToRoute('admin_pricing_period_prices', ['id' => $periodId]);
+    public function detail(AdminContext $context): RedirectResponse
+    {
+        return $this->redirectToRoute('admin_pricing_matrix');
+    }
+
+    public function edit(AdminContext $context): RedirectResponse
+    {
+        return $this->redirectToRoute('admin_pricing_matrix');
     }
 }

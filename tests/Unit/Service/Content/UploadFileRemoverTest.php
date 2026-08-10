@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Tests\Unit\Service\Content;
+
+use App\Service\Content\UploadFileRemover;
+use PHPUnit\Framework\TestCase;
+
+final class UploadFileRemoverTest extends TestCase
+{
+    private string $uploadsDir;
+
+    protected function setUp(): void
+    {
+        $this->uploadsDir = sys_get_temp_dir().'/hf-uploads-'.bin2hex(random_bytes(4));
+        mkdir($this->uploadsDir.'/gallery', 0775, true);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->removeTree($this->uploadsDir);
+    }
+
+    public function testDeletePublicPathRemovesFile(): void
+    {
+        $file = $this->uploadsDir.'/gallery/photo.jpg';
+        file_put_contents($file, 'x');
+
+        (new UploadFileRemover($this->uploadsDir))->deletePublicPath('/uploads/gallery/photo.jpg');
+
+        self::assertFileDoesNotExist($file);
+    }
+
+    public function testDeletePublicPathIgnoresExternalUrls(): void
+    {
+        $file = $this->uploadsDir.'/gallery/photo.jpg';
+        file_put_contents($file, 'x');
+
+        (new UploadFileRemover($this->uploadsDir))->deletePublicPath('https://example.com/uploads/gallery/photo.jpg');
+
+        self::assertFileExists($file);
+    }
+
+    private function removeTree(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+        foreach (scandir($dir) ?: [] as $entry) {
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+            $path = $dir.'/'.$entry;
+            is_dir($path) ? $this->removeTree($path) : @unlink($path);
+        }
+        @rmdir($dir);
+    }
+}

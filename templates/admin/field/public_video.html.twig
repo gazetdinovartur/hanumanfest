@@ -1,0 +1,6 @@
+{% if field.value %}
+    {% set webPath = public_upload_url(field.value) %}
+    {% if webPath %}
+        <video src="{{ asset(webPath) }}" class="hf-admin-video-thumb" controls muted playsinline preload="metadata"></video>
+    {% endif %}
+{% endif %}

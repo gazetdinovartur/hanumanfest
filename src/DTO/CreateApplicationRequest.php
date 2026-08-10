@@ -8,7 +8,7 @@ readonly class CreateApplicationRequest
         public string $name,
         public string $email,
         public ?string $phone,
-        public string $participationOptionCode,
+        public int $participationOptionId,
         /** @var array<string, mixed> */
         public array $payload = [],
         public int $adultsCount = 1,

@@ -24,7 +24,10 @@ class ApplicationCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular('Заявка')
             ->setEntityLabelInPlural('Заявки')
-            ->setDefaultSort(['createdAt' => 'DESC']);
+            ->setDefaultSort(['createdAt' => 'DESC'])
+            ->setPageTitle(Crud::PAGE_INDEX, 'Заявки')
+            ->setPageTitle(Crud::PAGE_DETAIL, 'Заявка')
+            ->showEntityActionsInlined();
     }
 
     public function configureFields(string $pageName): iterable

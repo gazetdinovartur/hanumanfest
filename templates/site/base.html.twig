@@ -5,55 +5,135 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light only">
     <title>{% block title %}Хануман Фест{% endblock %}</title>
+    {% if settings is defined and settings and settings.logoPath %}
+        <meta property="og:image" content="{{ absolute_url(asset(settings.logoPath)) }}">
+    {% endif %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ asset('assets/site/hf-lightbox.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/site/style.css') }}" rel="stylesheet">
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
 <header id="header">
     <nav class="container d-flex align-items-center justify-content-between py-2">
+        <!-- Логотип -->
         <div class="nav-logo">
-            <a href="{{ path('site_home') }}" class="site-title text-brand-main fw-bold text-decoration-none">Хануман Фест</a>
+            <a href="{{ path('site_home') }}">
+                {% if settings and settings.logoPath %}
+                    <img src="{{ asset(settings.logoPath) }}" class="custom-logo" alt="{{ settings.siteName|default('Хануман Фест') }}">
+                {% else %}
+                    <span class="site-title">Хануман Фест</span>
+                {% endif %}
+            </a>
         </div>
-        <a href="{{ path('site_home') }}#about" class="nav-link d-none d-md-block">О фестивале</a>
-        <a href="{{ path('site_program') }}" class="nav-link d-none d-md-block">Программа</a>
+        <a href="{{ path('site_home') }}#infoblocks" class="nav-link d-none d-md-block">О фестивале</a>
+        <a href="{{ path('site_home') }}#program" class="nav-link d-none d-md-block">Программа</a>
+        <a href="{{ path('site_home') }}#guests" class="nav-link d-none d-md-block">Специальные гости</a>
+        <a href="{{ path('site_home') }}#masters" class="nav-link d-none d-md-block">Мастера и практики</a>
         <a href="{{ path('site_home') }}#cost" class="nav-link d-none d-md-block">Ценность</a>
-        <a href="{{ path('site_registration') }}" class="nav-link d-none d-md-block">Регистрация</a>
+        <a href="{{ path('site_home') }}#register" class="nav-link d-none d-md-block">Регистрация</a>
+        <a href="{{ path('site_home') }}#contacts" class="nav-link d-none d-md-block">Контакты</a>
+        <!-- Гамбургер -->
         <button class="navbar-toggler d-md-none ms-auto" type="button"
                 data-bs-toggle="collapse" data-bs-target="#mobileMenu"
-                aria-controls="mobileMenu" aria-expanded="false" aria-label="Меню">
-            <span class="hamburger"><span></span><span></span><span></span></span>
+                aria-controls="mobileMenu" aria-expanded="false" aria-label="Переключить меню">
+            <span class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </span>
         </button>
     </nav>
+
+    <!-- Подложка -->
     <div class="mobile-menu-overlay"></div>
+
+    <!-- Мобильное меню -->
     <div class="collapse mobile-menu p-4 d-md-none" id="mobileMenu">
         <ul class="nav flex-column gap-3 mobile-menu-list">
-            <li><a href="{{ path('site_home') }}#about">О фестивале</a></li>
-            <li><a href="{{ path('site_program') }}">Программа</a></li>
-            <li><a href="{{ path('site_home') }}#cost">Ценность</a></li>
-            <li><a href="{{ path('site_registration') }}">Регистрация</a></li>
+            <li><a href="{{ path('site_home') }}#infoblocks"><span>О фестивале</span></a></li>
+            <li><a href="{{ path('site_home') }}#program"><span>Программа</span></a></li>
+            <li><a href="{{ path('site_home') }}#guests"><span>Специальные гости</span></a></li>
+            <li><a href="{{ path('site_home') }}#masters"><span>Мастера и практики</span></a></li>
+            <li><a href="{{ path('site_home') }}#cost"><span>Ценность</span></a></li>
+            <li><a href="{{ path('site_home') }}#register"><span>Регистрация</span></a></li>
+            <li><a href="{{ path('site_home') }}#contacts"><span>Контакты</span></a></li>
         </ul>
     </div>
 </header>
 
 {% block body %}{% endblock %}
 
-<footer class="py-4 text-center text-muted small">
-    <div class="container">
-        <p class="mb-1">Хануман Фест</p>
-        <p class="mb-0">
-            <a class="contact-link" href="https://vk.com/skazka_108">VK</a>
-            ·
-            <a class="contact-link" href="https://t.me/+79222108041">Telegram</a>
-        </p>
+{% set footerBg = settings is defined and settings and settings.footerBackgroundPath ? asset(settings.footerBackgroundPath) : null %}
+<footer class="site-footer"{% if footerBg %} style="background-image: url('{{ footerBg }}');"{% endif %}>
+    <div class="footer-overlay"></div>
+    <div class="footer-container">
+        <div class="footer-right">
+            <nav class="footer-menu">
+                <ul class="footer-menu-items">
+                    <li><a href="{{ path('site_home') }}#infoblocks">О фестивале</a></li>
+                    <li><a href="{{ path('site_home') }}#program">Программа</a></li>
+                    <li><a href="{{ path('site_home') }}#guests">Специальные гости</a></li>
+                    <li><a href="{{ path('site_home') }}#masters">Мастера и практики</a></li>
+                    <li><a href="{{ path('site_home') }}#cost">Ценность</a></li>
+                    <li><a href="{{ path('site_home') }}#register">Регистрация</a></li>
+                    <li><a href="{{ path('site_home') }}#contacts">Контакты</a></li>
+                </ul>
+            </nav>
+            <div class="footer-contacts" id="contacts">
+                {% if settings and settings.contactsHtml %}
+                    {% for line in settings.contactsHtml|split('\n') %}
+                        {% set item = line|trim %}
+                        {% if '@' in item and 'http' not in item %}
+                            <a href="mailto:{{ item }}">{{ item }}</a>
+                        {% elseif item starts with '+' or item matches '/^\\d/' %}
+                            <a href="tel:{{ item|replace({' ': '', '(': '', ')': '', '-': ''}) }}">{{ item }}</a>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="footer-socials">
+                {% if settings is defined and settings %}
+                    {% if settings.vkUrl %}
+                        <a href="{{ settings.vkUrl }}" class="footer-social footer-vk" target="_blank" rel="noopener">
+                            <img src="{{ asset('assets/site/icons/vk.svg') }}" alt="VK">
+                        </a>
+                    {% endif %}
+                    {% if settings.telegramUrl %}
+                        <a href="{{ settings.telegramUrl }}" class="footer-social footer-tg" target="_blank" rel="noopener">
+                            <img src="{{ asset('assets/site/icons/tg.svg') }}" alt="TG">
+                        </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© {{ "now"|date('Y') }} {% if settings is defined and settings %}{{ settings.siteName }}{% else %}Хануман Фест{% endif %}</p>
+        {% if settings is defined and settings and settings.companyInfo %}
+            <p>{{ settings.companyInfo|nl2br }}</p>
+        {% endif %}
     </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{{ asset('assets/site/script.js') }}"></script>
+<script src="{{ asset('assets/site/hf-gallery.js') }}"></script>
+<script src="{{ asset('assets/site/hf-lightbox.js') }}"></script>
+<script>
+    const scrollUpBtn = document.getElementById("scroll-up");
+    const header = document.getElementById("header");
+    if (scrollUpBtn && header) {
+        window.addEventListener("scroll", () => {
+            scrollUpBtn.classList.toggle("show", window.scrollY > 300);
+            header.classList.toggle("header-background--white", window.scrollY > 100);
+            header.classList.toggle("fixed-top", window.scrollY > 500);
+        });
+    }
+</script>
 {% block javascripts %}{% endblock %}
 </body>
 </html>

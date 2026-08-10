@@ -16,7 +16,6 @@ APP_URL="https://хануманфест.рф"
 FRONTEND_URL="https://хануманфест.рф"
 CORS_ALLOW_ORIGIN="https://хануманфест.рф"
 DEFAULT_URI="https://хануманфест.рф"
-APP_PRODUCT_SLUG=hanuman-fest
 ```
 
 Локально: `http://localhost:8080` для всех трёх URL.

@@ -21,13 +21,16 @@ final class FestivalPricingCalculatorTest extends DatabaseTestCase
 {
     public function testCalculatesLegacyFormulaForSingleAdultWithHalfPayment(): void
     {
-        HanumanFestFixtures::seed($this->entityManager);
+        $product = HanumanFestFixtures::seed($this->entityManager);
+        $optionId = $this->entityManager->getRepository(\App\Entity\ParticipationOption::class)
+            ->findOneBy(['product' => $product])
+            ?->getId();
 
         /** @var FestivalPricingCalculator $calculator */
         $calculator = static::getContainer()->get(FestivalPricingCalculator::class);
 
         $result = $calculator->calculate(new CalculatePriceRequest(
-            participationOptionCode: 'OWN_HOUSE_NO_FOOD',
+            participationOptionId: (int) $optionId,
             registrationDate: new \DateTimeImmutable('2026-02-01'),
             adultsCount: 1,
             childrenCount: 0,
@@ -42,13 +45,16 @@ final class FestivalPricingCalculatorTest extends DatabaseTestCase
 
     public function testCalculatesGroupDiscountAndTransfer(): void
     {
-        HanumanFestFixtures::seed($this->entityManager);
+        $product = HanumanFestFixtures::seed($this->entityManager);
+        $optionId = $this->entityManager->getRepository(\App\Entity\ParticipationOption::class)
+            ->findOneBy(['product' => $product])
+            ?->getId();
 
         /** @var FestivalPricingCalculator $calculator */
         $calculator = static::getContainer()->get(FestivalPricingCalculator::class);
 
         $result = $calculator->calculate(new CalculatePriceRequest(
-            participationOptionCode: 'OWN_HOUSE_NO_FOOD',
+            participationOptionId: (int) $optionId,
             registrationDate: new \DateTimeImmutable('2026-02-01'),
             adultsCount: 2,
             childrenCount: 1,

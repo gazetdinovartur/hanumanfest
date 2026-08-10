@@ -1,28 +1,48 @@
 {% extends 'site/base.html.twig' %}
 
-{% block title %}Хануман Фест{% endblock %}
+{% block title %}{% if hero %}{{ hero.headline }}{% elseif settings %}{{ settings.siteName }}{% else %}Хануман Фест{% endif %}{% endblock %}
 
 {% block stylesheets %}
 <link href="{{ asset('assets/site/hf-schedule.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
-<section class="hero d-flex flex-column justify-content-center align-items-center text-center text-white" id="hero">
+<section class="hero d-flex flex-column justify-content-center align-items-center text-center text-white" id="hero"
+    {% if hero and hero.imagePath %}style="background-image: url('{{ asset(hero.imagePath) }}'); background-size: cover; background-position: center;"{% endif %}>
     <div class="hero-overlay"></div>
     <div class="hero-content container">
-        <p class="hero-date text-brand-accent fw-bold fs-1">Даты уточняются</p>
-        <p class="date-dot">•</p>
-        <p class="hero-subtitle-top fs-3">Йога · музыка · творчество</p>
-        <h1 class="hero-title text-brand-main display-2 fw-bold">Хануман Фест</h1>
+        {% if hero and hero.eventDates %}
+            <p class="hero-date text-brand-accent fw-bold fs-1">{{ hero.eventDates }}</p>
+            <p class="date-dot">•</p>
+        {% endif %}
+        {% if hero and hero.titleMain %}
+            <p class="hero-subtitle-top fs-3">{{ hero.titleMain }}</p>
+        {% endif %}
+        <h1 class="hero-title text-brand-main display-2 fw-bold">{{ hero ? hero.headline : 'Хануман Фест' }}</h1>
         <div class="hero-underline mx-auto"></div>
-        <p class="hero-subtitle-bottom fs-4">Фестиваль на природе среди полей, озёр и лесов</p>
-        <a href="{{ path('site_registration') }}" class="btn btn-lg btn-brand-main text-white fw-bold px-4 py-3 mt-3">Участвовать</a>
+        {% if hero and hero.titleSecondary %}
+            <p class="hero-subtitle-bottom fs-4">{{ hero.titleSecondary }}</p>
+        {% endif %}
+        <br><br>
+        <a href="{{ hero and hero.ctaUrl ? hero.ctaUrl : '#register' }}" class="btn btn-lg btn-brand-main text-white fw-bold px-4 py-3 mt-3">
+            {{ hero and hero.ctaLabel ? hero.ctaLabel : 'Участвовать' }}
+        </a>
+    </div>
+    <div class="hero-footer">
+        <a href="#about" class="scroll-down">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="19 9 12 16 5 9"></polyline>
+            </svg>
+        </a>
     </div>
 </section>
 
 <section class="about py-5 text-center" id="about">
     <div class="container">
-        <p class="lead mb-0">Море йоги, музыки и творчества в экологически чистом месте. Проживание в палатках и домиках — одна большая семья.</p>
+        {% if hero and hero.aboutHtml %}
+            {{ hero.aboutHtml|raw }}
+        {% endif %}
     </div>
     <section class="py-5 festival-highlights container">
         <div class="highlights-grid tiles">
@@ -34,18 +54,124 @@
                 <div class="tile big">Несколько площадок для практик в месте силы</div>
                 <div class="tile big">Кухня, столовая, детская площадка, баня</div>
                 <div class="tile big">Вегетарианское питание от шеф-повара</div>
+                <div class="tile big">Другие активности — правИло, ходули, восточный базар, баня и пармастера</div>
             </div>
             <div class="tiles-column right">
+                <div class="tile">Углехождение и Гвоздестояние</div>
                 <div class="tile">Хатха и Раджа-йога</div>
                 <div class="tile">Кундалини и Гонг-сатори</div>
+                <div class="tile">Женский класс и Ароматерапия</div>
                 <div class="tile">Дыхание и Шаманские практики</div>
+                <div class="tile">Ошо и Телесная терапия</div>
                 <div class="tile">Пранаяма и Медитация</div>
+                <div class="tile">Регрессия и Саунд-хиллинг</div>
+                <div class="tile">Парная йога и Мандала</div>
+                <div class="tile">Трайбл и Йога-вокал</div>
+                <div class="tile">Лекции и Мастер-классы</div>
+                <div class="tile">Ягья — огненная церемония</div>
+                <div class="tile">Джемы у костра</div>
                 <div class="tile">Киртан и Бхаджаны</div>
+                <div class="tile">Хороводы и Барабаны</div>
                 <div class="tile">Экстатик-дэнс и Концерт</div>
                 <div class="tile wide">ХОЛИ</div>
             </div>
         </div>
     </section>
+</section>
+
+{% if hero and hero.promoVideoLeft and hero.promoVideoRight %}
+<section class="promo-video-split">
+    <div class="promo-video promo-video--left">
+        <video src="{{ asset(hero.promoVideoLeft) }}" autoplay muted loop controls playsinline preload="metadata"></video>
+    </div>
+    <div class="promo-video promo-video--right">
+        <video src="{{ asset(hero.promoVideoRight) }}" autoplay muted loop controls playsinline preload="metadata"></video>
+    </div>
+</section>
+{% endif %}
+
+<section class="special-guests py-5" id="guests">
+    <div class="container">
+        <h2 class="text-brand-main text-center mb-5">Специальные гости</h2>
+        <div class="guests-grid">
+            {% for person in guests %}
+                <div class="guest-card">
+                    <h3 class="guest-title text-brand-accent">{{ person.name }}</h3>
+                    <div class="guest-image">
+                        {% if person.photoPath %}
+                            <img src="{{ asset(person.photoPath) }}" alt="{{ person.name }}">
+                        {% endif %}
+                        <div class="guest-overlay">
+                            <p>{{ person.excerpt }}</p>
+                            <br>
+                            <button class="hf-guest-readmore btn btn-outline-light btn-sm" type="button">Подробнее</button>
+                        </div>
+                    </div>
+                    <div class="guest-modal-data" style="display:none;">
+                        <div class="guest-content">{{ person.bio|raw }}</div>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-center text-muted">Гости пока не добавлены.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="special-guests py-5 bg-light" id="musicians">
+    <div class="container">
+        <h2 class="text-brand-main text-center mb-5">Музыканты</h2>
+        <div class="guests-grid">
+            {% for person in musicians %}
+                <div class="guest-card">
+                    <h3 class="guest-title text-brand-accent">{{ person.name }}</h3>
+                    <div class="guest-image">
+                        {% if person.photoPath %}
+                            <img src="{{ asset(person.photoPath) }}" alt="{{ person.name }}">
+                        {% endif %}
+                        <div class="guest-overlay">
+                            <p>{{ person.excerpt }}</p>
+                            <br>
+                            <button class="hf-guest-readmore btn btn-outline-light btn-sm" type="button">Подробнее</button>
+                        </div>
+                    </div>
+                    <div class="guest-modal-data" style="display:none;">
+                        <div class="guest-content">{{ person.bio|raw }}</div>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-center text-muted">Музыканты пока не добавлены.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="masters-section py-5" id="masters">
+    <div class="container">
+        <h2 class="text-brand-main text-center mb-5">Мастера и практики</h2>
+        <div class="masters-grid">
+            {% for person in masters %}
+                <div class="master-card" data-master-id="{{ person.id }}">
+                    <div class="master-thumb">
+                        {% if person.photoPath %}
+                            <img src="{{ asset(person.photoPath) }}" alt="{{ person.name }}">
+                        {% endif %}
+                    </div>
+                    <h3 class="master-name text-brand-accent">{{ person.name }}</h3>
+                    <div class="master-modal-data" style="display:none;">
+                        <div class="master-content">{{ person.bio|raw }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="modal-overlay"></div>
+    <button class="modal-close" aria-label="Закрыть">&times;</button>
+    <div class="modal">
+        <div class="modal-inner">
+            <div class="modal-content"></div>
+        </div>
+    </div>
 </section>
 
 <section class="schedule-section py-5 bg-light" id="program">
@@ -59,27 +185,190 @@
             </div>
         </div>
         <p class="text-center mt-4 mb-0">
-            <a href="{{ path('site_program') }}" class="contact-link fw-semibold">Полное расписание →</a>
+            <a href="{{ path('site_program') }}" class="contact-link fw-semibold">Полное расписание на отдельной странице →</a>
         </p>
     </div>
 </section>
+
+<section class="how-it-was py-5 bg-light" id="late">
+    <h2 class="text-brand-main text-center mb-5">Как это было</h2>
+    {% if gallery is not empty %}
+        <div class="hf-gallery-carousel">
+            <button class="hf-gallery-arrow hf-gallery-prev" aria-label="Предыдущее" type="button">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+            <div class="hf-gallery-track">
+                {% for item in gallery %}
+                    <div class="hf-gallery-item">
+                        <img src="{{ asset(item.imagePath) }}" alt="{{ item.caption|default('') }}">
+                    </div>
+                {% endfor %}
+            </div>
+            <button class="hf-gallery-arrow hf-gallery-next" aria-label="Следующее" type="button">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+        </div>
+    {% endif %}
+</section>
+
+{% if infoBlocks is not empty %}
+<div class="container" id="infoblocks">
+    {% for block in infoBlocks %}
+        {% set reverse = loop.index0 % 2 == 1 ? 'flex-row-reverse' : '' %}
+        {% set hasImage = block.imagePath %}
+        <section class="info-block row g-0 {{ reverse }}">
+            <h2 class="text-brand-main mt-5 text-brand-main--info text-center{% if not hasImage %} text-brand-xs{% endif %}">{{ block.title }}</h2>
+            {% if hasImage %}
+                <div class="col-md-6 info-image" style="background-image: url('{{ asset(block.imagePath) }}');"></div>
+                <div class="col-md-6 info-text fade-in">
+            {% else %}
+                <div class="col-12 info-text fade-in text-black">
+            {% endif %}
+                <div class="info-inner p-4">
+                    <div class="info-content">{{ block.content|raw }}</div>
+                </div>
+            </div>
+        </section>
+    {% endfor %}
+</div>
+{% endif %}
 
 <section class="py-5" id="cost">
     <div class="container">
-        <h2 class="text-center text-brand-main mb-4">Ценность</h2>
-        <p class="text-center text-muted mb-4">Актуальные цены подтягиваются в форме регистрации из текущего ценового периода.</p>
-        <p class="text-center">
-            <a href="{{ path('site_registration') }}" class="btn btn-brand-main text-white fw-bold px-4 py-2">Перейти к регистрации</a>
-        </p>
+        <h2 class="text-center text-brand-main mb-5">Ценность</h2>
+        {% if pricingSections is not empty %}
+            <div class="accordion" id="pricingAccordion">
+                {% for section in pricingSections %}
+                    {% set collapseId = 'pricingCollapse' ~ section.id %}
+                    {% set headingId = 'pricingHeading' ~ section.id %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="{{ headingId }}">
+                            <button
+                                class="accordion-button{% if not section.isCurrent %} collapsed{% endif %}"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#{{ collapseId }}"
+                                aria-expanded="{{ section.isCurrent ? 'true' : 'false' }}"
+                                aria-controls="{{ collapseId }}"
+                            >
+                                {{ section.heading }}
+                            </button>
+                        </h2>
+                        <div
+                            id="{{ collapseId }}"
+                            class="accordion-collapse collapse{% if section.isCurrent %} show{% endif %}"
+                            aria-labelledby="{{ headingId }}"
+                            data-bs-parent="#pricingAccordion"
+                        >
+                            <div class="accordion-body">
+                                <ul class="list-unstyled mb-0">
+                                    {% for row in section.rows %}
+                                        <li{% if row.emphasize %} class="mt-3"{% endif %}>
+                                            <strong>{{ row.price|number_format(0, ',', ' ') }} ₽</strong> — {{ row.label }}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-center text-muted mb-0">Тарифы скоро появятся.</p>
+        {% endif %}
+    </div>
+    <div class="container">
+        <h4 class="text-brand-main mt-5">🔥 Скидки:</h4>
+        <ul>
+            <li>50% для детей и подростков до 16 лет включительно</li>
+            <li>N% для семей и групп товарищей, где N- количество участников группы. (Скидка действует при централизованной оплате за всю группу, дети и подростки до 16 лет в количество участников не входят)</li>
+        </ul>
+        <h4 class="text-brand-accent mt-5" style="text-align: center;">Тем, кто бронирует нашу палатку, предоставляется палатка, спальник и коврик. Палатка без соседей. На каждого участника по палатке, на семьи и группы друзей палатки большего размера.</h4>
     </div>
 </section>
 
-<section class="register py-5" id="register">
+<section class="register d-flex flex-column justify-content-center align-items-center" id="register">
     <div class="container">
-        <h2 class="text-brand-main text-center mb-4">Регистрация и оплата</h2>
+        <h2 class="text-brand-main text-center mb-5">Регистрация и оплата</h2>
         {% include 'site/_registration_widget.html.twig' %}
     </div>
 </section>
+
+<section class="reviews-section hf-reviews-carousel py-5">
+    <h2 class="text-brand-main text-center mb-5">Отзывы участников</h2>
+    {% if reviews is not empty %}
+        <button class="hf-gallery-arrow hf-gallery-arrow--reviews hf-gallery-prev" aria-label="Предыдущее" type="button">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+        <div class="container">
+            <div class="hf-gallery-track">
+                {% for review in reviews %}
+                    <div class="hf-review-card fade-in">
+                        <div class="hf-review-inner text-center text-white">
+                            {% if review.photoPath %}
+                                <div class="hf-review-avatar mx-auto mb-3" style="background-image:url('{{ asset(review.photoPath) }}')"></div>
+                            {% endif %}
+                            <h5 class="hf-review-name mb-2">{{ review.authorName }}</h5>
+                            <p class="hf-review-excerpt mb-3">{{ review.body|striptags|slice(0, 160) }}{% if review.body|striptags|length > 160 %}…{% endif %}</p>
+                            <button class="hf-review-readmore btn btn-outline-light btn-sm" type="button">Читать полностью</button>
+                            <div class="review-modal-data" style="display:none;">
+                                <div class="review-content">{{ review.body|raw }}</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <button class="hf-gallery-arrow hf-gallery-arrow--reviews hf-gallery-next" aria-label="Следующее" type="button">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+    {% endif %}
+</section>
+
+<section class="faq-section">
+    <div class="container py-5">
+        <h2 class="text-brand-main text-center mb-3">Вопросы и ответы</h2>
+        {% if faqs is not empty %}
+            <div class="faq-list">
+                {% for faq in faqs %}
+                    <div class="faq-item border-bottom pt-3">
+                        <button class="faq-question w-100 text-start d-flex justify-content-between align-items-center" type="button">
+                            <span>{{ faq.question }}</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer mt-2">
+                            {{ faq.answer|raw }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<div class="container">
+    <h4 class="text-brand-accent mt-5 mb-5" style="text-align: center;">
+        Приглашаются к сотрудничеству мастера и умельцы для участия в ярмарке, а также, ведущие мастер-классов. Пишите:
+        <a href="https://vk.com/skazka_108" class="contact-link">vk.com/skazka_108</a>
+        или
+        <a href="https://t.me/+79222108041" class="contact-link">+7 9222 108 041 TG</a>
+    </h4>
+</div>
+
+<a href="#hero" class="scroll-up" id="scroll-up">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="5 15 12 8 19 15"></polyline>
+    </svg>
+</a>
 {% endblock %}
 
 {% block javascripts %}

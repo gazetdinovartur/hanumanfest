@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Service\Content;
+
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+
+/**
+ * Removes public upload files referenced by CMS entities (/uploads/… paths).
+ */
+final class UploadFileRemover
+{
+    public function __construct(
+        #[Autowire('%app.uploads_directory%')]
+        private readonly string $uploadsDirectory,
+    ) {
+    }
+
+    public function deletePublicPath(?string $storedPath): void
+    {
+        if (null === $storedPath || '' === $storedPath) {
+            return;
+        }
+
+        if (filter_var($storedPath, FILTER_VALIDATE_URL)) {
+            return;
+        }
+
+        $path = str_replace('\\', '/', $storedPath);
+        $path = ltrim($path, '/');
+        if (!str_starts_with($path, 'uploads/')) {
+            return;
+        }
+
+        $relative = substr($path, strlen('uploads/'));
+        if ('' === $relative) {
+            return;
+        }
+
+        $absolute = rtrim($this->uploadsDirectory, '/').'/'.$relative;
+        if (is_file($absolute)) {
+            @unlink($absolute);
+        }
+    }
+}

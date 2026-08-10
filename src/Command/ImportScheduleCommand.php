@@ -2,9 +2,8 @@
 
 namespace App\Command;
 
-use App\Entity\Product;
+use App\Repository\ProductRepository;
 use App\Service\ScheduleImportService;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,7 +19,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class ImportScheduleCommand extends Command
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly ProductRepository $productRepository,
         private readonly ScheduleImportService $importService,
         private readonly HttpClientInterface $httpClient,
         private readonly string $defaultSourceUrl = '',
@@ -52,9 +51,13 @@ class ImportScheduleCommand extends Command
         $dryRun = (bool) $input->getOption('dry-run');
         $force = (bool) $input->getOption('force');
 
-        $product = $this->entityManager->getRepository(Product::class)->findOneBy(['slug' => $productSlug]);
+        $product = $productSlug !== ''
+            ? $this->productRepository->findOneBy(['slug' => $productSlug])
+            : $this->productRepository->findActiveProduct();
         if (!$product) {
-            $io->error(sprintf('Product "%s" not found.', $productSlug));
+            $io->error($productSlug !== ''
+                ? sprintf('Product "%s" not found.', $productSlug)
+                : 'No active product configured. Pass --product-slug=…');
 
             return Command::FAILURE;
         }

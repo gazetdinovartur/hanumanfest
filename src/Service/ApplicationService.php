@@ -37,7 +37,7 @@ class ApplicationService
 
         $pricingContext = $this->pricingCalculator->calculateWithContext(
             new CalculatePriceRequest(
-                participationOptionCode: $request->participationOptionCode,
+                participationOptionId: $request->participationOptionId,
                 adultsCount: $request->adultsCount,
                 childrenCount: $request->childrenCount,
                 transferIncluded: $request->transferIncluded,
@@ -65,7 +65,7 @@ class ApplicationService
         $application->setTotalAmount($pricingContext->result->totalAmount);
         $application->setPaidAmount(0);
         $application->setPayload(array_merge($request->payload, [
-            'participationOptionCode' => $request->participationOptionCode,
+            'participationOptionId' => $pricingContext->participationOption->getId(),
             'participationOptionName' => $pricingContext->participationOption->getName(),
             'pricingPeriodName' => $pricingContext->pricingPeriod->getName(),
             'adultsCount' => max(1, $request->adultsCount),

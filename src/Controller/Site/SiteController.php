@@ -2,16 +2,22 @@
 
 namespace App\Controller\Site;
 
+use App\Service\Content\SiteContentService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class SiteController extends AbstractController
 {
+    public function __construct(
+        private readonly SiteContentService $siteContentService,
+    ) {
+    }
+
     #[Route('/', name: 'site_home', methods: ['GET'])]
     public function home(): Response
     {
-        return $this->render('site/home.html.twig');
+        return $this->render('site/home.html.twig', $this->siteContentService->getHomeContext());
     }
 
     #[Route('/program', name: 'site_program', methods: ['GET'])]

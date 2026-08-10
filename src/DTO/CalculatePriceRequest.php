@@ -5,7 +5,7 @@ namespace App\DTO;
 class CalculatePriceRequest
 {
     public function __construct(
-        public readonly string $participationOptionCode,
+        public readonly int $participationOptionId,
         public readonly ?\DateTimeImmutable $registrationDate = null,
         public readonly int $adultsCount = 1,
         public readonly int $childrenCount = 0,

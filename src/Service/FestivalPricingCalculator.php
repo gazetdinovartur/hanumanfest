@@ -8,6 +8,7 @@ use App\DTO\PricingResult;
 use App\Entity\ParticipationOption;
 use App\Entity\ParticipationPrice;
 use App\Entity\PricingPeriod;
+use App\Entity\Product;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -33,13 +34,10 @@ class FestivalPricingCalculator
             throw new NotFoundHttpException('Active product not found.');
         }
 
-        $participationOption = $this->entityManager->getRepository(ParticipationOption::class)->findOneBy([
-            'product' => $product,
-            'code' => $request->participationOptionCode,
-        ]);
+        $participationOption = $this->entityManager->find(ParticipationOption::class, $request->participationOptionId);
 
-        if (!$participationOption) {
-            throw new NotFoundHttpException(sprintf('Participation option "%s" not found.', $request->participationOptionCode));
+        if (!$participationOption || $participationOption->getProduct()?->getId() !== $product->getId()) {
+            throw new NotFoundHttpException('Выбранный вариант участия не найден.');
         }
 
         $registrationDate = $request->registrationDate ?? new \DateTimeImmutable();
@@ -99,6 +97,14 @@ class FestivalPricingCalculator
         foreach ($periods as $period) {
             if ($date >= $period->getStartAt() && $date <= $period->getEndAt()) {
                 return $period;
+            }
+        }
+
+        // Outside seeded windows: keep the latest (late) price until the next season is configured.
+        if ($periods !== []) {
+            $last = $periods[array_key_last($periods)];
+            if ($date > $last->getEndAt()) {
+                return $last;
             }
         }
 

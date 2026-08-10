@@ -46,6 +46,12 @@ class ProductController extends AbstractController
                 break;
             }
         }
+        if (!$activePeriod && $periods !== []) {
+            $last = $periods[array_key_last($periods)];
+            if ($now > $last->getEndAt()) {
+                $activePeriod = $last;
+            }
+        }
 
         $prices = [];
         if ($activePeriod) {
@@ -60,7 +66,7 @@ class ProductController extends AbstractController
         return $this->json([
             'name' => $product->getName(),
             'participationOptions' => array_map(static fn (ParticipationOption $o) => [
-                'code' => $o->getCode(),
+                'id' => $o->getId(),
                 'name' => $o->getName(),
                 'price' => $prices[$o->getCode()] ?? null,
             ], $options),

@@ -6,6 +6,7 @@ use App\Entity\Application;
 use App\Entity\Product;
 use App\Entity\User;
 use App\Infrastructure\GoogleSheets\Dto\PaymentExportPayload;
+use App\Infrastructure\GoogleSheets\GoogleSheetsRegistrationsReference;
 use App\Infrastructure\GoogleSheets\GoogleSheetsClient;
 use App\Infrastructure\GoogleSheets\GoogleSheetsExportService;
 use PHPUnit\Framework\TestCase;
@@ -23,7 +24,8 @@ final class GoogleSheetsExportServiceTest extends TestCase
             return new MockResponse('{"ok":true}');
         });
 
-        $client = new GoogleSheetsClient($httpClient, 'https://script.google.com/macros/s/test/exec');
+        $reference = new GoogleSheetsRegistrationsReference('https://script.google.com/macros/s/test/exec');
+        $client = new GoogleSheetsClient($httpClient, $reference);
         $client->exportPayment(new PaymentExportPayload(
             email: 'a@b.c',
             phone: '+7999',
@@ -49,7 +51,8 @@ final class GoogleSheetsExportServiceTest extends TestCase
 
             return new MockResponse('ok');
         });
-        $client = new GoogleSheetsClient($httpClient, 'https://example.com/webhook');
+        $reference = new GoogleSheetsRegistrationsReference('https://script.google.com/macros/s/test/exec');
+        $client = new GoogleSheetsClient($httpClient, $reference);
         $service = new GoogleSheetsExportService($client);
 
         $user = new User();

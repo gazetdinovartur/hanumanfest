@@ -18,13 +18,16 @@ final class CalculateApiTest extends WebTestCase
         $schemaTool->dropSchema($metadata);
         $schemaTool->createSchema($metadata);
         HanumanFestFixtures::seed($em);
+        $optionId = $em->getRepository(\App\Entity\ParticipationOption::class)
+            ->findOneBy([])
+            ?->getId();
 
         $client->request(
             'POST',
             '/api/calculate',
             server: ['CONTENT_TYPE' => 'application/json'],
             content: json_encode([
-                'participationOptionCode' => 'OWN_HOUSE_NO_FOOD',
+                'participationOptionId' => $optionId,
                 'adultsCount' => 1,
                 'childrenCount' => 0,
                 'transferIncluded' => false,

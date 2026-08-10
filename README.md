@@ -27,11 +27,13 @@ cp .env.example .env   # секреты только в .env, не в git
 docker compose up -d
 docker compose exec php php bin/console doctrine:migrations:migrate --no-interaction
 docker compose exec php php bin/console app:seed:hanuman-fest
+docker compose exec php php bin/console app:seed:site-content
 ```
 
 - Сайт: http://localhost:8080  
 - Админка: http://localhost:8080/admin  
-- API: http://localhost:8080/api/products/hanuman-fest  
+- Цены: http://localhost:8080/admin/pricing  
+- API: http://localhost:8080/api/product  
 
 Локальные URL в `.env`:
 
@@ -40,7 +42,8 @@ APP_URL=http://localhost:8080
 FRONTEND_URL=http://localhost:8080
 CORS_ALLOW_ORIGIN=http://localhost:8080
 DEFAULT_URI=http://localhost:8080
-APP_PRODUCT_SLUG=hanuman-fest
+GOOGLE_SHEETS_WEBHOOK_URL=   # Apps Script (регистрации)
+SCHEDULE_SHEET_URL=          # программа (отдельный Sheet)
 ```
 
 ---
@@ -66,6 +69,19 @@ php bin/console app:import:schedule
 ```
 
 `SCHEDULE_SHEET_URL` в `.env`.
+
+---
+
+## Данные и импорт
+
+| Команда | Назначение |
+|---------|------------|
+| `app:seed:hanuman-fest` | продукт, периоды, цены |
+| `app:seed:site-content` | контент главной из WP dump |
+| `app:import:schedule` | программа из `SCHEDULE_SHEET_URL` |
+| `app:import:legacy-orders` | заявки/платежи из Sheet (default URL из webhook) |
+
+Метрики в `/admin` считаются из **MySQL**, не из Google Sheet. Подробности: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ---
 

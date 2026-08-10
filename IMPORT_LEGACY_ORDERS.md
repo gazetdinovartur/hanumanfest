@@ -8,17 +8,22 @@ php bin/console app:seed:hanuman-fest
 
 ## 2) Import live applications/payments from CSV
 
-Recommended: import both sources together:
-
-1. Google Sheet export (`Лист регистраций - Регистрации.csv`) — primary source with payments.
-2. Forminator export (`forminator-...csv`) — additional fields and fallback rows.
+По умолчанию `--sheet-source` берётся из `GOOGLE_SHEETS_WEBHOOK_URL`: если это Apps Script webhook, команда скачивает CSV листа «Регистрации» той же таблицы, что в `legacy/google-apps-script/Code.by-columns.gs`.
 
 Dry run:
 
 ```bash
 php bin/console app:import:legacy-orders \
-  --sheet-source="/absolute/path/Лист регистраций - Регистрации.csv" \
   --forminator-source="/absolute/path/forminator-форма-регистрации-260610234408.csv" \
+  --product-slug=hanuman-fest \
+  --dry-run
+```
+
+С явным CSV (или без forminator, только sheet из env):
+
+```bash
+php bin/console app:import:legacy-orders \
+  --sheet-source="/absolute/path/Лист регистраций - Регистрации.csv" \
   --product-slug=hanuman-fest \
   --dry-run
 ```
@@ -27,7 +32,6 @@ Real import:
 
 ```bash
 php bin/console app:import:legacy-orders \
-  --sheet-source="/absolute/path/Лист регистраций - Регистрации.csv" \
   --forminator-source="/absolute/path/forminator-форма-регистрации-260610234408.csv" \
   --product-slug=hanuman-fest
 ```

@@ -35,3 +35,6 @@
 /legacy/*.tar.zip
 /legacy/*.zip
 /meta
+
+/public/uploads/
+!/public/uploads/.gitkeep

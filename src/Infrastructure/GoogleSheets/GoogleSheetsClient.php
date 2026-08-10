@@ -11,7 +11,7 @@ class GoogleSheetsClient
 {
     public function __construct(
         private readonly HttpClientInterface $httpClient,
-        private readonly string $webhookUrl,
+        private readonly GoogleSheetsRegistrationsReference $registrations,
         private readonly ?LoggerInterface $logger = null,
     ) {
     }
@@ -29,13 +29,13 @@ class GoogleSheetsClient
     /** @param array<string, string|null> $data */
     private function send(array $data): void
     {
-        if ($this->webhookUrl === '') {
+        if ($this->registrations->webhookUrl() === '') {
             $this->logger?->warning('Google Sheets webhook URL is not configured, export skipped');
 
             return;
         }
 
-        $response = $this->httpClient->request('POST', $this->webhookUrl, [
+        $response = $this->httpClient->request('POST', $this->registrations->webhookUrl(), [
             'headers' => ['Content-Type' => 'application/json'],
             'json' => $data,
             'max_redirects' => 5,

@@ -1,5 +1,9 @@
 # Universal Application Engine · Hanuman Fest 2026
 
+> **Статус документа:** исторический обзор ценности + техприложение.  
+> Актуальная архитектура и домены: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`PROJECT.md`](PROJECT.md), [`DOMAINS.md`](DOMAINS.md).  
+> API живёт на **`https://хануманфест.рф/api`** (поддомен `апи.` не используем).
+
 Документ в двух частях: **верх** — для заказчика (ценность, опыт пользователя, процессы). **Низ** — техническое приложение для команды разработки.
 
 ---
@@ -130,24 +134,25 @@ flowchart LR
 ## Архитектура
 
 ```
-хануманфест.рф (WordPress + bridge)  ──HTTPS JSON──►  апи.хануманфест.рф (Symfony 8.0)
-                                                              │
-                    ┌─────────────────────────────────────────┼─────────────────────┐
-                    ▼                     ▼                 ▼                     ▼
-                 MySQL              YooKassa         Google Apps Script      SMTP
-              (source of truth)      (payments)       (Sheets export)       (emails)
+хануманфест.рф (Symfony: Twig-сайт + /api + /admin + MySQL)
+        │
+        ├── YooKassa
+        ├── Google Sheets (Apps Script webhook)
+        └── SMTP
 ```
 
-- **Источник правды:** MySQL (`Application`, `Payment`, `PaymentLink`, `PricingPeriod`, …).
-- **Sheets:** экспорт через webhook → Apps Script `Code.by-columns.gs` (поиск колонок по заголовкам).
-- **Фронт:** `legacy/wordpress/universal-application-engine-bridge.php` + `assets/uae-bridge.js`, shortcodes `[uae_registration]`, `[uae_payment]`, `[uae_return]`.
+Переходный / параллельный контур (до cutover): WordPress + bridge на том же домене может ещё принимать боевые заявки; см. `PARALLEL_TESTING.md`.
+
+- **Источник правды после cutover:** MySQL (`Application`, `Payment`, `PaymentLink`, `PricingPeriod`, …).
+- **Sheets:** зеркало для команды; экспорт через `GOOGLE_SHEETS_WEBHOOK_URL` → Apps Script `Code.by-columns.gs`.
+- **Публичная форма:** Symfony Twig + `public/assets/site/registration.js` (legacy bridge в `legacy/wordpress/` — архив / параллельный тест).
 
 ---
 
 ## Поток регистрации (API)
 
-1. `GET /api/products/{slug}` — тарифы и активный период.
-2. `POST /api/calculate` — `FestivalPricingCalculator`, формула parity с Forminator calculation-1.
+1. `GET /api/product` — варианты участия и активный период.
+2. `POST /api/calculate` — `FestivalPricingCalculator` (`participationOptionId`), формула parity с Forminator calculation-1.
 3. `POST /api/applications` — заявка + `GoogleSheetsExportService::exportApplication` (`action: application`).
 4. `POST /api/payments` — YooKassa, сумма = min(payNowAmount, remaining).
 5. Webhook `POST /api/webhooks/yookassa` — обновление статуса, экспорт payment, при 50% — PaymentLink + email.
@@ -190,18 +195,18 @@ flowchart LR
 ## Периоды цен
 
 - `PricingPeriod`: `startAt`, `endAt`, `isActive`.
-- `FestivalPricingCalculator::resolvePricingPeriod` — первый активный период, в который попадает дата.
+- `FestivalPricingCalculator::resolvePricingPeriod` — первый активный период, в который попадает дата (после окна — последний период).
 - `ParticipationPrice` — матрица цен период × вариант участия.
-- Админка: `PricingPeriodCrudController` + `PricingPeriodPricesController` (`/admin/pricing-period/{id}/prices`).
+- Админка: один экран `/admin/pricing` (`PricingMatrixController`).
 - Seed: `app:seed:hanuman-fest`.
 
 ---
 
 ## Админка
 
-- EasyAdmin: заявки, платежи, пользователи, проекты, периоды, варианты участия.
-- Form login + session (`/admin/login`), redirect → `admin_application_index`.
-- Операции импорта / sync — через CLI.
+- EasyAdmin: заявки, платежи, пользователи; контент (hero, люди по разделам, галерея, FAQ, отзывы, инфоблоки); матрица цен.
+- Form login + session (`/admin/login`).
+- Операции импорта / sync — через CLI (`app:import:legacy-orders`, `app:import:schedule`, `app:payments:sync-google-sheets`).
 
 ---
 
@@ -210,14 +215,14 @@ flowchart LR
 - Хостинг: Timeweb, PHP 8.5, MySQL 8.0, document root `public/`.
 - `bash bin/deploy-prod.sh` — composer `--no-dev`, migrations, cache reset, `assets:install`, удаление `.env.local.php`.
 - Monolog → `var/log/prod.log`.
-- Smoke: `GET /api/health`, `GET /api/products/hanuman-fest`.
+- Smoke: `GET /api/health`, `GET /api/product`.
 - Подробности: `DEPLOY_TIMEWEB.md`, `PARALLEL_TESTING.md`.
 
 ---
 
 ## Тесты и репозиторий
 
-- PHPUnit 11.x, 28 тестов: pricing, payment links, API, admin login.
+- PHPUnit 11.x: pricing, payments, API, admin, CMS.
 - `composer test`.
 
 ---
@@ -226,13 +231,13 @@ flowchart LR
 
 | Область | Путь |
 |---------|------|
-| Bridge | `legacy/wordpress/universal-application-engine-bridge.php` |
-| JS формы | `legacy/wordpress/assets/uae-bridge.js` |
+| Публичная регистрация | `templates/site/_registration_widget.html.twig`, `public/assets/site/registration.js` |
+| Bridge (legacy) | `legacy/wordpress/universal-application-engine-bridge.php` |
 | Apps Script | `legacy/google-apps-script/Code.by-columns.gs` |
-| Pricing | `src/Service/FestivalPricingCalculator.php` |
+| Pricing | `src/Service/FestivalPricingCalculator.php`, `src/Controller/Admin/PricingMatrixController.php` |
 | Payments | `src/Service/PaymentService.php` |
-| Sheets export | `src/Infrastructure/GoogleSheets/` |
+| Sheets | `src/Infrastructure/GoogleSheets/` |
 
 ---
 
-*Июнь 2026 · Hanuman Fest · апи.хануманфест.рф*
+*Актуализация авг 2026 · Hanuman Fest · https://хануманфест.рф*

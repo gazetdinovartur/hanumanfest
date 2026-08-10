@@ -117,6 +117,6 @@ Symfony после оплаты тестовой заявки обновит с�
 
 - URL: `https://хануманфест.рф/admin/login`
 - Логин: `admin`
-- Пароль: из `ADMIN_PASSWORD_HASH` (production) или `TempAdmin!2026` (локально)
+- Пароль: из `ADMIN_PASSWORD` в `.env` (локально по умолчанию `TempAdmin!2026`)
 
 ---

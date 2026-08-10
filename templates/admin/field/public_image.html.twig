@@ -1,0 +1,6 @@
+{% if field.value %}
+    {% set webPath = public_upload_url(field.value) %}
+    {% if webPath %}
+        <img src="{{ asset(webPath) }}" alt="" class="hf-admin-thumb" loading="lazy">
+    {% endif %}
+{% endif %}

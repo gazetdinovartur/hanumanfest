@@ -27,7 +27,7 @@ class ParticipationOptionCrudController extends AbstractCrudController
     {
         yield IdField::new('id')->hideOnForm();
         yield AssociationField::new('product')->setLabel('Проект');
-        yield TextField::new('code')->setLabel('Код');
+        yield TextField::new('code')->setLabel('Код')->hideOnForm()->hideOnIndex();
         yield TextField::new('name')->setLabel('Название');
     }
 }

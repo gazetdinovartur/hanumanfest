@@ -8,7 +8,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class ParticipationPriceCrudController extends AbstractCrudController
 {
@@ -30,7 +29,6 @@ class ParticipationPriceCrudController extends AbstractCrudController
         yield IdField::new('id')->hideOnForm();
         yield AssociationField::new('pricingPeriod')->setLabel('Период стоимости');
         yield AssociationField::new('participationOption')->setLabel('Вариант участия');
-        yield TextField::new('participationOption.code', 'Код')->onlyOnIndex();
         yield IntegerField::new('price')->setLabel('Цена (₽)');
     }
 }

@@ -12,6 +12,7 @@ use App\Entity\User;
 use App\Enum\ApplicationStatus;
 use App\Enum\PaymentProvider;
 use App\Enum\PaymentStatus;
+use App\Infrastructure\GoogleSheets\GoogleSheetsRegistrationsReference;
 use App\Repository\ApplicationRepository;
 use App\Repository\PaymentRepository;
 use App\Repository\UserRepository;
@@ -45,6 +46,7 @@ class ImportLegacyOrdersCommand extends Command
         private readonly ApplicationRepository $applicationRepository,
         private readonly PaymentRepository $paymentRepository,
         private readonly UserRepository $userRepository,
+        private readonly GoogleSheetsRegistrationsReference $registrationsReference,
     ) {
         parent::__construct();
     }
@@ -53,7 +55,7 @@ class ImportLegacyOrdersCommand extends Command
     {
         $this
             ->addOption('source', null, InputOption::VALUE_OPTIONAL, 'Single CSV source (generic mode)')
-            ->addOption('sheet-source', null, InputOption::VALUE_OPTIONAL, 'Google Sheet CSV export path/URL')
+            ->addOption('sheet-source', null, InputOption::VALUE_OPTIONAL, 'Google Sheet CSV export path/URL (по умолчанию — из GOOGLE_SHEETS_WEBHOOK_URL)')
             ->addOption('forminator-source', null, InputOption::VALUE_OPTIONAL, 'Forminator CSV export path/URL')
             ->addOption('product-slug', null, InputOption::VALUE_OPTIONAL, 'Product slug for imported rows', 'hanuman-fest')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Validate and preview import without writing to DB');
@@ -69,6 +71,9 @@ class ImportLegacyOrdersCommand extends Command
         $sources = [];
         $singleSource = (string) $input->getOption('source');
         $sheetSource = (string) $input->getOption('sheet-source');
+        if ($sheetSource === '') {
+            $sheetSource = $this->registrationsReference->csvExportUrl() ?? '';
+        }
         $forminatorSource = (string) $input->getOption('forminator-source');
 
         if ($singleSource !== '') {

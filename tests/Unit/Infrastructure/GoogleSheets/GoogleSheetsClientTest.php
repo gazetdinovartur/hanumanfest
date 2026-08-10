@@ -4,6 +4,7 @@ namespace App\Tests\Unit\Infrastructure\GoogleSheets;
 
 use App\Infrastructure\GoogleSheets\Dto\ApplicationExportPayload;
 use App\Infrastructure\GoogleSheets\GoogleSheetsClient;
+use App\Infrastructure\GoogleSheets\GoogleSheetsRegistrationsReference;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -12,7 +13,11 @@ final class GoogleSheetsClientTest extends TestCase
 {
     public function testSkipsRequestWhenWebhookUrlIsEmpty(): void
     {
-        $client = new GoogleSheetsClient(new MockHttpClient(), '', new NullLogger());
+        $client = new GoogleSheetsClient(
+            new MockHttpClient(),
+            new GoogleSheetsRegistrationsReference(''),
+            new NullLogger(),
+        );
         $client->exportApplication(new ApplicationExportPayload(
             action: 'application',
             applicationUuid: 'uuid',

@@ -15,7 +15,7 @@
       .catch(() => ({}))
       .then((data) => {
         if (!response.ok) {
-          throw new Error(data.error || 'Request failed');
+          throw new Error(data.error || data.detail || data.title || 'Request failed');
         }
 
         return data;
@@ -24,7 +24,11 @@
 
   function request(path, options) {
     return fetch(apiBase + path, {
-      headers: { 'Content-Type': 'application/json' },
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
       ...options,
     }).then(toJsonResponse);
   }
@@ -77,7 +81,7 @@
       name: form.querySelector('[name="name"]'),
       email: form.querySelector('[name="email"]'),
       phone: form.querySelector('[name="phone"]'),
-      participationOptionCode: form.querySelector('[name="participationOptionCode"]'),
+      participationOptionId: form.querySelector('[name="participationOptionId"]'),
       adultsCount: form.querySelector('[name="adultsCount"]'),
       childrenCount: form.querySelector('[name="childrenCount"]'),
       transferIncluded: form.querySelector('[name="transferIncluded"]'),
@@ -85,7 +89,6 @@
     };
 
     const ui = {
-      activePeriod: root.querySelector('[data-uae-active-period]'),
       total: root.querySelector('[data-uae-total]'),
       now: root.querySelector('[data-uae-now]'),
       meta: root.querySelector('[data-uae-meta]'),
@@ -94,7 +97,7 @@
 
     function getPayloadBase() {
       return {
-        participationOptionCode: fields.participationOptionCode.value,
+        participationOptionId: Number(fields.participationOptionId.value),
         adultsCount: Math.max(1, Number(fields.adultsCount.value || 1)),
         childrenCount: Math.max(0, Number(fields.childrenCount.value || 0)),
         transferIncluded: !!fields.transferIncluded.checked,
@@ -110,48 +113,44 @@
     }
 
     function recalculate() {
-      if (!fields.participationOptionCode.value) return Promise.resolve();
+      if (!fields.participationOptionId.value) return Promise.resolve();
       setError(root, '');
-      setStatus(root, 'Пересчёт...');
+      root.classList.add('is-calculating');
       return request('/calculate', {
         method: 'POST',
         body: JSON.stringify(getPayloadBase()),
       })
         .then((pricing) => {
           updatePricingView(pricing);
-          setStatus(root, '');
         })
         .catch((e) => {
-          setStatus(root, '');
           setError(root, e.message);
+        })
+        .finally(() => {
+          root.classList.remove('is-calculating');
         });
     }
 
     request('/product')
       .then((product) => {
-        if (ui.activePeriod && product.activePricingPeriod) {
-          ui.activePeriod.textContent = `Период: ${product.activePricingPeriod.name}`;
-        }
-
-        fields.participationOptionCode.innerHTML = '';
+        fields.participationOptionId.innerHTML = '';
         product.participationOptions.forEach((item) => {
           const option = document.createElement('option');
-          option.value = item.code;
+          option.value = String(item.id);
           option.textContent = item.price ? `${item.name} — ${item.price} ₽` : item.name;
-          fields.participationOptionCode.appendChild(option);
+          fields.participationOptionId.appendChild(option);
         });
 
         return recalculate();
       })
       .catch((e) => setError(root, e.message));
 
-    ['change', 'input'].forEach((eventName) => {
-      fields.participationOptionCode.addEventListener(eventName, recalculate);
-      fields.adultsCount.addEventListener(eventName, recalculate);
-      fields.childrenCount.addEventListener(eventName, recalculate);
-      fields.transferIncluded.addEventListener(eventName, recalculate);
-      fields.paymentFactor.addEventListener(eventName, recalculate);
-    });
+    // One event per control — select fires both input+change in modern browsers.
+    fields.participationOptionId.addEventListener('change', recalculate);
+    fields.paymentFactor.addEventListener('change', recalculate);
+    fields.transferIncluded.addEventListener('change', recalculate);
+    fields.adultsCount.addEventListener('input', recalculate);
+    fields.childrenCount.addEventListener('input', recalculate);
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
