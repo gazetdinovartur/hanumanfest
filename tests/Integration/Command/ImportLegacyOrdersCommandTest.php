@@ -23,7 +23,7 @@ final class ImportLegacyOrdersCommandTest extends DatabaseTestCase
         $tester = new CommandTester($command);
         $tester->execute([
             '--source' => $fixture,
-            '--product-slug' => 'hanuman-fest-2026',
+            '--product-slug' => 'hanuman-fest',
         ]);
 
         self::assertSame(0, $tester->getStatusCode());

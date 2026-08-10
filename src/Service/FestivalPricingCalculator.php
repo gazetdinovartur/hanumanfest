@@ -8,7 +8,7 @@ use App\DTO\PricingResult;
 use App\Entity\ParticipationOption;
 use App\Entity\ParticipationPrice;
 use App\Entity\PricingPeriod;
-use App\Entity\Product;
+use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -16,6 +16,7 @@ class FestivalPricingCalculator
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly ProductRepository $productRepository,
     ) {
     }
 
@@ -26,13 +27,10 @@ class FestivalPricingCalculator
 
     public function calculateWithContext(CalculatePriceRequest $request): PricingContext
     {
-        $product = $this->entityManager->getRepository(Product::class)->findOneBy([
-            'slug' => $request->productSlug,
-            'isActive' => true,
-        ]);
+        $product = $this->productRepository->findActiveProduct();
 
         if (!$product) {
-            throw new NotFoundHttpException(sprintf('Product "%s" not found.', $request->productSlug));
+            throw new NotFoundHttpException('Active product not found.');
         }
 
         $participationOption = $this->entityManager->getRepository(ParticipationOption::class)->findOneBy([

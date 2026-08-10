@@ -37,7 +37,6 @@ class ApplicationService
 
         $pricingContext = $this->pricingCalculator->calculateWithContext(
             new CalculatePriceRequest(
-                productSlug: $request->productSlug,
                 participationOptionCode: $request->participationOptionCode,
                 adultsCount: $request->adultsCount,
                 childrenCount: $request->childrenCount,

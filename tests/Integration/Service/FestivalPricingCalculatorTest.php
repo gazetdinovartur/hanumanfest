@@ -27,7 +27,6 @@ final class FestivalPricingCalculatorTest extends DatabaseTestCase
         $calculator = static::getContainer()->get(FestivalPricingCalculator::class);
 
         $result = $calculator->calculate(new CalculatePriceRequest(
-            productSlug: 'hanuman-fest-2026',
             participationOptionCode: 'OWN_HOUSE_NO_FOOD',
             registrationDate: new \DateTimeImmutable('2026-02-01'),
             adultsCount: 1,
@@ -49,7 +48,6 @@ final class FestivalPricingCalculatorTest extends DatabaseTestCase
         $calculator = static::getContainer()->get(FestivalPricingCalculator::class);
 
         $result = $calculator->calculate(new CalculatePriceRequest(
-            productSlug: 'hanuman-fest-2026',
             participationOptionCode: 'OWN_HOUSE_NO_FOOD',
             registrationDate: new \DateTimeImmutable('2026-02-01'),
             adultsCount: 2,

@@ -16,27 +16,32 @@ final class ProductApiTest extends WebTestCase
         $client = static::createClient();
         $this->seedDatabase($client);
 
-        $client->request('GET', '/api/products/hanuman-fest-2026');
+        $client->request('GET', '/api/product');
 
         self::assertResponseIsSuccessful();
         $payload = json_decode($client->getResponse()->getContent(), true);
-        self::assertSame('hanuman-fest-2026', $payload['slug']);
+        self::assertSame('Hanuman Fest', $payload['name']);
         self::assertNotEmpty($payload['participationOptions']);
         self::assertSame('До 10 марта', $payload['activePricingPeriod']['name']);
         self::assertSame(3600, $payload['participationOptions'][0]['price']);
     }
 
-    public function testUnknownProductReturns404(): void
+    public function testProductEndpointReturns404WhenMissing(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/api/products/unknown-product');
+        $em = $client->getContainer()->get('doctrine')->getManager();
+        $schemaTool = new \Doctrine\ORM\Tools\SchemaTool($em);
+        $metadata = $em->getMetadataFactory()->getAllMetadata();
+        $schemaTool->dropSchema($metadata);
+        $schemaTool->createSchema($metadata);
+
+        $client->request('GET', '/api/product');
 
         self::assertResponseStatusCodeSame(404);
     }
 
     private function seedDatabase(KernelBrowser $client): void
     {
-        /** @var DatabaseTestCase $helper */
         $em = $client->getContainer()->get('doctrine')->getManager();
         $schemaTool = new \Doctrine\ORM\Tools\SchemaTool($em);
         $metadata = $em->getMetadataFactory()->getAllMetadata();

@@ -54,3 +54,4 @@ services:
     App\Command\ImportScheduleCommand:
         arguments:
             $defaultSourceUrl: '%env(SCHEDULE_SHEET_URL)%'
+

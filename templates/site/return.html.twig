@@ -1,0 +1,20 @@
+{% extends 'site/base.html.twig' %}
+
+{% block title %}Статус оплаты — Хануман Фест{% endblock %}
+
+{% block body %}
+<main class="py-5">
+    <div class="container" data-uae-widget="return">
+        <h1 class="text-brand-main text-center mb-4">Статус оплаты</h1>
+        <div class="alert alert-danger d-none" data-uae-error></div>
+        <div class="text-center" data-uae-return-info>Проверяем оплату…</div>
+    </div>
+</main>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    window.uaeBridgeConfig = { apiBase: '/api' };
+</script>
+<script src="{{ asset('assets/site/registration.js') }}"></script>
+{% endblock %}

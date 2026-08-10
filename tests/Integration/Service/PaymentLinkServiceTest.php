@@ -55,7 +55,7 @@ final class PaymentLinkServiceTest extends DatabaseTestCase
         $user->setPhone('+79160000002');
         $this->entityManager->persist($user);
 
-        $product = $this->entityManager->getRepository(\App\Entity\Product::class)->findOneBy(['slug' => 'hanuman-fest-2026']);
+        $product = $this->entityManager->getRepository(\App\Entity\Product::class)->findOneBy(['slug' => 'hanuman-fest']);
         $period = $this->entityManager->getRepository(\App\Entity\PricingPeriod::class)->findOneBy(['product' => $product]);
 
         $application = new Application();

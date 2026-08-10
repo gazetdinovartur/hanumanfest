@@ -13,8 +13,8 @@ final class HanumanFestFixtures
     public static function seed(EntityManagerInterface $entityManager): Product
     {
         $product = new Product();
-        $product->setName('Hanuman Fest 2026');
-        $product->setSlug('hanuman-fest-2026');
+        $product->setName('Hanuman Fest');
+        $product->setSlug('hanuman-fest');
         $product->setIsActive(true);
         $entityManager->persist($product);
 

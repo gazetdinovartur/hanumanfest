@@ -28,8 +28,8 @@
 В `wp-config.php` (уже должно быть для bridge):
 
 ```php
-define('UAE_API_BASE', 'https://апи.хануманфест.рф/api');
-define('UAE_PRODUCT_SLUG', 'hanuman-fest-2026');
+define('UAE_API_BASE', 'https://хануманфест.рф/api');
+define('UAE_PRODUCT_SLUG', 'hanuman-fest');
 ```
 
 Permalinks: сохранить ещё раз после создания страниц.
@@ -87,7 +87,7 @@ https://хануманфест.рф/wp-json/yk/v1/webhook
 В `wp-config.php` добавьте:
 
 ```php
-define('UAE_SYMFONY_WEBHOOK_URL', 'https://апи.хануманфест.рф/api/webhooks/yookassa');
+define('UAE_SYMFONY_WEBHOOK_URL', 'https://хануманфест.рф/api/webhooks/yookassa');
 ```
 
 Плагин `yookassa-plugin.php` при каждом webhook **асинхронно** шлёт копию на Symfony.
@@ -103,7 +103,7 @@ Symfony после оплаты тестовой заявки обновит с�
 
 ## 4. Проверка end-to-end (чеклист)
 
-1. [ ] API: `curl https://апи.хануманфест.рф/api/products/hanuman-fest-2026`
+1. [ ] API: `curl https://хануманфест.рф/api/products/hanuman-fest`
 2. [ ] Secret-страница регистрации открывается, цена считается
 3. [ ] Тестовая оплата минимальной суммы (или 50%)
 4. [ ] Webhook: в Symfony `/admin` — платёж `SUCCEEDED`, заявка обновилась
@@ -115,7 +115,7 @@ Symfony после оплаты тестовой заявки обновит с�
 
 ## 5. Админка Symfony
 
-- URL: `https://апи.хануманфест.рф/admin/login`
+- URL: `https://хануманфест.рф/admin/login`
 - Логин: `admin`
 - Пароль: из `ADMIN_PASSWORD_HASH` (production) или `TempAdmin!2026` (локально)
 

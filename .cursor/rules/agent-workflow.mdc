@@ -1,0 +1,12 @@
+---
+description: Agent workflow for Hanuman Fest — plan, act, observe
+alwaysApply: true
+---
+
+# Agent workflow
+
+- Cycle: **plan → act → observe**
+- Minimal necessary solutions; no drive-by refactors or extra files.
+- Cover mechanics with PHPUnit; run `composer test` after relevant changes.
+- Single runtime `.env` (gitignored); commit only `.env.example` stubs. Secrets stay local.
+- Read `AGENTS.md` and `docs/PROJECT.md` for product context.

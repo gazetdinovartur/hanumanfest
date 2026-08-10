@@ -27,7 +27,6 @@ class ApplicationController extends AbstractController
     {
         $data = $request->toArray();
         $calculateRequest = new CalculatePriceRequest(
-            productSlug: $data['productSlug'] ?? '',
             participationOptionCode: $data['participationOptionCode'] ?? '',
             adultsCount: max(1, (int) ($data['adultsCount'] ?? 1)),
             childrenCount: max(0, (int) ($data['childrenCount'] ?? 0)),
@@ -55,7 +54,6 @@ class ApplicationController extends AbstractController
                 name: $data['name'] ?? '',
                 email: $data['email'] ?? '',
                 phone: $data['phone'] ?? null,
-                productSlug: $data['productSlug'] ?? '',
                 participationOptionCode: $data['participationOptionCode'] ?? '',
                 payload: $data['payload'] ?? [],
                 adultsCount: max(1, (int) ($data['adultsCount'] ?? 1)),

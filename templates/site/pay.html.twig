@@ -1,0 +1,24 @@
+{% extends 'site/base.html.twig' %}
+
+{% block title %}Доплата — Хануман Фест{% endblock %}
+
+{% block body %}
+<main class="py-5">
+    <div class="container" data-uae-widget="payment" data-token="{{ token }}">
+        <h1 class="text-brand-main text-center mb-4">Оплата остатка</h1>
+        <div class="alert alert-danger d-none" data-uae-error></div>
+        <p class="text-muted text-center" data-uae-status></p>
+        <div class="text-center mb-4" data-uae-payment-info></div>
+        <div class="text-center">
+            <button type="button" class="btn btn-brand-main text-white fw-bold px-4 py-2" data-uae-pay-btn>Оплатить</button>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    window.uaeBridgeConfig = { apiBase: '/api' };
+</script>
+<script src="{{ asset('assets/site/registration.js') }}"></script>
+{% endblock %}

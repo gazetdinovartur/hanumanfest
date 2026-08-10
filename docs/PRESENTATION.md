@@ -210,7 +210,7 @@ flowchart LR
 - Хостинг: Timeweb, PHP 8.5, MySQL 8.0, document root `public/`.
 - `bash bin/deploy-prod.sh` — composer `--no-dev`, migrations, cache reset, `assets:install`, удаление `.env.local.php`.
 - Monolog → `var/log/prod.log`.
-- Smoke: `GET /api/health`, `GET /api/products/hanuman-fest-2026`.
+- Smoke: `GET /api/health`, `GET /api/products/hanuman-fest`.
 - Подробности: `DEPLOY_TIMEWEB.md`, `PARALLEL_TESTING.md`.
 
 ---

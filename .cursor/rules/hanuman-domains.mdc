@@ -1,11 +1,12 @@
 ---
-description: Production domains for Hanuman Fest UAE project
+description: Production domains for Hanuman Fest
 alwaysApply: true
 ---
 
 # Hanuman Fest — production URLs
 
-- **Symfony API (backend):** `https://апи.хануманфест.рф` — кириллический поддомен **апи**, не латинский `api`
-- **WordPress (frontend):** `https://хануманфест.рф`
+- **Сайт + API + admin:** `https://хануманфест.рф` (API под `/api`, не отдельный поддомен)
+- **Архив 2026 (фаза 3):** `https://2026.хануманфест.рф`
 
-In docs, env examples, bridge defaults, and webhook URLs always use `апи.хануманфест.рф` for the API host.
+Не использовать `апи.хануманфест.рф` в новых примерах, env и webhook URL.
+Product slug: `hanuman-fest` (один продукт).

@@ -5,39 +5,35 @@ namespace App\Controller\Api;
 use App\Entity\ParticipationOption;
 use App\Entity\ParticipationPrice;
 use App\Entity\PricingPeriod;
-use App\Entity\Product;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/products')]
+#[Route('/api/product')]
 class ProductController extends AbstractController
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly ProductRepository $productRepository,
     ) {
     }
 
-    #[Route('/{slug}', name: 'api_products_show', methods: ['GET'])]
-    public function show(string $slug): JsonResponse
+    #[Route('', name: 'api_product_show', methods: ['GET'])]
+    public function show(): JsonResponse
     {
-        $product = $this->entityManager->getRepository(Product::class)->findOneBy([
-            'slug' => $slug,
-            'isActive' => true,
-        ]);
-
+        $product = $this->productRepository->findActiveProduct();
         if (!$product) {
             throw new NotFoundHttpException('Product not found');
         }
 
-        $options = $this->entityManager->getRepository(ParticipationOption::class)->findBy(
+        $em = $this->productRepository->getEntityManager();
+        $options = $em->getRepository(ParticipationOption::class)->findBy(
             ['product' => $product],
             ['name' => 'ASC'],
         );
 
-        $periods = $this->entityManager->getRepository(PricingPeriod::class)->findBy(
+        $periods = $em->getRepository(PricingPeriod::class)->findBy(
             ['product' => $product, 'isActive' => true],
             ['startAt' => 'ASC'],
         );
@@ -53,7 +49,7 @@ class ProductController extends AbstractController
 
         $prices = [];
         if ($activePeriod) {
-            $priceRows = $this->entityManager->getRepository(ParticipationPrice::class)->findBy([
+            $priceRows = $em->getRepository(ParticipationPrice::class)->findBy([
                 'pricingPeriod' => $activePeriod,
             ]);
             foreach ($priceRows as $row) {
@@ -62,7 +58,6 @@ class ProductController extends AbstractController
         }
 
         return $this->json([
-            'slug' => $product->getSlug(),
             'name' => $product->getName(),
             'participationOptions' => array_map(static fn (ParticipationOption $o) => [
                 'code' => $o->getCode(),

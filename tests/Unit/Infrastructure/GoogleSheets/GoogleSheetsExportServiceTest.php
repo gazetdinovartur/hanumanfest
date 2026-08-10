@@ -59,7 +59,7 @@ final class GoogleSheetsExportServiceTest extends TestCase
 
         $product = new Product();
         $product->setName('Hanuman Fest 2026');
-        $product->setSlug('hanuman-fest-2026');
+        $product->setSlug('hanuman-fest');
         $product->setIsActive(true);
 
         $application = new Application();

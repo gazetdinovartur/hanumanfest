@@ -24,7 +24,6 @@ final class CalculateApiTest extends WebTestCase
             '/api/calculate',
             server: ['CONTENT_TYPE' => 'application/json'],
             content: json_encode([
-                'productSlug' => 'hanuman-fest-2026',
                 'participationOptionCode' => 'OWN_HOUSE_NO_FOOD',
                 'adultsCount' => 1,
                 'childrenCount' => 0,

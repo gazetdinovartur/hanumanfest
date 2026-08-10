@@ -21,16 +21,16 @@ final class ScheduleApiTest extends WebTestCase
 
         $importService = static::getContainer()->get(\App\Service\ScheduleImportService::class);
         $product = static::getContainer()->get('doctrine')->getRepository(\App\Entity\Product::class)
-            ->findOneBy(['slug' => 'hanuman-fest-2026']);
+            ->findOneBy(['slug' => 'hanuman-fest']);
         self::assertNotNull($product);
 
         $importService->importFromCsv($product, $csv);
 
-        $client->request('GET', '/api/products/hanuman-fest-2026/schedule');
+        $client->request('GET', '/api/product/schedule');
         self::assertResponseIsSuccessful();
 
         $payload = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        self::assertSame('hanuman-fest-2026', $payload['product']['slug']);
+        self::assertArrayHasKey('name', $payload['product']);
         self::assertNotEmpty($payload['days']);
         self::assertNotNull($payload['importedAt']);
 
@@ -71,7 +71,7 @@ final class ScheduleApiTest extends WebTestCase
         $client = static::createClient();
         $this->seedDatabase($client);
 
-        $client->request('GET', '/api/products/hanuman-fest-2026/schedule');
+        $client->request('GET', '/api/product/schedule');
         self::assertResponseIsSuccessful();
 
         $response = $client->getResponse();
@@ -86,19 +86,13 @@ final class ScheduleApiTest extends WebTestCase
 
         $client->request(
             'GET',
-            '/api/products/hanuman-fest-2026/schedule',
+            '/api/product/schedule',
             server: ['HTTP_ORIGIN' => 'http://localhost'],
         );
         self::assertResponseIsSuccessful();
         self::assertSame('http://localhost', $client->getResponse()->headers->get('Access-Control-Allow-Origin'));
     }
 
-    public function testUnknownProductReturns404(): void
-    {
-        $client = static::createClient();
-        $client->request('GET', '/api/products/unknown-product/schedule');
-        self::assertResponseStatusCodeSame(404);
-    }
 
     private function seedDatabase(KernelBrowser $client): void
     {

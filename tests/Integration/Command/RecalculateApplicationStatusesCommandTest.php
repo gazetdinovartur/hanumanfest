@@ -27,7 +27,7 @@ final class RecalculateApplicationStatusesCommandTest extends DatabaseTestCase
         $user->setPhone('+79160000004');
         $this->entityManager->persist($user);
 
-        $product = $this->entityManager->getRepository(\App\Entity\Product::class)->findOneBy(['slug' => 'hanuman-fest-2026']);
+        $product = $this->entityManager->getRepository(\App\Entity\Product::class)->findOneBy(['slug' => 'hanuman-fest']);
         $period = $this->entityManager->getRepository(\App\Entity\PricingPeriod::class)->findOneBy(['product' => $product]);
 
         $application = new Application();
@@ -51,7 +51,7 @@ final class RecalculateApplicationStatusesCommandTest extends DatabaseTestCase
 
         $command = static::getContainer()->get(RecalculateApplicationStatusesCommand::class);
         $tester = new CommandTester($command);
-        $tester->execute(['--product-slug' => 'hanuman-fest-2026']);
+        $tester->execute(['--product-slug' => 'hanuman-fest']);
 
         self::assertSame(0, $tester->getStatusCode());
         $this->entityManager->refresh($application);

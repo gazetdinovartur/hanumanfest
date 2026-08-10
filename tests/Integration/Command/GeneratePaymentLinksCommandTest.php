@@ -26,7 +26,7 @@ final class GeneratePaymentLinksCommandTest extends DatabaseTestCase
 
         $command = static::getContainer()->get(GeneratePaymentLinksCommand::class);
         $tester = new CommandTester($command);
-        $tester->execute(['--dry-run' => true, '--product-slug' => 'hanuman-fest-2026']);
+        $tester->execute(['--dry-run' => true, '--product-slug' => 'hanuman-fest']);
 
         self::assertSame(0, $tester->getStatusCode());
         self::assertStringContainsString('links_to_create=1', $tester->getDisplay());
@@ -40,7 +40,7 @@ final class GeneratePaymentLinksCommandTest extends DatabaseTestCase
 
         $command = static::getContainer()->get(GeneratePaymentLinksCommand::class);
         $tester = new CommandTester($command);
-        $tester->execute(['--product-slug' => 'hanuman-fest-2026']);
+        $tester->execute(['--product-slug' => 'hanuman-fest']);
 
         self::assertSame(0, $tester->getStatusCode());
         self::assertStringContainsString('created_links=1', $tester->getDisplay());
@@ -57,8 +57,8 @@ final class GeneratePaymentLinksCommandTest extends DatabaseTestCase
 
         $command = static::getContainer()->get(GeneratePaymentLinksCommand::class);
         $tester = new CommandTester($command);
-        $tester->execute(['--product-slug' => 'hanuman-fest-2026']);
-        $tester->execute(['--dry-run' => true, '--product-slug' => 'hanuman-fest-2026']);
+        $tester->execute(['--product-slug' => 'hanuman-fest']);
+        $tester->execute(['--dry-run' => true, '--product-slug' => 'hanuman-fest']);
 
         self::assertStringContainsString('No partially paid applications without payment links found', $tester->getDisplay());
         $this->entityManager->refresh($application);
@@ -73,7 +73,7 @@ final class GeneratePaymentLinksCommandTest extends DatabaseTestCase
         $user->setPhone('+79160000003');
         $this->entityManager->persist($user);
 
-        $product = $this->entityManager->getRepository(\App\Entity\Product::class)->findOneBy(['slug' => 'hanuman-fest-2026']);
+        $product = $this->entityManager->getRepository(\App\Entity\Product::class)->findOneBy(['slug' => 'hanuman-fest']);
         $period = $this->entityManager->getRepository(\App\Entity\PricingPeriod::class)->findOneBy(['product' => $product]);
 
         $application = new Application();

@@ -1,0 +1,19 @@
+{% extends 'site/base.html.twig' %}
+
+{% block title %}Регистрация — Хануман Фест{% endblock %}
+
+{% block body %}
+<main class="py-5">
+    <div class="container">
+        <h1 class="text-brand-main text-center mb-4">Регистрация и оплата</h1>
+        {% include 'site/_registration_widget.html.twig' %}
+    </div>
+</main>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    window.uaeBridgeConfig = { apiBase: '/api' };
+</script>
+<script src="{{ asset('assets/site/registration.js') }}"></script>
+{% endblock %}

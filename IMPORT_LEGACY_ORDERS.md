@@ -19,7 +19,7 @@ Dry run:
 php bin/console app:import:legacy-orders \
   --sheet-source="/absolute/path/Лист регистраций - Регистрации.csv" \
   --forminator-source="/absolute/path/forminator-форма-регистрации-260610234408.csv" \
-  --product-slug=hanuman-fest-2026 \
+  --product-slug=hanuman-fest \
   --dry-run
 ```
 
@@ -29,7 +29,7 @@ Real import:
 php bin/console app:import:legacy-orders \
   --sheet-source="/absolute/path/Лист регистраций - Регистрации.csv" \
   --forminator-source="/absolute/path/forminator-форма-регистрации-260610234408.csv" \
-  --product-slug=hanuman-fest-2026
+  --product-slug=hanuman-fest
 ```
 
 You can also import one source only:
@@ -48,8 +48,8 @@ Notes:
 If legacy data was imported in several passes, run status reconciliation:
 
 ```bash
-php bin/console app:applications:recalculate-statuses --product-slug=hanuman-fest-2026 --dry-run
-php bin/console app:applications:recalculate-statuses --product-slug=hanuman-fest-2026
+php bin/console app:applications:recalculate-statuses --product-slug=hanuman-fest --dry-run
+php bin/console app:applications:recalculate-statuses --product-slug=hanuman-fest
 ```
 
 ## 4) Generate links for second payment (50% cases)
@@ -57,18 +57,18 @@ php bin/console app:applications:recalculate-statuses --product-slug=hanuman-fes
 Dry run:
 
 ```bash
-php bin/console app:payment-links:generate --product-slug=hanuman-fest-2026 --dry-run
+php bin/console app:payment-links:generate --product-slug=hanuman-fest --dry-run
 ```
 
 Create links:
 
 ```bash
-php bin/console app:payment-links:generate --product-slug=hanuman-fest-2026
+php bin/console app:payment-links:generate --product-slug=hanuman-fest
 ```
 
 Create links + send email to all generated:
 
 ```bash
-php bin/console app:payment-links:generate --product-slug=hanuman-fest-2026 --send-email
+php bin/console app:payment-links:generate --product-slug=hanuman-fest --send-email
 ```
 

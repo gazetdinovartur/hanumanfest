@@ -32,7 +32,7 @@ class ImportScheduleCommand extends Command
     {
         $this
             ->addOption('source', null, InputOption::VALUE_OPTIONAL, 'CSV file path or published Google Sheet export URL')
-            ->addOption('product-slug', null, InputOption::VALUE_OPTIONAL, 'Product slug', 'hanuman-fest-2026')
+            ->addOption('product-slug', null, InputOption::VALUE_OPTIONAL, 'Product slug (default: active product)')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Parse and preview without writing to DB')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Re-import even if source hash unchanged');
     }

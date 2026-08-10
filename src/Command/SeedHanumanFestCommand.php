@@ -29,13 +29,19 @@ class SeedHanumanFestCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $product = $this->entityManager->getRepository(Product::class)->findOneBy(['slug' => 'hanuman-fest-2026']);
+        $repository = $this->entityManager->getRepository(Product::class);
+        $product = $repository->findOneBy(['slug' => 'hanuman-fest'])
+            ?? $repository->findOneBy(['slug' => 'hanuman-fest-2026']);
+
         if ($product) {
-            $io->warning('Проект hanuman-fest-2026 уже существует, обновляем периоды и цены.');
+            $io->warning('Продукт уже существует, обновляем slug, периоды и цены.');
+            $product->setSlug('hanuman-fest');
+            $product->setName('Hanuman Fest');
+            $product->setIsActive(true);
         } else {
             $product = new Product();
-            $product->setName('Hanuman Fest 2026');
-            $product->setSlug('hanuman-fest-2026');
+            $product->setName('Hanuman Fest');
+            $product->setSlug('hanuman-fest');
             $product->setIsActive(true);
             $this->entityManager->persist($product);
         }
@@ -135,7 +141,7 @@ class SeedHanumanFestCommand extends Command
 
         $this->entityManager->flush();
 
-        $io->success('Hanuman Fest 2026: периоды, варианты участия и цены обновлены.');
+        $io->success('Hanuman Fest: периоды, варианты участия и цены обновлены.');
 
         return Command::SUCCESS;
     }

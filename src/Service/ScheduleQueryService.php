@@ -18,7 +18,7 @@ final class ScheduleQueryService
 
     /**
      * @return array{
-     *     product: array{slug: string, name: string},
+     *     product: array{name: string},
      *     importedAt: string|null,
      *     days: list<array{
      *         date: string,
@@ -119,7 +119,6 @@ final class ScheduleQueryService
 
         return [
             'product' => [
-                'slug' => $product->getSlug(),
                 'name' => $product->getName(),
             ],
             'importedAt' => $latestImport?->getImportedAt()->format(\DateTimeInterface::ATOM),

@@ -30,7 +30,8 @@
 # Timeweb flat web root (assets:install .)
 /bundles/
 
-# Local legacy import data (not source code)
+# Local legacy import data / backups (not source code)
 /legacy/*.csv
+/legacy/*.tar.zip
+/legacy/*.zip
 /meta
-/hanumanfest

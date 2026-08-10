@@ -1,0 +1,92 @@
+{% extends 'site/base.html.twig' %}
+
+{% block title %}Хануман Фест{% endblock %}
+
+{% block stylesheets %}
+<link href="{{ asset('assets/site/hf-schedule.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<section class="hero d-flex flex-column justify-content-center align-items-center text-center text-white" id="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content container">
+        <p class="hero-date text-brand-accent fw-bold fs-1">Даты уточняются</p>
+        <p class="date-dot">•</p>
+        <p class="hero-subtitle-top fs-3">Йога · музыка · творчество</p>
+        <h1 class="hero-title text-brand-main display-2 fw-bold">Хануман Фест</h1>
+        <div class="hero-underline mx-auto"></div>
+        <p class="hero-subtitle-bottom fs-4">Фестиваль на природе среди полей, озёр и лесов</p>
+        <a href="{{ path('site_registration') }}" class="btn btn-lg btn-brand-main text-white fw-bold px-4 py-3 mt-3">Участвовать</a>
+    </div>
+</section>
+
+<section class="about py-5 text-center" id="about">
+    <div class="container">
+        <p class="lead mb-0">Море йоги, музыки и творчества в экологически чистом месте. Проживание в палатках и домиках — одна большая семья.</p>
+    </div>
+    <section class="py-5 festival-highlights container">
+        <div class="highlights-grid tiles">
+            <div class="tiles-column left">
+                <div class="tile big">Море йоги, музыки и творчества</div>
+                <div class="tile big">Экологически-чистое место среди полей, озёр и лесов</div>
+                <div class="tile big">Проживание в палатках и домиках — одна большая семья</div>
+                <div class="tile big">Детская зона в течение дня</div>
+                <div class="tile big">Несколько площадок для практик в месте силы</div>
+                <div class="tile big">Кухня, столовая, детская площадка, баня</div>
+                <div class="tile big">Вегетарианское питание от шеф-повара</div>
+            </div>
+            <div class="tiles-column right">
+                <div class="tile">Хатха и Раджа-йога</div>
+                <div class="tile">Кундалини и Гонг-сатори</div>
+                <div class="tile">Дыхание и Шаманские практики</div>
+                <div class="tile">Пранаяма и Медитация</div>
+                <div class="tile">Киртан и Бхаджаны</div>
+                <div class="tile">Экстатик-дэнс и Концерт</div>
+                <div class="tile wide">ХОЛИ</div>
+            </div>
+        </div>
+    </section>
+</section>
+
+<section class="schedule-section py-5 bg-light" id="program">
+    <div class="container">
+        <h2 class="text-center text-brand-main mb-4">Программа фестиваля</h2>
+        <div class="hf-schedule" data-hf-schedule data-layout="compact">
+            <div class="hf-schedule__loading text-center py-4">
+                <div class="spinner-border text-brand-main" role="status">
+                    <span class="visually-hidden">Загрузка…</span>
+                </div>
+            </div>
+        </div>
+        <p class="text-center mt-4 mb-0">
+            <a href="{{ path('site_program') }}" class="contact-link fw-semibold">Полное расписание →</a>
+        </p>
+    </div>
+</section>
+
+<section class="py-5" id="cost">
+    <div class="container">
+        <h2 class="text-center text-brand-main mb-4">Ценность</h2>
+        <p class="text-center text-muted mb-4">Актуальные цены подтягиваются в форме регистрации из текущего ценового периода.</p>
+        <p class="text-center">
+            <a href="{{ path('site_registration') }}" class="btn btn-brand-main text-white fw-bold px-4 py-2">Перейти к регистрации</a>
+        </p>
+    </div>
+</section>
+
+<section class="register py-5" id="register">
+    <div class="container">
+        <h2 class="text-brand-main text-center mb-4">Регистрация и оплата</h2>
+        {% include 'site/_registration_widget.html.twig' %}
+    </div>
+</section>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    window.hfSchedule = { apiBase: '/api' };
+    window.uaeBridgeConfig = { apiBase: '/api' };
+</script>
+<script src="{{ asset('assets/site/hf-schedule.js') }}"></script>
+<script src="{{ asset('assets/site/registration.js') }}"></script>
+{% endblock %}

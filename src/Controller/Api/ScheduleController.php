@@ -2,31 +2,26 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\Product;
+use App\Repository\ProductRepository;
 use App\Service\ScheduleQueryService;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/products')]
+#[Route('/api/product')]
 class ScheduleController extends AbstractController
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly ProductRepository $productRepository,
         private readonly ScheduleQueryService $scheduleQueryService,
     ) {
     }
 
-    #[Route('/{slug}/schedule', name: 'api_products_schedule', methods: ['GET'])]
-    public function show(string $slug): JsonResponse
+    #[Route('/schedule', name: 'api_product_schedule', methods: ['GET'])]
+    public function show(): JsonResponse
     {
-        $product = $this->entityManager->getRepository(Product::class)->findOneBy([
-            'slug' => $slug,
-            'isActive' => true,
-        ]);
-
+        $product = $this->productRepository->findActiveProduct();
         if (!$product) {
             throw new NotFoundHttpException('Product not found');
         }

@@ -55,7 +55,7 @@ class ImportLegacyOrdersCommand extends Command
             ->addOption('source', null, InputOption::VALUE_OPTIONAL, 'Single CSV source (generic mode)')
             ->addOption('sheet-source', null, InputOption::VALUE_OPTIONAL, 'Google Sheet CSV export path/URL')
             ->addOption('forminator-source', null, InputOption::VALUE_OPTIONAL, 'Forminator CSV export path/URL')
-            ->addOption('product-slug', null, InputOption::VALUE_OPTIONAL, 'Product slug for imported rows', 'hanuman-fest-2026')
+            ->addOption('product-slug', null, InputOption::VALUE_OPTIONAL, 'Product slug for imported rows', 'hanuman-fest')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Validate and preview import without writing to DB');
     }
 
