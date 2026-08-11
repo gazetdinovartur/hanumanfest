@@ -58,6 +58,7 @@ function handleApplication(data) {
   setCell(sheet, row, col, 'childrencount', data.childrenCount || '');
   setCell(sheet, row, col, 'transferincluded', data.transferIncluded || '0');
   setCell(sheet, row, col, 'paymentfactor', data.paymentFactor || '1');
+  setCell(sheet, row, col, 'notes', data.notes || '');
   setCell(sheet, row, col, 'paidtotal', '0.00 RUB');
   setCell(sheet, row, col, 'remaining', (data.totalAmount || '0') + ' RUB');
 

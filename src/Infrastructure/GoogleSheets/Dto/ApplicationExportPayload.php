@@ -19,6 +19,7 @@ readonly class ApplicationExportPayload
         public string $childrenCount,
         public string $transferIncluded,
         public string $paymentFactor,
+        public string $notes = '',
     ) {
     }
 
@@ -40,6 +41,7 @@ readonly class ApplicationExportPayload
             'childrenCount' => $this->childrenCount,
             'transferIncluded' => $this->transferIncluded,
             'paymentFactor' => $this->paymentFactor,
+            'notes' => $this->notes,
         ];
     }
 }

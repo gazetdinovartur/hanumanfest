@@ -68,46 +68,29 @@
 {% block body %}{% endblock %}
 
 {% set footerBg = settings is defined and settings and settings.footerBackgroundPath ? asset(settings.footerBackgroundPath) : null %}
+{% set footerContactsRaw = settings is defined and settings ? settings.contactsHtml : null %}
 <footer class="site-footer"{% if footerBg %} style="background-image: url('{{ footerBg }}');"{% endif %}>
     <div class="footer-overlay"></div>
     <div class="footer-container">
         <div class="footer-right">
             <nav class="footer-menu">
                 <ul class="footer-menu-items">
-                    <li><a href="{{ path('site_home') }}#infoblocks">О фестивале</a></li>
-                    <li><a href="{{ path('site_home') }}#program">Программа</a></li>
-                    <li><a href="{{ path('site_home') }}#guests">Специальные гости</a></li>
-                    <li><a href="{{ path('site_home') }}#masters">Мастера и практики</a></li>
-                    <li><a href="{{ path('site_home') }}#cost">Ценность</a></li>
-                    <li><a href="{{ path('site_home') }}#register">Регистрация</a></li>
-                    <li><a href="{{ path('site_home') }}#contacts">Контакты</a></li>
+                    {% for page in footerPages|default([]) %}
+                        <li><a href="{{ path('site_page', {slug: page.slug}) }}">{{ page.title }}</a></li>
+                    {% endfor %}
                 </ul>
             </nav>
             <div class="footer-contacts" id="contacts">
-                {% if settings and settings.contactsHtml %}
-                    {% for line in settings.contactsHtml|split('\n') %}
-                        {% set item = line|trim %}
-                        {% if '@' in item and 'http' not in item %}
-                            <a href="mailto:{{ item }}">{{ item }}</a>
-                        {% elseif item starts with '+' or item matches '/^\\d/' %}
-                            <a href="tel:{{ item|replace({' ': '', '(': '', ')': '', '-': ''}) }}">{{ item }}</a>
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
+                {% for link in footer_contact_links(footerContactsRaw) %}
+                    <a href="{{ link.href }}">{{ link.label }}</a>
+                {% endfor %}
             </div>
             <div class="footer-socials">
-                {% if settings is defined and settings %}
-                    {% if settings.vkUrl %}
-                        <a href="{{ settings.vkUrl }}" class="footer-social footer-vk" target="_blank" rel="noopener">
-                            <img src="{{ asset('assets/site/icons/vk.svg') }}" alt="VK">
-                        </a>
-                    {% endif %}
-                    {% if settings.telegramUrl %}
-                        <a href="{{ settings.telegramUrl }}" class="footer-social footer-tg" target="_blank" rel="noopener">
-                            <img src="{{ asset('assets/site/icons/tg.svg') }}" alt="TG">
-                        </a>
-                    {% endif %}
-                {% endif %}
+                {% for social in footer_social_links(footerContactsRaw) %}
+                    <a href="{{ social.url }}" class="footer-social footer-{{ social.name }}" target="_blank" rel="noopener">
+                        <img src="{{ asset('assets/site/icons/' ~ social.name ~ '.svg') }}" alt="{{ social.name|upper }}">
+                    </a>
+                {% endfor %}
             </div>
         </div>
     </div>

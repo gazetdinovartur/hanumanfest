@@ -76,6 +76,8 @@
   function initRegistration(root) {
     const form = root.querySelector('[data-uae-form]');
         let latestPricing = null;
+    /** @type {Record<string, {id:number, code:string, name:string}>} */
+    let optionsById = {};
 
     const fields = {
       name: form.querySelector('[name="name"]'),
@@ -86,6 +88,12 @@
       childrenCount: form.querySelector('[name="childrenCount"]'),
       transferIncluded: form.querySelector('[name="transferIncluded"]'),
       paymentFactor: form.querySelector('[name="paymentFactor"]'),
+      tentRoommate: form.querySelector('[name="tentRoommate"]'),
+    };
+
+    const conditional = {
+      tentRoommate: root.querySelector('[data-uae-conditional="tent-roommate"]'),
+      houseBooking: root.querySelector('[data-uae-conditional="house-booking"]'),
     };
 
     const ui = {
@@ -94,6 +102,32 @@
       meta: root.querySelector('[data-uae-meta]'),
       submit: root.querySelector('[data-uae-submit]'),
     };
+
+    function optionKind(option) {
+      if (!option) return null;
+      const code = String(option.code || '').toUpperCase();
+      const name = String(option.name || '').toLowerCase();
+      if (code.startsWith('OUR_TENT') || name.includes('нашей палатке')) return 'tent';
+      if (code.startsWith('OWN_HOUSE') || name.includes('своем жилье')) return 'house';
+      return null;
+    }
+
+    function updateConditionalFields() {
+      const selected = optionsById[String(fields.participationOptionId.value)] || null;
+      const kind = optionKind(selected);
+      const showTent = kind === 'tent';
+      const showHouse = kind === 'house';
+
+      if (conditional.tentRoommate) {
+        conditional.tentRoommate.classList.toggle('d-none', !showTent);
+        if (!showTent && fields.tentRoommate) {
+          fields.tentRoommate.value = '';
+        }
+      }
+      if (conditional.houseBooking) {
+        conditional.houseBooking.classList.toggle('d-none', !showHouse);
+      }
+    }
 
     function getPayloadBase() {
       return {
@@ -134,19 +168,25 @@
     request('/product')
       .then((product) => {
         fields.participationOptionId.innerHTML = '';
+        optionsById = {};
         product.participationOptions.forEach((item) => {
+          optionsById[String(item.id)] = item;
           const option = document.createElement('option');
           option.value = String(item.id);
           option.textContent = item.price ? `${item.name} — ${item.price} ₽` : item.name;
           fields.participationOptionId.appendChild(option);
         });
 
+        updateConditionalFields();
         return recalculate();
       })
       .catch((e) => setError(root, e.message));
 
     // One event per control — select fires both input+change in modern browsers.
-    fields.participationOptionId.addEventListener('change', recalculate);
+    fields.participationOptionId.addEventListener('change', () => {
+      updateConditionalFields();
+      recalculate();
+    });
     fields.paymentFactor.addEventListener('change', recalculate);
     fields.transferIncluded.addEventListener('change', recalculate);
     fields.adultsCount.addEventListener('input', recalculate);
@@ -166,12 +206,20 @@
         return;
       }
 
+      const selected = optionsById[String(fields.participationOptionId.value)] || null;
       const payload = {
         ...getPayloadBase(),
         name: fields.name.value.trim(),
         email: fields.email.value.trim(),
         phone,
       };
+
+      if (optionKind(selected) === 'tent' && fields.tentRoommate) {
+        const roommate = fields.tentRoommate.value.trim();
+        if (roommate) {
+          payload.tentRoommate = roommate;
+        }
+      }
 
       request('/applications', {
         method: 'POST',

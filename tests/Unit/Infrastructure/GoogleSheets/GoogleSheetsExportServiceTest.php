@@ -76,6 +76,7 @@ final class GoogleSheetsExportServiceTest extends TestCase
             'childrenCount' => 0,
             'transferIncluded' => false,
             'paymentFactor' => 0.5,
+            'tentRoommate' => 'С другом Иваном',
         ]);
         $application->setTotalAmount(3600);
 
@@ -84,5 +85,6 @@ final class GoogleSheetsExportServiceTest extends TestCase
         self::assertSame('application', $captured['action']);
         self::assertSame('export@test.example', $captured['email']);
         self::assertSame('3600.00', $captured['totalAmount']);
+        self::assertSame('С другом Иваном', $captured['notes']);
     }
 }

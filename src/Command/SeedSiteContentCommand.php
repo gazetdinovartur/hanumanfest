@@ -63,9 +63,9 @@ class SeedSiteContentCommand extends Command
         $settings->setLogoPath('/uploads/wp/2025/10/logo-hanuman.png');
         $settings->setFooterBackgroundPath('/uploads/wp/2025/10/KxUveqx2_ySkKL1uodMLRlPX-AHveG67FW4hOk7tRbAIMeBeq5k8Rhc_QzrWH5dek6rzlxxbjUq7lY9XEafi9XBy.jpg');
         $settings->setCompanyInfo("ИП Сараев Антон Валерьевич\n\nОГРНИП 304662518300032\nИНН 662504951300");
-        $settings->setContactsHtml("+7 (343) 385-83-70\n+7 922 211 61 18\nhanumanfest@gmail.com\nhttps://vk.com/hanumanyoga\nhttps://t.me/Hanuman_ekb");
-        $settings->setVkUrl('https://vk.com/skazka_108');
-        $settings->setTelegramUrl('https://t.me/+79222108041');
+        $settings->setContactsHtml("+7 (343) 385-83-70\n+7 922 211 61 18\nhanumanfest@gmail.com\nhttps://vk.com/hanumanyoga\nhttps://www.facebook.com/hanumanyoga.ru/\nhttps://www.instagram.com/hanuman_yoga.ru/\nhttps://t.me/Hanuman_ekb");
+        $settings->setVkUrl('https://vk.com/hanumanyoga');
+        $settings->setTelegramUrl('https://t.me/Hanuman_ekb');
         $settings->setNotificationEmail('hanumanfest@gmail.com');
         $this->em->persist($settings);
 

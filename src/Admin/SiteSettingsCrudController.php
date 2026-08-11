@@ -85,10 +85,12 @@ class SiteSettingsCrudController extends AbstractUploadCrudController
         yield TextareaField::new('companyInfo', 'Реквизиты')
             ->setNumOfRows(4);
         yield TextareaField::new('contactsHtml', 'Контакты')
-            ->setHelp('По одной строке: телефон, email, ссылки.')
-            ->setNumOfRows(5);
-        yield UrlField::new('vkUrl', 'VK');
-        yield UrlField::new('telegramUrl', 'Telegram');
+            ->setHelp('Как в WP: по строке телефон, email и URL соцсетей (vk/facebook/instagram/t.me). Иконки в футере берутся из этих ссылок.')
+            ->setNumOfRows(8);
+        yield UrlField::new('vkUrl', 'VK (доп.)')
+            ->setHelp('Не обязательно: футер читает соцсети из поля «Контакты».');
+        yield UrlField::new('telegramUrl', 'Telegram (доп.)')
+            ->setHelp('Не обязательно: футер читает соцсети из поля «Контакты».');
         yield EmailField::new('notificationEmail', 'Email уведомлений');
     }
 

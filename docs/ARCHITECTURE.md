@@ -26,6 +26,7 @@ Symfony-админка и метрики читают **только MySQL** (п
 | Зеркало регистраций | Google Sheet «Регистрации» | `GOOGLE_SHEETS_WEBHOOK_URL` (Apps Script) |
 | Цены | MySQL periods × options | `/admin/pricing`, seed `app:seed:hanuman-fest` |
 | Контент лендинга | MySQL CMS + `public/uploads` | `app:seed:site-content`, админка |
+| Страницы (юр., питание) | MySQL `site_page` | `app:seed:site-pages`, `/admin` → Страницы |
 | Расписание | отдельный Spreadsheet → MySQL | `SCHEDULE_SHEET_URL`, `app:import:schedule` |
 
 Два Google-документа: **регистрации** (`GOOGLE_SHEETS_WEBHOOK_URL`) и **программа** (`SCHEDULE_SHEET_URL`) — не путать.

@@ -1,0 +1,29 @@
+{% extends 'site/base.html.twig' %}
+
+{% block title %}{{ page.title }} — Хануман Фест{% endblock %}
+
+{% block body %}
+<main class="page-content container">
+    <h1 class="text-brand-main mb-5">{{ page.title }}</h1>
+    <div class="entry-content">
+        {{ page.contentHtml|raw }}
+    </div>
+</main>
+
+{% if page.template.value == 'kitchen' %}
+<section class="promo-grid">
+    <div class="promo-card">
+        <video src="{{ asset('uploads/wp/2026/03/IMG_8652.mp4') }}" autoplay muted loop controls playsinline preload="metadata"></video>
+    </div>
+    <div class="promo-card">
+        <video src="{{ asset('uploads/wp/2026/03/IMG_8223.mp4') }}" muted loop controls playsinline preload="metadata"></video>
+    </div>
+    <div class="promo-card">
+        <video src="{{ asset('uploads/wp/2026/03/IMG_8224.mp4') }}" muted loop controls playsinline preload="metadata"></video>
+    </div>
+    <div class="promo-card">
+        <video src="{{ asset('uploads/wp/2026/03/IMG_8222.mp4') }}" muted loop controls playsinline preload="metadata"></video>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

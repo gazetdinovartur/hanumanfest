@@ -22,6 +22,7 @@ final class ProductApiTest extends WebTestCase
         $payload = json_decode($client->getResponse()->getContent(), true);
         self::assertSame('Hanuman Fest', $payload['name']);
         self::assertNotEmpty($payload['participationOptions']);
+        self::assertArrayHasKey('code', $payload['participationOptions'][0]);
         self::assertSame('До 10 марта', $payload['activePricingPeriod']['name']);
         self::assertSame(3600, $payload['participationOptions'][0]['price']);
     }

@@ -78,6 +78,7 @@ php bin/console app:import:schedule
 |---------|------------|
 | `app:seed:hanuman-fest` | продукт, периоды, цены |
 | `app:seed:site-content` | контент главной из WP dump |
+| `app:seed:site-pages` | CMS-страницы (юр. + питание) |
 | `app:import:schedule` | программа из `SCHEDULE_SHEET_URL` |
 | `app:import:legacy-orders` | заявки/платежи из Sheet (default URL из webhook) |
 

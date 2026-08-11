@@ -48,6 +48,7 @@ docker compose up -d
 docker compose exec php php bin/console doctrine:migrations:migrate --no-interaction
 docker compose exec php php bin/console app:seed:hanuman-fest
 docker compose exec php php bin/console app:seed:site-content
+docker compose exec php php bin/console app:seed:site-pages
 ```
 
 Опционально расписание и legacy-заявки:

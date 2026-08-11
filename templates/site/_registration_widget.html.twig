@@ -21,6 +21,16 @@
                     <label class="form-label">Вариант участия</label>
                     <select class="form-select" name="participationOptionId" required></select>
                 </div>
+                <div class="col-12 d-none" data-uae-conditional="tent-roommate">
+                    <label class="form-label" for="hf-tent-roommate">С кем будете проживать в палатке</label>
+                    <textarea class="form-control" id="hf-tent-roommate" name="tentRoommate" rows="2"></textarea>
+                </div>
+                <div class="col-12 d-none" data-uae-conditional="house-booking">
+                    <div class="form-label">Ссылка на бронирование домика</div>
+                    <p class="mb-0">
+                        <a href="https://www.helloferma.ru/" class="contact-link" target="_blank" rel="noopener">Перейти на сайт</a>
+                    </p>
+                </div>
                 <div class="col-md-6">
                     <label class="form-label">Количество взрослых</label>
                     <input class="form-control" type="number" min="1" step="1" name="adultsCount" value="1" required>

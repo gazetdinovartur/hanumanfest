@@ -64,8 +64,9 @@ class ApplicationService
         $application->setStatus(ApplicationStatus::New);
         $application->setTotalAmount($pricingContext->result->totalAmount);
         $application->setPaidAmount(0);
-        $application->setPayload(array_merge($request->payload, [
+        $payload = array_merge($request->payload, [
             'participationOptionId' => $pricingContext->participationOption->getId(),
+            'participationOptionCode' => $pricingContext->participationOption->getCode(),
             'participationOptionName' => $pricingContext->participationOption->getName(),
             'pricingPeriodName' => $pricingContext->pricingPeriod->getName(),
             'adultsCount' => max(1, $request->adultsCount),
@@ -73,7 +74,22 @@ class ApplicationService
             'transferIncluded' => $request->transferIncluded,
             'paymentFactor' => $request->paymentFactor,
             'payNowAmount' => $payNowAmount,
-        ]));
+        ]);
+
+        $optionCode = $pricingContext->participationOption->getCode();
+        $isOurTent = str_starts_with($optionCode, 'OUR_TENT');
+        if (!$isOurTent) {
+            unset($payload['tentRoommate']);
+        } elseif (isset($payload['tentRoommate'])) {
+            $roommate = trim((string) $payload['tentRoommate']);
+            if ('' === $roommate) {
+                unset($payload['tentRoommate']);
+            } else {
+                $payload['tentRoommate'] = $roommate;
+            }
+        }
+
+        $application->setPayload($payload);
 
         $this->entityManager->persist($application);
         $this->entityManager->flush();

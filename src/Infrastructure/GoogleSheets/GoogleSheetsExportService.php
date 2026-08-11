@@ -39,6 +39,7 @@ class GoogleSheetsExportService
             childrenCount: (string) ($payload['childrenCount'] ?? 0),
             transferIncluded: !empty($payload['transferIncluded']) ? '1' : '0',
             paymentFactor: (string) ($payload['paymentFactor'] ?? '1'),
+            notes: trim((string) ($payload['tentRoommate'] ?? '')),
         ));
     }
 

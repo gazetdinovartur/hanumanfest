@@ -7,6 +7,7 @@ use App\Entity\HomeHero;
 use App\Entity\InfoBlock;
 use App\Entity\Person;
 use App\Entity\Review;
+use App\Entity\SitePage;
 use App\Service\Content\WpContentCleaner;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\PrePersistEventArgs;
@@ -47,6 +48,9 @@ final class ContentSanitizeListener
             ),
             $entity instanceof Review => $entity->setBody(
                 $this->wpContentCleaner->cleanHtml($entity->getBody()),
+            ),
+            $entity instanceof SitePage => $entity->setContentHtml(
+                $this->wpContentCleaner->cleanHtml($entity->getContentHtml()) ?? '',
             ),
             default => null,
         };

@@ -64,6 +64,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkTo(MasterPersonCrudController::class, 'Мастера и практики', 'fa fa-hands');
         yield MenuItem::linkToRoute('Галерея «Как это было»', 'fa fa-images', 'admin_gallery');
         yield MenuItem::linkTo(FaqItemCrudController::class, 'FAQ', 'fa fa-circle-question');
+        yield MenuItem::linkTo(SitePageCrudController::class, 'Страницы', 'fa fa-file-lines');
         yield MenuItem::linkTo(InfoBlockCrudController::class, 'Инфоблоки', 'fa fa-info');
         yield MenuItem::linkTo(ReviewCrudController::class, 'Отзывы', 'fa fa-comment');
         yield MenuItem::linkToUrl('Открыть сайт', 'fa fa-external-link', '/');

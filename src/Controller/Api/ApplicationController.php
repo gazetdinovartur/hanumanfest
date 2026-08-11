@@ -54,12 +54,21 @@ class ApplicationController extends AbstractController
     {
         try {
             $data = $request->toArray();
+            /** @var array<string, mixed> $payload */
+            $payload = \is_array($data['payload'] ?? null) ? $data['payload'] : [];
+            $tentRoommate = trim((string) ($data['tentRoommate'] ?? $payload['tentRoommate'] ?? ''));
+            if ('' !== $tentRoommate) {
+                $payload['tentRoommate'] = $tentRoommate;
+            } else {
+                unset($payload['tentRoommate']);
+            }
+
             $createRequest = new CreateApplicationRequest(
                 name: $data['name'] ?? '',
                 email: $data['email'] ?? '',
                 phone: $data['phone'] ?? null,
                 participationOptionId: (int) ($data['participationOptionId'] ?? 0),
-                payload: $data['payload'] ?? [],
+                payload: $payload,
                 adultsCount: max(1, (int) ($data['adultsCount'] ?? 1)),
                 childrenCount: max(0, (int) ($data['childrenCount'] ?? 0)),
                 transferIncluded: (bool) ($data['transferIncluded'] ?? false),

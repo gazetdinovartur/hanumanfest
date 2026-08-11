@@ -67,6 +67,7 @@ class ProductController extends AbstractController
             'name' => $product->getName(),
             'participationOptions' => array_map(static fn (ParticipationOption $o) => [
                 'id' => $o->getId(),
+                'code' => $o->getCode(),
                 'name' => $o->getName(),
                 'price' => $prices[$o->getCode()] ?? null,
             ], $options),

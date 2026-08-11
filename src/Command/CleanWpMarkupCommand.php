@@ -7,6 +7,7 @@ use App\Entity\HomeHero;
 use App\Entity\InfoBlock;
 use App\Entity\Person;
 use App\Entity\Review;
+use App\Entity\SitePage;
 use App\Service\Content\WpContentCleaner;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -67,6 +68,14 @@ final class CleanWpMarkupCommand extends Command
             $body = $this->wpContentCleaner->cleanHtml($review->getBody());
             if ($body !== $review->getBody()) {
                 $review->setBody($body);
+                ++$updated;
+            }
+        }
+
+        foreach ($this->em->getRepository(SitePage::class)->findAll() as $page) {
+            $content = $this->wpContentCleaner->cleanHtml($page->getContentHtml()) ?? '';
+            if ($content !== $page->getContentHtml()) {
+                $page->setContentHtml($content);
                 ++$updated;
             }
         }
