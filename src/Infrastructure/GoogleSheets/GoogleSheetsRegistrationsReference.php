@@ -14,6 +14,7 @@ final class GoogleSheetsRegistrationsReference
 
     public function __construct(
         private readonly string $configuredUrl = '',
+        private readonly ?string $fallbackSpreadsheetId = self::DEFAULT_SPREADSHEET_ID,
     ) {
     }
 
@@ -24,7 +25,10 @@ final class GoogleSheetsRegistrationsReference
 
     public function spreadsheetViewUrl(): string
     {
-        $spreadsheetId = $this->resolveSpreadsheetId() ?: self::DEFAULT_SPREADSHEET_ID;
+        $spreadsheetId = $this->resolveSpreadsheetId();
+        if ($spreadsheetId === '') {
+            return '';
+        }
 
         return sprintf('https://docs.google.com/spreadsheets/d/%s/edit', $spreadsheetId);
     }
@@ -54,8 +58,9 @@ final class GoogleSheetsRegistrationsReference
             return $id;
         }
 
-        if ($this->isAppsScriptWebhook($this->configuredUrl)) {
-            return self::DEFAULT_SPREADSHEET_ID;
+        $fallback = trim((string) $this->fallbackSpreadsheetId);
+        if ($fallback !== '' && ($this->isAppsScriptWebhook($this->configuredUrl) || trim($this->configuredUrl) === '')) {
+            return $fallback;
         }
 
         return '';

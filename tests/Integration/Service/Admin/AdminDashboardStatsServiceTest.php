@@ -56,6 +56,31 @@ final class AdminDashboardStatsServiceTest extends DatabaseTestCase
         self::assertSame([['label' => 'участие 1 день', 'count' => 1]], $stats2027['byOption']);
     }
 
+    public function testTestApplicationsAreExcludedFromStats(): void
+    {
+        $product = HanumanFestFixtures::seed($this->entityManager);
+        $period = $this->entityManager->getRepository(\App\Entity\PricingPeriod::class)->findOneBy(['product' => $product]);
+        self::assertNotNull($period);
+        $season = $period->getSeason();
+        self::assertNotNull($season);
+
+        $user = (new User())->setName('Test')->setEmail('test-mode@test.ru')->setPhone('+79001112235');
+        $this->entityManager->persist($user);
+
+        $this->persistApplication($user, $product, $period, $season, ApplicationStatus::Paid, 3600, 3600, 'OWN_HOUSE_NO_FOOD', 'в своем жилье, без питания');
+        $test = $this->persistApplication($user, $product, $period, $season, ApplicationStatus::Paid, 2, 2, 'OWN_HOUSE_NO_FOOD', 'в своем жилье, без питания');
+        $test->setIsTest(true);
+        $this->entityManager->flush();
+
+        /** @var AdminDashboardStatsService $service */
+        $service = static::getContainer()->get(AdminDashboardStatsService::class);
+        $stats = $service->getRegistrationStats($season);
+
+        self::assertSame(1, $stats['registrationsTotal']);
+        self::assertSame(1, $stats['paidApplications']);
+        self::assertSame([['label' => 'в своем жилье, без питания', 'count' => 1]], $stats['byOption']);
+    }
+
     public function testRefundsCountApplicationsWithYookassaRefund(): void
     {
         $product = HanumanFestFixtures::seed($this->entityManager);

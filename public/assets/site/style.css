@@ -1235,3 +1235,51 @@ color: #fff;
   opacity: 0.65;
 }
 
+.hf-pay,
+.hf-return {
+  max-width: 36rem;
+  margin: 0 auto;
+}
+
+.hf-notice {
+  border: 1px solid rgba(48, 48, 48, 0.12);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  background: #fff;
+}
+
+.hf-notice--soft {
+  background: #fff8f5;
+  border-color: rgba(246, 84, 20, 0.25);
+}
+
+.hf-amount-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 0;
+}
+
+.hf-amount-row--remain {
+  color: var(--brand-main);
+}
+
+.hf-copy-link {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.hf-copy-link .form-control {
+  min-width: 0;
+}
+
+.hf-copy-link .btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 575.98px) {
+  .hf-copy-link {
+    flex-direction: column;
+  }
+}
+

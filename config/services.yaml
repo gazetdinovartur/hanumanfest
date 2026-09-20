@@ -13,6 +13,7 @@ parameters:
     env(YOOKASSA_SHOP_ID): ''
     env(YOOKASSA_SECRET_KEY): ''
     env(REGISTRATION_SHEET_URL): ''
+    env(REGISTRATION_SHEET_URL_TEST): ''
     env(APP_URL): '%env(DEFAULT_URI)%'
     env(FRONTEND_URL): '%env(APP_URL)%'
     env(MAILER_FROM): 'noreply@example.com'
@@ -42,6 +43,12 @@ services:
         arguments:
             $configuredUrl: '%env(REGISTRATION_SHEET_URL)%'
 
+    App\Infrastructure\GoogleSheets\GoogleSheetsTestRegistrationsReference:
+        class: App\Infrastructure\GoogleSheets\GoogleSheetsRegistrationsReference
+        arguments:
+            $configuredUrl: '%env(REGISTRATION_SHEET_URL_TEST)%'
+            $fallbackSpreadsheetId: null
+
     App\Admin\DashboardController:
         arguments:
             $scheduleSheetUrl: '%env(SCHEDULE_SHEET_URL)%'
@@ -49,6 +56,12 @@ services:
     App\Infrastructure\GoogleSheets\GoogleSheetsClient:
         arguments:
             $registrations: '@App\Infrastructure\GoogleSheets\GoogleSheetsRegistrationsReference'
+            $testRegistrations: '@App\Infrastructure\GoogleSheets\GoogleSheetsTestRegistrationsReference'
+
+    App\Service\PaymentLinkService:
+        arguments:
+            $applicationRepository: '@App\Repository\ApplicationRepository'
+            $frontendUrl: '%env(FRONTEND_URL)%'
 
     App\Service\PaymentNotificationService:
         arguments:

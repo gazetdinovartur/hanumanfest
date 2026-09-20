@@ -1,25 +1,20 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Оплата остатка</title>
-</head>
-<body style="font-family: sans-serif; line-height: 1.5; color: #222;">
-    <p>Здравствуйте, {{ name }}!</p>
+{% extends 'email/base.html.twig' %}
 
-    <p>Спасибо за регистрацию на Hanuman Fest.</p>
+{% block title %}Хануман Фест — предоплата принята{% endblock %}
 
-    <p>
-        <strong>Оплачено:</strong> {{ paidAmount }} ₽<br>
-        <strong>Осталось:</strong> {{ remainingAmount }} ₽<br>
-        <strong>Всего по заявке:</strong> {{ totalAmount }} ₽
+{% block preheader %}Осталось оплатить {{ remainingAmount|number_format(0, ',', ' ') }} ₽ — ссылка внутри.{% endblock %}
+
+{% block content %}
+    <p style="margin:0 0 16px;">Здравствуйте{% if name %}, {{ name }}{% endif %}!</p>
+    <p style="margin:0 0 16px;">Спасибо, предоплата принята.</p>
+    <p style="margin:0 0 8px;"><strong>Оплачено:</strong> {{ paidAmount|number_format(0, ',', ' ') }} ₽</p>
+    <p style="margin:0 0 8px;"><strong>Осталось:</strong> {{ remainingAmount|number_format(0, ',', ' ') }} ₽</p>
+    <p style="margin:0 0 24px;"><strong>Всего по заявке:</strong> {{ totalAmount|number_format(0, ',', ' ') }} ₽</p>
+    <p style="margin:0 0 24px;text-align:center;">
+        <a href="{{ payUrl }}" style="display:inline-block;background:#f65414;color:#ffffff;font-weight:700;text-decoration:none;padding:12px 28px;border-radius:4px;">Оплатить остаток</a>
     </p>
-
-    <p>
-        Для оплаты остатка перейдите по ссылке:<br>
-        <a href="{{ payUrl }}">{{ payUrl }}</a>
+    <p style="margin:0;font-size:13px;line-height:1.5;">
+        Если кнопка не открывается, скопируйте ссылку:<br>
+        <a href="{{ payUrl }}" style="color:#f65414;word-break:break-all;">{{ payUrl }}</a>
     </p>
-
-    <p>С уважением,<br>Команда Hanuman Fest</p>
-</body>
-</html>
+{% endblock %}

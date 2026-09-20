@@ -1,0 +1,13 @@
+Здравствуйте{% if name %}, {{ name }}{% endif %}!
+
+Спасибо, предоплата принята.
+
+Оплачено: {{ paidAmount|number_format(0, ',', ' ') }} ₽
+Осталось: {{ remainingAmount|number_format(0, ',', ' ') }} ₽
+Всего по заявке: {{ totalAmount|number_format(0, ',', ' ') }} ₽
+
+Оплатить остаток:
+{{ payUrl }}
+
+С уважением,
+Команда Хануман Фест

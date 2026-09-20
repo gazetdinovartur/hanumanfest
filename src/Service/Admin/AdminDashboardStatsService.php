@@ -13,9 +13,9 @@ use Doctrine\ORM\EntityManagerInterface;
  * Метрики дашборда — только MySQL, только выбранный сезон.
  *
  * Семантика:
- * - registrationsTotal = все заявки кроме CANCELLED и REFUNDED
- * - paidApplications = заявки PAID
- * - refundsCount = заявки, по которым есть возврат в YooKassa
+ * - registrationsTotal = все заявки кроме CANCELLED, REFUNDED и тестовых
+ * - paidApplications = заявки PAID (без теста)
+ * - refundsCount = заявки, по которым есть возврат в YooKassa (без теста)
  * - byOption = разбивка активных заявок по варианту участия
  */
 final class AdminDashboardStatsService
@@ -57,6 +57,7 @@ final class AdminDashboardStatsService
         return (int) $this->em->getRepository(Application::class)->count([
             'season' => $season,
             'status' => $status,
+            'isTest' => false,
         ]);
     }
 
@@ -66,6 +67,7 @@ final class AdminDashboardStatsService
             ->select('COUNT(a.id)')
             ->from(Application::class, 'a')
             ->andWhere('a.season = :season')
+            ->andWhere('a.isTest = false')
             ->andWhere('a.status NOT IN (:inactive)')
             ->setParameter('season', $season)
             ->setParameter('inactive', [ApplicationStatus::Cancelled, ApplicationStatus::Refunded])
@@ -80,6 +82,7 @@ final class AdminDashboardStatsService
             ->from(Payment::class, 'p')
             ->innerJoin('p.application', 'a')
             ->andWhere('a.season = :season')
+            ->andWhere('a.isTest = false')
             ->andWhere('p.status = :succeeded')
             ->andWhere('p.refundedAmount > 0')
             ->setParameter('season', $season)
@@ -98,6 +101,7 @@ final class AdminDashboardStatsService
             ->select('a')
             ->from(Application::class, 'a')
             ->andWhere('a.season = :season')
+            ->andWhere('a.isTest = false')
             ->andWhere('a.status NOT IN (:inactive)')
             ->setParameter('season', $season)
             ->setParameter('inactive', [ApplicationStatus::Cancelled, ApplicationStatus::Refunded])

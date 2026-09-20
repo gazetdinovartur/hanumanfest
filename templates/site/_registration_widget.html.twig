@@ -2,7 +2,22 @@
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="alert alert-danger d-none mb-2" data-uae-error></div>
+            {% if settings is defined and settings and settings.registrationTestMode %}
+                <div class="alert alert-warning mb-3" role="status">
+                    Тестовый режим: итого 2 ₽ — предоплата 1+1 или сразу 2 ₽. Боевые цены выключены.
+                </div>
+            {% endif %}
             <p class="small text-muted mb-2 hf-reg-status" data-uae-status></p>
+
+            <div class="hf-notice hf-notice--soft d-none mb-3" data-uae-existing-payment>
+                <p class="mb-3" data-uae-existing-text></p>
+                <a class="btn btn-brand-main text-white fw-bold px-4 py-2 mb-3" data-uae-existing-pay>Перейти к оплате остатка</a>
+                <label class="form-label" for="hf-existing-pay-url">Ссылка на оплату остатка</label>
+                <div class="hf-copy-link">
+                    <input id="hf-existing-pay-url" class="form-control" type="text" readonly data-uae-copy-input>
+                    <button type="button" class="btn btn-outline-secondary" data-uae-copy-btn>Скопировать</button>
+                </div>
+            </div>
 
             <form class="row g-3" data-uae-form>
                 <div class="col-md-6">
@@ -45,6 +60,7 @@
                         <option value="0.5">Предоплата 50%</option>
                         <option value="1">Полная оплата</option>
                     </select>
+                    <p class="small text-muted mb-0 mt-1" data-uae-factor-hint>Сейчас спишется половина. Ссылку на остаток пришлём на email и покажем после оплаты — её можно будет скопировать.</p>
                 </div>
                 <div class="col-md-6 d-flex align-items-end">
                     <div class="form-check mb-2">

@@ -33,6 +33,7 @@ DEFAULT_URI=http://localhost:8080
 YOOKASSA_SHOP_ID=
 YOOKASSA_SECRET_KEY=
 REGISTRATION_SHEET_URL=      # лист регистраций (таблица или Apps Script)
+REGISTRATION_SHEET_URL_TEST= # тестовый режим админки, не боевой лист
 SCHEDULE_SHEET_URL=          # CSV/export URL программы (отдельный Sheet)
 ADMIN_PASSWORD=TempAdmin!2026
 ```

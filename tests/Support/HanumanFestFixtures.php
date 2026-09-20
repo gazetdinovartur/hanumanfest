@@ -7,6 +7,7 @@ use App\Entity\ParticipationOption;
 use App\Entity\ParticipationPrice;
 use App\Entity\PricingPeriod;
 use App\Entity\Product;
+use App\Entity\SiteSettings;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class HanumanFestFixtures
@@ -49,6 +50,14 @@ final class HanumanFestFixtures
         $entityManager->flush();
 
         return $product;
+    }
+
+    public static function enableRegistrationTestMode(EntityManagerInterface $entityManager): void
+    {
+        $settings = $entityManager->getRepository(SiteSettings::class)->findOneBy([]) ?? new SiteSettings();
+        $settings->setRegistrationTestMode(true);
+        $entityManager->persist($settings);
+        $entityManager->flush();
     }
 
     public static function currentSeason(EntityManagerInterface $entityManager): FestivalSeason

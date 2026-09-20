@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\DTO\CalculatePriceRequest;
 use App\DTO\CreateApplicationRequest;
+use App\Exception\DuplicateApplicationException;
 use App\Service\ApplicationService;
 use App\Service\FestivalPricingCalculator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -87,6 +88,16 @@ class ApplicationController extends AbstractController
                 'pricingPeriodName' => $payload['pricingPeriodName'] ?? null,
                 'participationOptionName' => $payload['participationOptionName'] ?? null,
             ], Response::HTTP_CREATED);
+        } catch (DuplicateApplicationException $e) {
+            $body = ['error' => $e->getMessage()];
+            if ($e->getPayUrl()) {
+                $body['payUrl'] = $e->getPayUrl();
+                $body['paidAmount'] = $e->getPaidAmount();
+                $body['remainingAmount'] = $e->getRemainingAmount();
+                $body['totalAmount'] = $e->getTotalAmount();
+            }
+
+            return $this->json($body, $e->getStatusCode());
         } catch (HttpExceptionInterface $e) {
             return $this->json(['error' => $e->getMessage()], $e->getStatusCode());
         }

@@ -49,6 +49,9 @@ class SiteSettings
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $cooperationCtaHtml = null;
 
+    #[ORM\Column]
+    private bool $registrationTestMode = false;
+
     public function getId(): ?int { return $this->id; }
     public function getSiteName(): string { return $this->siteName; }
     public function setSiteName(string $v): static { $this->siteName = $v; return $this; }
@@ -74,4 +77,6 @@ class SiteSettings
     public function setTentNoteHtml(?string $v): static { $this->tentNoteHtml = $v; return $this; }
     public function getCooperationCtaHtml(): ?string { return $this->cooperationCtaHtml; }
     public function setCooperationCtaHtml(?string $v): static { $this->cooperationCtaHtml = $v; return $this; }
+    public function isRegistrationTestMode(): bool { return $this->registrationTestMode; }
+    public function setRegistrationTestMode(bool $v): static { $this->registrationTestMode = $v; return $this; }
 }

@@ -4,21 +4,48 @@
 
 {% block body %}
 <main class="py-5">
-    <div class="container" data-uae-widget="payment" data-token="{{ token }}">
-        <h1 class="text-brand-main text-center mb-4">Оплата остатка</h1>
-        <div class="alert alert-danger d-none" data-uae-error></div>
-        <p class="text-muted text-center" data-uae-status></p>
-        <div class="text-center mb-4" data-uae-payment-info></div>
-        <div class="text-center">
-            <button type="button" class="btn btn-brand-main text-white fw-bold px-4 py-2" data-uae-pay-btn>Оплатить</button>
+    <div class="container">
+        <div class="hf-pay"{% if state == 'payable' %} data-uae-widget="payment" data-token="{{ token }}"{% endif %}>
+            {% if state == 'payable' %}
+                <h1 class="text-brand-main text-center mb-3">Оплата остатка</h1>
+                <p class="text-center text-muted mb-4">Это доплата по вашей заявке. Анкету заполнять заново не нужно.</p>
+                {% if name %}
+                    <p class="text-center mb-2">{{ name }}</p>
+                {% endif %}
+                {% if optionName %}
+                    <p class="text-center small text-muted mb-4">{{ optionName }}</p>
+                {% endif %}
+                <div class="hf-notice mb-4">
+                    <div class="hf-amount-row"><span>Оплачено</span><strong>{{ paidAmount|number_format(0, ',', ' ') }} ₽</strong></div>
+                    <div class="hf-amount-row hf-amount-row--remain"><span>Осталось</span><strong>{{ remainingAmount|number_format(0, ',', ' ') }} ₽</strong></div>
+                    <div class="hf-amount-row"><span>Всего по заявке</span><strong>{{ totalAmount|number_format(0, ',', ' ') }} ₽</strong></div>
+                </div>
+                <div class="alert alert-danger d-none" data-uae-error></div>
+                <p class="small text-muted text-center hf-reg-status" data-uae-status></p>
+                <div class="text-center">
+                    <button type="button" class="btn btn-brand-main text-white fw-bold px-4 py-2" data-uae-pay-btn>Оплатить остаток {{ remainingAmount|number_format(0, ',', ' ') }} ₽</button>
+                </div>
+                <p class="small text-muted text-center mt-3 mb-0">Перейдёте на страницу ЮKassa. После оплаты вернётесь на сайт.</p>
+            {% elseif state == 'paid' %}
+                <h1 class="text-brand-main text-center mb-3">Уже оплачено</h1>
+                <p class="text-center mb-0">Регистрация по этой ссылке уже полностью оплачена. До встречи на фестивале.</p>
+            {% elseif state == 'unavailable' %}
+                <h1 class="text-brand-main text-center mb-3">Ссылка недоступна</h1>
+                <p class="text-center mb-0">Эта заявка отменена или больше не требует оплаты. Если это ошибка — напишите нам в контактах на сайте.</p>
+            {% else %}
+                <h1 class="text-brand-main text-center mb-3">Ссылка недействительна</h1>
+                <p class="text-center mb-0">Проверьте письмо или введите тот же email в форме регистрации — мы покажем ссылку на остаток, если предоплата уже есть.</p>
+            {% endif %}
         </div>
     </div>
 </main>
 {% endblock %}
 
 {% block javascripts %}
+{% if state == 'payable' %}
 <script>
     window.uaeBridgeConfig = { apiBase: '/api' };
 </script>
 <script src="{{ asset('assets/site/registration.js') }}"></script>
+{% endif %}
 {% endblock %}

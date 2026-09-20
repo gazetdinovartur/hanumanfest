@@ -7,13 +7,13 @@ use App\DTO\CreateApplicationRequest;
 use App\Entity\Application;
 use App\Entity\User;
 use App\Enum\ApplicationStatus;
+use App\Exception\DuplicateApplicationException;
 use App\Infrastructure\GoogleSheets\GoogleSheetsExportService;
 use App\Repository\ApplicationRepository;
 use App\Repository\UserRepository;
 use App\Util\PhoneNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class ApplicationService
 {
@@ -23,6 +23,8 @@ class ApplicationService
         private readonly ApplicationRepository $applicationRepository,
         private readonly FestivalPricingCalculator $pricingCalculator,
         private readonly GoogleSheetsExportService $googleSheetsExportService,
+        private readonly RegistrationTestMode $registrationTestMode,
+        private readonly PaymentLinkService $paymentLinkService,
     ) {
     }
 
@@ -47,17 +49,25 @@ class ApplicationService
 
         $user = $this->findOrCreateUser($request->name, $email, $phone);
 
+        $isTest = $this->registrationTestMode->isEnabled();
         $duplicate = $this->applicationRepository->findActiveDuplicateByEmail(
             $email,
             $pricingContext->product,
             $pricingContext->pricingPeriod->getSeason()
                 ?? throw new BadRequestHttpException('Pricing period has no season'),
+            $isTest,
         );
         if ($duplicate) {
-            throw new ConflictHttpException(sprintf(
-                'Active application already exists: %s',
-                $duplicate->getUuid(),
-            ));
+            $payUrl = null;
+            if (
+                $duplicate->getStatus() === ApplicationStatus::PartiallyPaid
+                && $duplicate->getRemainingAmount() > 0
+            ) {
+                $link = $this->paymentLinkService->ensureForPartialApplication($duplicate);
+                $payUrl = $link ? $this->paymentLinkService->publicPayUrl($link) : null;
+            }
+
+            throw new DuplicateApplicationException($duplicate, $payUrl);
         }
 
         $payNowAmount = $pricingContext->result->payNowAmount;
@@ -70,6 +80,7 @@ class ApplicationService
         $application->setStatus(ApplicationStatus::New);
         $application->setTotalAmount($pricingContext->result->totalAmount);
         $application->setPaidAmount(0);
+        $application->setIsTest($isTest);
         $payload = array_merge($request->payload, [
             'participationOptionId' => $pricingContext->participationOption->getId(),
             'participationOptionCode' => $pricingContext->participationOption->getCode(),

@@ -40,7 +40,7 @@ class GoogleSheetsExportService
             transferIncluded: !empty($payload['transferIncluded']) ? '1' : '0',
             paymentFactor: (string) ($payload['paymentFactor'] ?? '1'),
             notes: trim((string) ($payload['tentRoommate'] ?? '')),
-        ));
+        ), $application->isTest());
     }
 
     public function exportSuccessfulPayment(Payment $payment): void
@@ -67,6 +67,6 @@ class GoogleSheetsExportService
             totalAmount: number_format($totalAmount, 2, '.', ''),
             paidTotal: number_format($paidTotal, 2, '.', ''),
             remaining: number_format($remaining, 2, '.', ''),
-        ));
+        ), $application->isTest());
     }
 }

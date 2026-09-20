@@ -5,7 +5,9 @@ namespace App\Tests\Unit\Service;
 use App\Entity\Application;
 use App\Entity\PaymentLink;
 use App\Entity\User;
+use App\Service\PaymentLinkService;
 use App\Service\PaymentNotificationService;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Mailer\MailerInterface;
@@ -36,8 +38,19 @@ final class PaymentNotificationServiceTest extends TestCase
                 $sent = $email;
             });
 
+        $paymentLinkService = $this->createMock(PaymentLinkService::class);
+        $paymentLinkService->method('publicPayUrl')
+            ->willReturn('https://хануманфест.рф/pay/test-token-abc');
+
+        $settingsRepository = $this->createMock(\Doctrine\ORM\EntityRepository::class);
+        $settingsRepository->method('findOneBy')->willReturn(null);
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->method('getRepository')->willReturn($settingsRepository);
+
         $service = new PaymentNotificationService(
             $mailer,
+            $paymentLinkService,
+            $entityManager,
             'noreply@hanumanfest.ru',
             'Хануман Фест',
             'https://хануманфест.рф',
@@ -45,7 +58,7 @@ final class PaymentNotificationServiceTest extends TestCase
         $service->sendPartialPaymentEmail($application, $link);
 
         self::assertNotNull($sent);
-        self::assertSame('Хануман Фест — оплата остатка', $sent->getSubject());
+        self::assertSame('Хануман Фест — предоплата принята', $sent->getSubject());
         self::assertSame(['notify@example.com'], array_map(static fn ($a) => $a->getAddress(), $sent->getTo()));
     }
 }

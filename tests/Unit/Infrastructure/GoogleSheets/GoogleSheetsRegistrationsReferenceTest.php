@@ -65,4 +65,11 @@ final class GoogleSheetsRegistrationsReferenceTest extends TestCase
             $reference->csvExportUrl(),
         );
     }
+
+    public function testTestSheetDoesNotFallBackToProdSpreadsheet(): void
+    {
+        $reference = new GoogleSheetsRegistrationsReference('https://script.google.com/macros/s/test/exec', null);
+        self::assertSame('', $reference->spreadsheetViewUrl());
+        self::assertNull($reference->csvExportUrl());
+    }
 }

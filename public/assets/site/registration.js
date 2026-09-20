@@ -15,7 +15,12 @@
       .catch(() => ({}))
       .then((data) => {
         if (!response.ok) {
-          throw new Error(data.error || data.detail || data.title || 'Request failed');
+          const error = new Error(data.error || data.detail || data.title || 'Request failed');
+          error.payUrl = data.payUrl || '';
+          error.paidAmount = data.paidAmount;
+          error.remainingAmount = data.remainingAmount;
+          error.totalAmount = data.totalAmount;
+          throw error;
         }
 
         return data;
@@ -59,6 +64,21 @@
     return new URLSearchParams(window.location.search).get(name);
   }
 
+  function rememberPaymentId(paymentId) {
+    if (!paymentId) return;
+    try {
+      sessionStorage.setItem('hf_last_payment_id', paymentId);
+    } catch (e) {}
+  }
+
+  function lastPaymentId() {
+    try {
+      return sessionStorage.getItem('hf_last_payment_id');
+    } catch (e) {
+      return null;
+    }
+  }
+
   function detectTokenFromPath() {
     const match = window.location.pathname.match(/\/pay\/([^/?#]+)/);
     return match ? decodeURIComponent(match[1]) : '';
@@ -73,11 +93,47 @@
     return '+' + digits;
   }
 
+  function bindCopyButton(root) {
+    const input = root.querySelector('[data-uae-copy-input]');
+    const button = root.querySelector('[data-uae-copy-btn]');
+    if (!input || !button || button.dataset.copyBound) return;
+    button.dataset.copyBound = '1';
+    button.addEventListener('click', () => {
+      const value = input.value;
+      if (!value) return;
+      const done = () => {
+        const prev = button.textContent;
+        button.textContent = 'Скопировано';
+        setTimeout(() => {
+          button.textContent = prev;
+        }, 2000);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(value).then(done).catch(() => {
+          input.select();
+          document.execCommand('copy');
+          done();
+        });
+        return;
+      }
+      input.select();
+      document.execCommand('copy');
+      done();
+    });
+  }
+
+  function fillCopyField(root, url) {
+    const input = root.querySelector('[data-uae-copy-input]');
+    if (input) input.value = url || '';
+    bindCopyButton(root);
+  }
+
   function initRegistration(root) {
     const form = root.querySelector('[data-uae-form]');
         let latestPricing = null;
     /** @type {Record<string, {id:number, code:string, name:string}>} */
     let optionsById = {};
+    let emailTimer = null;
 
     const fields = {
       name: form.querySelector('[name="name"]'),
@@ -101,6 +157,10 @@
       now: root.querySelector('[data-uae-now]'),
       meta: root.querySelector('[data-uae-meta]'),
       submit: root.querySelector('[data-uae-submit]'),
+      factorHint: root.querySelector('[data-uae-factor-hint]'),
+      existing: root.querySelector('[data-uae-existing-payment]'),
+      existingText: root.querySelector('[data-uae-existing-text]'),
+      existingPay: root.querySelector('[data-uae-existing-pay]'),
     };
 
     function optionKind(option) {
@@ -127,6 +187,63 @@
       if (conditional.houseBooking) {
         conditional.houseBooking.classList.toggle('d-none', !showHouse);
       }
+    }
+
+    function updateFactorHint() {
+      if (!ui.factorHint) return;
+      ui.factorHint.classList.toggle('d-none', Number(fields.paymentFactor.value || 1) !== 0.5);
+    }
+
+    function hideExistingPayment() {
+      if (!ui.existing) return;
+      ui.existing.classList.add('d-none');
+    }
+
+    function showExistingPayment(data) {
+      if (!ui.existing || !data.payUrl) return;
+      const remaining = formatMoney(data.remainingAmount);
+      if (ui.existingText) {
+        ui.existingText.textContent =
+          'По этому email уже внесена предоплата. Осталось оплатить ' +
+          remaining +
+          '. Ссылка также в письме — если его нет, проверьте папку «Спам».';
+      }
+      if (ui.existingPay) {
+        ui.existingPay.href = data.payUrl;
+      }
+      fillCopyField(ui.existing, data.payUrl);
+      ui.existing.classList.remove('d-none');
+    }
+
+    function lookupExistingPayment() {
+      const email = fields.email.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        hideExistingPayment();
+        return;
+      }
+
+      request('/payment-links/lookup', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+      })
+        .then((data) => {
+          if (fields.email.value.trim().toLowerCase() !== email.toLowerCase()) {
+            return;
+          }
+          if (!data.found || !data.payUrl) {
+            hideExistingPayment();
+            return;
+          }
+          showExistingPayment(data);
+        })
+        .catch(() => {
+          hideExistingPayment();
+        });
+    }
+
+    function scheduleEmailLookup() {
+      clearTimeout(emailTimer);
+      emailTimer = setTimeout(lookupExistingPayment, 400);
     }
 
     function getPayloadBase() {
@@ -178,6 +295,7 @@
         });
 
         updateConditionalFields();
+        updateFactorHint();
         return recalculate();
       })
       .catch((e) => setError(root, e.message));
@@ -187,10 +305,18 @@
       updateConditionalFields();
       recalculate();
     });
-    fields.paymentFactor.addEventListener('change', recalculate);
+    fields.paymentFactor.addEventListener('change', () => {
+      updateFactorHint();
+      recalculate();
+    });
     fields.transferIncluded.addEventListener('change', recalculate);
     fields.adultsCount.addEventListener('input', recalculate);
     fields.childrenCount.addEventListener('input', recalculate);
+    fields.email.addEventListener('input', () => {
+      hideExistingPayment();
+      scheduleEmailLookup();
+    });
+    fields.email.addEventListener('blur', lookupExistingPayment);
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -233,41 +359,34 @@
           });
         })
         .then((payment) => {
+          rememberPaymentId(payment.payment_id);
           window.location.href = payment.gateway_url;
         })
         .catch((err) => {
           ui.submit.disabled = false;
           setStatus(root, '');
+          if (err.payUrl) {
+            showExistingPayment(err);
+            return;
+          }
           setError(root, err.message);
         });
     });
   }
 
   function initPayment(root) {
-    const info = root.querySelector('[data-uae-payment-info]');
     const button = root.querySelector('[data-uae-pay-btn]');
     const token = root.dataset.token || detectTokenFromPath() || getQueryParam('token');
+
+    if (!button) {
+      return;
+    }
 
     if (!token) {
       setError(root, 'Не найден токен ссылки оплаты.');
       button.disabled = true;
       return;
     }
-
-    setStatus(root, 'Загрузка заявки...');
-    request(`/payment-links/${encodeURIComponent(token)}`)
-      .then((data) => {
-        info.innerHTML =
-          `<div>Заявка: <strong>${data.application.uuid}</strong></div>` +
-          `<div>Оплачено: <strong>${formatMoney(data.application.paidAmount)}</strong></div>` +
-          `<div>Осталось: <strong>${formatMoney(data.application.remainingAmount)}</strong></div>`;
-        setStatus(root, '');
-      })
-      .catch((e) => {
-        setStatus(root, '');
-        setError(root, e.message);
-        button.disabled = true;
-      });
 
     button.addEventListener('click', () => {
       setError(root, '');
@@ -278,6 +397,7 @@
         method: 'POST',
       })
         .then((payment) => {
+          rememberPaymentId(payment.payment_id);
           window.location.href = payment.gateway_url;
         })
         .catch((e) => {
@@ -288,28 +408,69 @@
     });
   }
 
-  function initReturn(root) {
-    const info = root.querySelector('[data-uae-return-info]');
-    const paymentId = getQueryParam('payment_id');
+  function showReturnPanel(root, name) {
+    root.querySelectorAll('[data-uae-return-panel]').forEach((panel) => {
+      panel.classList.toggle('d-none', panel.getAttribute('data-uae-return-panel') !== name);
+    });
+  }
 
-    if (!paymentId) {
-      setError(root, 'Не найден payment_id в адресе возврата.');
-      info.textContent = 'Статус оплаты не определён.';
+  function applyReturnStatus(root, status) {
+    if (status.paid && Number(status.remainingAmount || 0) > 0) {
+      showReturnPanel(root, 'partial');
+      const paid = root.querySelector('[data-uae-return-paid]');
+      const remaining = root.querySelector('[data-uae-return-remaining]');
+      const total = root.querySelector('[data-uae-return-total]');
+      const email = root.querySelector('[data-uae-return-email]');
+      if (paid) paid.textContent = formatMoney(status.paidAmount);
+      if (remaining) remaining.textContent = formatMoney(status.remainingAmount);
+      if (total) total.textContent = formatMoney(status.totalAmount);
+      if (email) email.textContent = status.email || 'ваш email';
+      if (status.payUrl) {
+        fillCopyField(root, status.payUrl);
+      }
       return;
     }
 
-    request(`/payments/${encodeURIComponent(paymentId)}/status`)
-      .then((status) => {
-        if (status.paid) {
-          info.innerHTML =
-            `<div>Оплата прошла успешно.</div>` +
-            `<div>Сумма: <strong>${formatMoney(status.amount)}</strong></div>`;
-          return;
-        }
+    if (status.paid) {
+      showReturnPanel(root, 'full');
+      const amount = root.querySelector('[data-uae-return-amount]');
+      if (amount) amount.textContent = formatMoney(status.amount);
+      return;
+    }
 
-        info.innerHTML = `<div>Статус платежа: <strong>${status.status || 'unknown'}</strong></div>`;
+    showReturnPanel(root, 'pending');
+  }
+
+  function initReturn(root) {
+    const paymentId = getQueryParam('payment_id') || lastPaymentId();
+
+    if (!paymentId) {
+      setError(root, 'Не найден payment_id в адресе возврата.');
+      showReturnPanel(root, 'pending');
+      const pending = root.querySelector('[data-uae-return-panel="pending"]');
+      if (pending) {
+        pending.querySelector('p').textContent = 'Статус оплаты не определён.';
+      }
+      return;
+    }
+
+    const maxAttempts = 8;
+
+    function loadStatus(attempt) {
+      return request(`/payments/${encodeURIComponent(paymentId)}/status`).then((status) => {
+        if (!status.paid && (status.status === 'pending' || !status.status) && attempt < maxAttempts) {
+          return new Promise((resolve) => setTimeout(resolve, 2000)).then(() => loadStatus(attempt + 1));
+        }
+        return status;
+      });
+    }
+
+    loadStatus(1)
+      .then((status) => {
+        applyReturnStatus(root, status);
       })
       .catch((e) => {
+        showReturnPanel(root, 'pending');
         setError(root, e.message);
       });
   }
@@ -329,4 +490,3 @@
     initWidgets();
   }
 })();
-

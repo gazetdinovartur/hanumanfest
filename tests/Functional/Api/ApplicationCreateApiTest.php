@@ -155,6 +155,57 @@ final class ApplicationCreateApiTest extends WebTestCase
         self::assertCount(2, $em->getRepository(Application::class)->findAll());
     }
 
+    public function testDuplicatePartialEmailReturnsPayUrl(): void
+    {
+        $client = static::createClient();
+        $this->bootSchema($client);
+        $em = $client->getContainer()->get('doctrine')->getManager();
+        $option = $em->getRepository(ParticipationOption::class)->findOneBy(['code' => 'OWN_HOUSE_NO_FOOD']);
+        self::assertNotNull($option);
+
+        $user = new \App\Entity\User();
+        $user->setName('Доплата');
+        $user->setEmail('partial-dup@example.com');
+        $user->setPhone('+79001112234');
+        $em->persist($user);
+
+        $product = $option->getProduct();
+        $period = $em->getRepository(PricingPeriod::class)->findOneBy(['product' => $product]);
+        $application = new Application();
+        $application->setUser($user);
+        $application->setProduct($product);
+        $application->setPricingPeriod($period);
+        $application->setSeason($period?->getSeason());
+        $application->setStatus(\App\Enum\ApplicationStatus::PartiallyPaid);
+        $application->setTotalAmount(3600);
+        $application->setPaidAmount(1800);
+        $application->setPayload([]);
+        $em->persist($application);
+        $em->flush();
+
+        $client->request(
+            'POST',
+            '/api/applications',
+            server: ['CONTENT_TYPE' => 'application/json'],
+            content: json_encode([
+                'name' => 'Доплата',
+                'email' => 'partial-dup@example.com',
+                'phone' => '+79001112234',
+                'participationOptionId' => $option->getId(),
+                'adultsCount' => 1,
+                'childrenCount' => 0,
+                'transferIncluded' => false,
+                'paymentFactor' => 0.5,
+            ], JSON_THROW_ON_ERROR),
+        );
+
+        self::assertResponseStatusCodeSame(409);
+        $payload = json_decode($client->getResponse()->getContent(), true);
+        self::assertStringContainsString('предоплата', $payload['error']);
+        self::assertNotEmpty($payload['payUrl']);
+        self::assertSame(1800, $payload['remainingAmount']);
+    }
+
     private function bootSchema(KernelBrowser $client): void
     {
         $em = $client->getContainer()->get('doctrine')->getManager();

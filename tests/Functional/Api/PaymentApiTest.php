@@ -47,6 +47,48 @@ final class PaymentApiTest extends WebTestCase
         self::assertTrue($payload['paid']);
         self::assertSame('succeeded', $payload['status']);
         self::assertSame('pay@test.example', $payload['email']);
+        self::assertSame(1800, $payload['remainingAmount']);
+        self::assertNotEmpty($payload['payUrl']);
+    }
+
+    public function testPaymentLinkLookupReturnsPayUrlForPartialEmail(): void
+    {
+        $client = static::createClient();
+        $this->stubYookassa($client);
+        $em = $this->bootSchema($client);
+
+        $this->createApplication($em);
+        $em->flush();
+
+        $client->request(
+            'POST',
+            '/api/payment-links/lookup',
+            server: ['CONTENT_TYPE' => 'application/json'],
+            content: json_encode(['email' => 'pay@test.example'], JSON_THROW_ON_ERROR),
+        );
+
+        self::assertResponseIsSuccessful();
+        $payload = json_decode($client->getResponse()->getContent(), true);
+        self::assertTrue($payload['found']);
+        self::assertSame(1800, $payload['remainingAmount']);
+        self::assertNotEmpty($payload['payUrl']);
+    }
+
+    public function testPaymentLinkLookupUnknownEmailReturnsNotFound(): void
+    {
+        $client = static::createClient();
+        $this->stubYookassa($client);
+        $this->bootSchema($client);
+
+        $client->request(
+            'POST',
+            '/api/payment-links/lookup',
+            server: ['CONTENT_TYPE' => 'application/json'],
+            content: json_encode(['email' => 'nobody@test.example'], JSON_THROW_ON_ERROR),
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(['found' => false], json_decode($client->getResponse()->getContent(), true));
     }
 
     public function testPaymentLinkShowReturnsApplicationSummary(): void

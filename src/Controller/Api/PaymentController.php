@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\DTO\CreatePaymentRequest;
 use App\Service\PaymentLinkService;
 use App\Service\PaymentService;
+use App\Service\RegistrationTestMode;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,6 +19,7 @@ class PaymentController extends AbstractController
     public function __construct(
         private readonly PaymentLinkService $paymentLinkService,
         private readonly PaymentService $paymentService,
+        private readonly RegistrationTestMode $registrationTestMode,
     ) {
     }
 
@@ -47,6 +49,18 @@ class PaymentController extends AbstractController
         return $this->json($this->paymentService->getPaymentStatus($id));
     }
 
+    #[Route('/payment-links/lookup', name: 'api_payment_links_lookup', methods: ['POST'])]
+    public function lookup(Request $request): JsonResponse
+    {
+        $email = (string) ($request->toArray()['email'] ?? '');
+        $result = $this->paymentLinkService->lookupPartialPayment(
+            $email,
+            $this->registrationTestMode->isEnabled(),
+        );
+
+        return $this->json($result ?? ['found' => false]);
+    }
+
     #[Route('/payment-links/{token}', name: 'api_payment_links_show', methods: ['GET'])]
     public function showPaymentLink(string $token): JsonResponse
     {
@@ -64,7 +78,7 @@ class PaymentController extends AbstractController
                     'email' => $user?->getEmail(),
                     'totalAmount' => $application?->getTotalAmount(),
                     'paidAmount' => $application?->getPaidAmount(),
-                    'remainingAmount' => ($application?->getTotalAmount() ?? 0) - ($application?->getPaidAmount() ?? 0),
+                    'remainingAmount' => $application?->getRemainingAmount() ?? 0,
                     'status' => $application?->getStatus()->value,
                 ],
             ]);

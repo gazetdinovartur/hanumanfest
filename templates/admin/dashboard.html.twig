@@ -26,6 +26,24 @@
         </div>
     </header>
 
+    <section class="admin-dashboard__test-mode{{ registrationTestMode ? ' is-on' : '' }}" aria-labelledby="admin-dashboard-test-mode">
+        <div class="admin-dashboard__test-mode-copy">
+            <h3 id="admin-dashboard-test-mode" class="admin-dashboard__section-title">Тестовый режим регистрации</h3>
+            {% if registrationTestMode %}
+                <p class="admin-dashboard__test-mode-warn">Сейчас все посетители видят 2 ₽: предоплата 1+1 или полная оплата 2 ₽. Боевые цены выключены.</p>
+            {% else %}
+                <p>Включает живой прогон формы и YooKassa за 2 ₽. Тестовые заявки не попадают в метрики и боевой лист.</p>
+            {% endif %}
+        </div>
+        <form method="post" action="{{ path('admin_registration_test_mode') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('admin_registration_test_mode') }}">
+            <input type="hidden" name="enabled" value="{{ registrationTestMode ? '0' : '1' }}">
+            <button type="submit" class="admin-dashboard__test-mode-btn">
+                {{ registrationTestMode ? 'Выключить' : 'Включить' }}
+            </button>
+        </form>
+    </section>
+
     <section class="admin-dashboard__section" aria-labelledby="admin-dashboard-options">
         <h3 id="admin-dashboard-options" class="admin-dashboard__section-title">По варианту участия</h3>
         {% if byOption is empty %}
@@ -42,7 +60,7 @@
         {% endif %}
     </section>
 
-    {% if registrationsSpreadsheetUrl or scheduleSpreadsheetUrl %}
+    {% if registrationsSpreadsheetUrl or testRegistrationsSpreadsheetUrl or scheduleSpreadsheetUrl %}
         <section class="admin-dashboard__section" aria-labelledby="admin-dashboard-sheets">
             <h3 id="admin-dashboard-sheets" class="admin-dashboard__section-title">Таблицы</h3>
             <div class="admin-dashboard__links">
@@ -51,6 +69,15 @@
                         <span class="admin-dash-card__body">
                             <span class="admin-dash-card__title">Регистрации</span>
                             <span class="admin-dash-card__desc">Новый лист заявок и оплат</span>
+                        </span>
+                        <span class="admin-dash-card__arrow" aria-hidden="true">→</span>
+                    </a>
+                {% endif %}
+                {% if testRegistrationsSpreadsheetUrl %}
+                    <a class="admin-dash-card" href="{{ testRegistrationsSpreadsheetUrl }}" target="_blank" rel="noopener noreferrer">
+                        <span class="admin-dash-card__body">
+                            <span class="admin-dash-card__title">Тестовые регистрации</span>
+                            <span class="admin-dash-card__desc">Лист заявок тестового режима</span>
                         </span>
                         <span class="admin-dash-card__arrow" aria-hidden="true">→</span>
                     </a>

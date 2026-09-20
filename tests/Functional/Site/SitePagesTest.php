@@ -131,6 +131,8 @@ final class SitePagesTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-uae-widget="return"]');
+        self::assertSelectorExists('[data-uae-copy-btn]');
+        self::assertStringContainsString('Ссылка на оплату остатка', (string) $client->getResponse()->getContent());
     }
 
     public function testPayPageIsOk(): void
@@ -140,10 +142,63 @@ final class SitePagesTest extends WebTestCase
         $client->request('GET', '/pay/test-token');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('[data-uae-widget="payment"]');
+        self::assertStringContainsString('Ссылка недействительна', (string) $client->getResponse()->getContent());
+        self::assertSelectorNotExists('[data-uae-pay-btn]');
     }
 
-    private function bootSchema(KernelBrowser $client): void
+    public function testPayPageShowsHumanRemainderForValidLink(): void
+    {
+        $client = static::createClient();
+        $em = $this->bootSchema($client);
+
+        $user = new \App\Entity\User();
+        $user->setName('Анна');
+        $user->setEmail('anna-pay@test.example');
+        $user->setPhone('+79160000021');
+        $em->persist($user);
+
+        $product = $em->getRepository(\App\Entity\Product::class)->findOneBy(['slug' => 'hanuman-fest']);
+        $period = $em->getRepository(\App\Entity\PricingPeriod::class)->findOneBy(['product' => $product]);
+
+        $application = new \App\Entity\Application();
+        $application->setUser($user);
+        $application->setProduct($product);
+        $application->setPricingPeriod($period);
+        $application->setSeason($period?->getSeason());
+        $application->setStatus(\App\Enum\ApplicationStatus::PartiallyPaid);
+        $application->setTotalAmount(3600);
+        $application->setPaidAmount(1800);
+        $application->setPayload(['participationOptionName' => 'в своем жилье (домик или палатка), без питания']);
+        $em->persist($application);
+        $em->flush();
+
+        /** @var \App\Service\PaymentLinkService $links */
+        $links = $client->getContainer()->get(\App\Service\PaymentLinkService::class);
+        $link = $links->createForApplication($application);
+
+        $client->request('GET', '/pay/'.$link->getToken());
+
+        self::assertResponseIsSuccessful();
+        $html = (string) $client->getResponse()->getContent();
+        self::assertStringContainsString('Оплата остатка', $html);
+        self::assertStringContainsString('Анна', $html);
+        self::assertStringContainsString('Анкету заполнять заново не нужно', $html);
+        self::assertSelectorExists('[data-uae-pay-btn]');
+        self::assertStringNotContainsString((string) $application->getUuid(), $html);
+    }
+
+    public function testRegistrationPageOffersExistingPaymentHintMarkup(): void
+    {
+        $client = static::createClient();
+        $this->bootSchema($client);
+        $client->request('GET', '/registration');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-uae-existing-payment]');
+        self::assertSelectorExists('[data-uae-factor-hint]');
+    }
+
+    private function bootSchema(KernelBrowser $client): \Doctrine\ORM\EntityManagerInterface
     {
         $em = $client->getContainer()->get('doctrine')->getManager();
         $schemaTool = new SchemaTool($em);
@@ -151,6 +206,8 @@ final class SitePagesTest extends WebTestCase
         $schemaTool->dropSchema($metadata);
         $schemaTool->createSchema($metadata);
         HanumanFestFixtures::seed($em);
+
+        return $em;
     }
 
     private function seedFooterSettings(KernelBrowser $client): void

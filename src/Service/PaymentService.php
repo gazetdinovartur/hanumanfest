@@ -59,7 +59,7 @@ class PaymentService
             throw new BadRequestHttpException('Invalid input');
         }
 
-        $yookassaResult = $this->yookassaClient->createPayment($email, $phone, $amount);
+        $yookassaResult = $this->yookassaClient->createPayment($email, $phone, $amount, $this->paymentDescription($application));
 
         $payment = new Payment();
         $payment->setProvider(PaymentProvider::Yookassa);
@@ -92,7 +92,7 @@ class PaymentService
             throw new NotFoundHttpException('Application not found');
         }
 
-        $remaining = $application->getTotalAmount() - $application->getPaidAmount();
+        $remaining = $application->getRemainingAmount();
         if ($remaining <= 0) {
             throw new BadRequestHttpException('Application is already fully paid');
         }
@@ -163,8 +163,31 @@ class PaymentService
             return ['paid' => false];
         }
 
+        if ($payment->getStatus() === PaymentStatus::Pending) {
+            try {
+                $verified = $this->yookassaClient->verifyPayment($providerPaymentId);
+                if (\is_array($verified) && ($verified['status'] ?? '') === 'succeeded') {
+                    $this->markPaymentSucceeded($payment);
+                }
+            } catch (\Throwable) {
+                // Leave as pending; the return page can poll.
+            }
+        }
+
         $application = $payment->getApplication();
         $user = $application?->getUser();
+        $payUrl = null;
+
+        if ($application && $application->getStatus() === ApplicationStatus::PartiallyPaid) {
+            $existingLink = $this->paymentLinkService->findForApplication($application);
+            $paymentLink = $this->paymentLinkService->ensureForPartialApplication($application);
+            if ($paymentLink instanceof PaymentLink) {
+                $payUrl = $this->paymentLinkService->publicPayUrl($paymentLink);
+                if (!$existingLink instanceof PaymentLink) {
+                    $this->paymentNotificationService->sendPartialPaymentEmail($application, $paymentLink);
+                }
+            }
+        }
 
         return [
             'paid' => $payment->getStatus() === PaymentStatus::Succeeded,
@@ -175,6 +198,11 @@ class PaymentService
             'payment_id' => $payment->getProviderPaymentId(),
             'updated_at' => $payment->getUpdatedAt()?->format(\DateTimeInterface::ATOM),
             'application_uuid' => $application ? (string) $application->getUuid() : null,
+            'applicationStatus' => $application?->getStatus()->value,
+            'paidAmount' => $application?->getPaidAmount(),
+            'remainingAmount' => $application?->getRemainingAmount(),
+            'totalAmount' => $application?->getTotalAmount(),
+            'payUrl' => $payUrl,
         ];
     }
 
@@ -198,7 +226,7 @@ class PaymentService
         }
 
         if ($application) {
-            $remaining = $application->getTotalAmount() - $application->getPaidAmount();
+            $remaining = $application->getRemainingAmount();
             if ($remaining <= 0) {
                 return 0;
             }
@@ -216,6 +244,15 @@ class PaymentService
         return max(0, $request->amount);
     }
 
+    private function paymentDescription(?Application $application): string
+    {
+        if ($application?->isTest()) {
+            return 'Хануман Фест — тест регистрации';
+        }
+
+        return 'Оплата участия';
+    }
+
     private function markPaymentSucceeded(Payment $payment): void
     {
         if ($payment->getStatus() === PaymentStatus::Succeeded) {
@@ -226,16 +263,17 @@ class PaymentService
         $payment->setPaidAt(new \DateTimeImmutable());
 
         $application = $payment->getApplication();
-        $paymentLink = null;
+        $createdPaymentLink = null;
 
         if ($application) {
             $this->refreshApplicationFromPayments($application);
 
-            if (
-                $application->getStatus() === ApplicationStatus::PartiallyPaid
-                && $application->getPaymentLinks()->isEmpty()
-            ) {
-                $paymentLink = $this->paymentLinkService->createForApplication($application);
+            if ($application->getStatus() === ApplicationStatus::PartiallyPaid) {
+                $existingLink = $this->paymentLinkService->findForApplication($application);
+                $paymentLink = $this->paymentLinkService->ensureForPartialApplication($application);
+                if ($paymentLink instanceof PaymentLink && !$existingLink instanceof PaymentLink) {
+                    $createdPaymentLink = $paymentLink;
+                }
             }
         }
 
@@ -244,8 +282,8 @@ class PaymentService
         if ($application) {
             $this->googleSheetsExportService->exportSuccessfulPayment($payment);
 
-            if ($paymentLink instanceof PaymentLink) {
-                $this->paymentNotificationService->sendPartialPaymentEmail($application, $paymentLink);
+            if ($createdPaymentLink instanceof PaymentLink) {
+                $this->paymentNotificationService->sendPartialPaymentEmail($application, $createdPaymentLink);
             }
         }
     }

@@ -21,6 +21,7 @@ class FestivalPricingCalculator
         private readonly EntityManagerInterface $entityManager,
         private readonly ProductRepository $productRepository,
         private readonly FestivalSeasonRepository $festivalSeasonRepository,
+        private readonly RegistrationTestMode $registrationTestMode,
     ) {
     }
 
@@ -74,6 +75,11 @@ class FestivalPricingCalculator
         $totalAmount = (int) round($totalBeforePaymentFactor);
         $payNowAmount = (int) round($totalBeforePaymentFactor * $paymentFactor);
         $discountAmount = (int) round(($basePrice * $adultsCount) - ($basePrice * $adultsCount * $adultsDiscountMultiplier));
+
+        if ($this->registrationTestMode->isEnabled()) {
+            $totalAmount = 2;
+            $payNowAmount = (int) round(2 * $paymentFactor);
+        }
 
         $result = new PricingResult(
             totalAmount: $totalAmount,

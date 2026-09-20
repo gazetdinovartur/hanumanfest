@@ -40,10 +40,12 @@ final class AdminDashboardAfterLoginTest extends WebTestCase
         self::assertSelectorTextContains('.admin-dashboard', 'оплачено');
         self::assertSelectorTextContains('.admin-dashboard', 'возвратов');
         self::assertSelectorTextContains('.admin-dashboard', 'Регистрации');
+        self::assertSelectorTextContains('.admin-dashboard', 'Тестовый режим регистрации');
         self::assertStringNotContainsString('Частые действия', (string) $client->getResponse()->getContent());
         self::assertSelectorExists('.content-top .hf-admin-season');
         self::assertSelectorNotExists('.sidebar-wrapper .hf-admin-season');
         self::assertSelectorNotExists('.dropdown-settings');
         self::assertSelectorTextContains('.hf-admin-season', 'Сезоны');
+        self::assertSelectorTextContains('.admin-dashboard__test-mode-btn', 'Включить');
     }
 }

@@ -7,12 +7,14 @@ use App\Infrastructure\GoogleSheets\GoogleSpreadsheetUrl;
 use App\Service\Admin\AdminDashboardStatsService;
 use App\Service\Admin\AdminSeasonContext;
 use App\Service\Content\SiteContentDefaults;
+use App\Service\RegistrationTestMode;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
@@ -22,7 +24,10 @@ class DashboardController extends AbstractDashboardController
         private readonly AdminDashboardStatsService $dashboardStats,
         private readonly AdminSeasonContext $seasonContext,
         private readonly GoogleSheetsRegistrationsReference $registrations,
+        #[Autowire(service: 'App\\Infrastructure\\GoogleSheets\\GoogleSheetsTestRegistrationsReference')]
+        private readonly GoogleSheetsRegistrationsReference $testRegistrations,
         private readonly SiteContentDefaults $siteContentDefaults,
+        private readonly RegistrationTestMode $registrationTestMode,
         private readonly string $scheduleSheetUrl = '',
     ) {
     }
@@ -33,6 +38,10 @@ class DashboardController extends AbstractDashboardController
         $season = $this->seasonContext->getSelectedSeason();
         $stats = $this->dashboardStats->getRegistrationStats($season);
 
+        $testSheetUrl = $this->testRegistrations->isConfigured()
+            ? $this->testRegistrations->spreadsheetViewUrl()
+            : '';
+
         return $this->render('admin/dashboard.html.twig', [
             'season' => $season,
             'registrationsTotal' => $stats['registrationsTotal'],
@@ -40,7 +49,9 @@ class DashboardController extends AbstractDashboardController
             'refundsCount' => $stats['refundsCount'],
             'byOption' => $stats['byOption'],
             'registrationsSpreadsheetUrl' => $this->registrations->spreadsheetViewUrl(),
+            'testRegistrationsSpreadsheetUrl' => $testSheetUrl !== '' ? $testSheetUrl : null,
             'scheduleSpreadsheetUrl' => GoogleSpreadsheetUrl::editUrlFrom($this->scheduleSheetUrl),
+            'registrationTestMode' => $this->registrationTestMode->isEnabled(),
         ]);
     }
 

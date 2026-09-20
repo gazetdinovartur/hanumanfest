@@ -51,6 +51,9 @@ class Application
     #[ORM\Column]
     private int $paidAmount = 0;
 
+    #[ORM\Column]
+    private bool $isTest = false;
+
     /** @var array<string, mixed> */
     #[ORM\Column(type: Types::JSON)]
     private array $payload = [];
@@ -167,6 +170,23 @@ class Application
     public function setPaidAmount(int $paidAmount): static
     {
         $this->paidAmount = $paidAmount;
+
+        return $this;
+    }
+
+    public function getRemainingAmount(): int
+    {
+        return max(0, $this->totalAmount - $this->paidAmount);
+    }
+
+    public function isTest(): bool
+    {
+        return $this->isTest;
+    }
+
+    public function setIsTest(bool $isTest): static
+    {
+        $this->isTest = $isTest;
 
         return $this;
     }

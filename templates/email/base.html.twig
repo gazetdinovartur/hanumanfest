@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Хануман Фест{% endblock %}</title>
+</head>
+<body style="margin:0;padding:0;background:#ffffff;color:#303030;font-family:Montserrat,Arial,Helvetica,sans-serif;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;">
+        {% block preheader %}{% endblock %}
+    </div>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#ffffff;">
+        <tr>
+            <td align="center" style="padding:32px 16px;">
+                <table role="presentation" width="560" cellspacing="0" cellpadding="0" style="max-width:560px;width:100%;">
+                    <tr>
+                        <td align="center" style="padding-bottom:24px;">
+                            {% if logoUrl %}
+                                <a href="{{ siteUrl }}" style="text-decoration:none;">
+                                    <img src="{{ logoUrl }}" alt="Хануман Фест" width="72" height="72" style="display:block;border:0;border-radius:50%;">
+                                </a>
+                            {% else %}
+                                <a href="{{ siteUrl }}" style="color:#f65414;font-weight:700;text-decoration:none;font-size:18px;">Хануман Фест</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="font-size:16px;line-height:1.6;color:#303030;">
+                            {% block content %}{% endblock %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding-top:32px;font-size:13px;line-height:1.5;color:#303030;">
+                            С уважением,<br>
+                            Команда Хануман Фест
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

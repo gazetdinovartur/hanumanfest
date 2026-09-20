@@ -71,7 +71,7 @@ class GeneratePaymentLinksCommand extends Command
         $previewRows = [];
 
         foreach ($applications as $application) {
-            $remaining = $application->getTotalAmount() - $application->getPaidAmount();
+            $remaining = $application->getRemainingAmount();
             if ($remaining <= 0) {
                 continue;
             }

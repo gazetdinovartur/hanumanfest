@@ -24,6 +24,7 @@ Symfony-админка и метрики читают **только MySQL** (п
 |---------|----------|---------------|
 | Заявки / платежи | MySQL (`application`, `payment`) | импорт: `app:import:legacy-orders` |
 | Зеркало регистраций | Google Sheet «Регистрации» | `REGISTRATION_SHEET_URL` |
+| Тестовые регистрации | отдельный Sheet | `REGISTRATION_SHEET_URL_TEST` |
 | Цены | MySQL periods × options | `/admin/pricing`, seed `app:seed:hanuman-fest` |
 | Контент лендинга | MySQL CMS + `public/uploads` | `app:seed:site-content`, админка |
 | Страницы (юр., питание) | MySQL `site_page` | `app:seed:site-pages`, `/admin` → Страницы |
