@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
   // === МОДАЛЬНОЕ ОКНО МАСТЕРОВ ===
-  const modal = document.querySelector(".modal");
-  const modalOverlay = document.querySelector(".modal-overlay");
-  const modalClose = document.querySelector(".modal-close");
-  const modalContent = document.querySelector(".modal-content");
+  const modal = document.querySelector("[data-hf-master-modal]");
+  const modalOverlay = document.querySelector("[data-hf-master-overlay]");
+  const modalClose = document.querySelector("[data-hf-master-close]");
+  const modalContent = document.querySelector("[data-hf-master-body]");
   const masterCards = document.querySelectorAll(".master-card");
 
   if (modal && modalOverlay && modalClose && modalContent && masterCards.length) {
@@ -13,18 +13,18 @@ document.addEventListener("DOMContentLoaded", () => {
         const content = modalData?.querySelector(".master-content");
         modalContent.innerHTML = content ? content.innerHTML : "";
 
-        modal.classList.add("active");
-        modalOverlay.classList.add("active");
-        modalClose.classList.add("active");
+        modal.classList.add("is-open");
+        modalOverlay.classList.add("is-open");
+        modalClose.classList.add("is-open");
         document.body.style.overflow = "hidden";
       });
     });
 
     [modalOverlay, modalClose].forEach(el => {
       el.addEventListener("click", () => {
-        modal.classList.remove("active");
-        modalOverlay.classList.remove("active");
-        modalClose.classList.remove("active");
+        modal.classList.remove("is-open");
+        modalOverlay.classList.remove("is-open");
+        modalClose.classList.remove("is-open");
         document.body.style.overflow = "";
       });
     });
@@ -40,9 +40,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const content = data?.querySelector(".review-content");
         modalContent.innerHTML = content ? content.innerHTML : "";
 
-        modal.classList.add("active");
-        modalOverlay.classList.add("active");
-        modalClose.classList.add("active");
+        modal.classList.add("is-open");
+        modalOverlay.classList.add("is-open");
+        modalClose.classList.add("is-open");
         document.body.style.overflow = "hidden";
       });
     });
@@ -58,9 +58,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const content = data?.querySelector(".guest-content");
         modalContent.innerHTML = content ? content.innerHTML : "";
 
-        modal.classList.add("active");
-        modalOverlay.classList.add("active");
-        modalClose.classList.add("active");
+        modal.classList.add("is-open");
+        modalOverlay.classList.add("is-open");
+        modalClose.classList.add("is-open");
         document.body.style.overflow = "hidden";
       });
     });

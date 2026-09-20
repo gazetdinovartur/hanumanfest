@@ -307,13 +307,69 @@ body.ea,
 }
 
 .hf-admin-thumb {
-    display: block;
+    display: inline-block;
     width: 72px;
-    height: 54px;
+    height: 72px;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 50%;
     border: 1px solid rgba(48, 48, 48, 0.1);
     background: #f5f2ee;
+    vertical-align: middle;
+}
+
+/* Список людей: превью под заголовком «Фото», строки по центру по вертикали */
+.datagrid td.field-image,
+.datagrid th.field-image {
+    text-align: center !important;
+    vertical-align: middle;
+}
+
+.datagrid td.field-text,
+.datagrid td.field-id,
+.datagrid td.field-boolean {
+    vertical-align: middle;
+}
+
+.hf-admin-thumb--lg {
+    width: min(320px, 100%);
+    height: auto;
+    max-height: 180px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.hf-admin-image-preview {
+    display: grid;
+    gap: 0.35rem;
+    margin-bottom: 0.5rem;
+}
+
+.hf-admin-logo-preview {
+    display: block;
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+    border-radius: 50%;
+    border: 1px solid rgba(48, 48, 48, 0.1);
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(48, 48, 48, 0.08);
+}
+
+.hf-admin-brand-logo {
+    display: inline-block;
+    width: 36px;
+    height: 36px;
+    margin-right: 0.4rem;
+    vertical-align: middle;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+/* EasyAdmin form thumbnail for image fields */
+.field-image .ea-fileupload-card-thumbnail {
+    max-width: 96px;
+    max-height: 96px;
 }
 
 .hf-admin-video-thumb {
@@ -323,4 +379,68 @@ body.ea,
     border-radius: 8px;
     border: 1px solid rgba(48, 48, 48, 0.1);
     background: #111;
+}
+
+.hf-html-editor {
+    display: grid;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 100%;
+}
+
+.hf-html-editor__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.35rem;
+    border: 1px solid rgba(48, 48, 48, 0.12);
+    border-radius: 0.5rem;
+    background: #faf7f2;
+}
+
+.hf-html-editor__btn {
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 0.45rem;
+    border: 1px solid rgba(48, 48, 48, 0.12);
+    border-radius: 0.35rem;
+    background: #fff;
+    color: #3d3830;
+    font-size: 0.82rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.hf-html-editor__btn:hover,
+.hf-html-editor__btn.is-active {
+    border-color: rgba(246, 84, 20, 0.45);
+    background: rgba(246, 84, 20, 0.08);
+}
+
+.hf-html-editor__sep {
+    width: 1px;
+    height: 1.25rem;
+    margin: 0 0.15rem;
+    background: rgba(48, 48, 48, 0.12);
+}
+
+.hf-html-editor__surface {
+    min-height: 12rem;
+    padding: 0.75rem 0.9rem;
+    overflow-y: auto;
+    line-height: 1.5;
+}
+
+.hf-html-editor__surface:focus {
+    outline: none;
+    border-color: rgba(246, 84, 20, 0.55);
+    box-shadow: 0 0 0 0.2rem rgba(246, 84, 20, 0.12);
+}
+
+.hf-html-editor--source textarea {
+    display: block !important;
+    min-height: 12rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85rem;
 }

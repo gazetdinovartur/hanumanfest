@@ -2,10 +2,12 @@
 
 namespace App\Admin;
 
+use App\Admin\Field\HtmlEditorField;
+use App\Admin\Field\PublicVideoField;
 use App\Entity\SitePage;
 use App\Enum\SitePageTemplate;
+use App\Service\Content\UploadPathNormalizer;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
@@ -14,8 +16,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class SitePageCrudController extends AbstractCrudController
+class SitePageCrudController extends AbstractUploadCrudController
 {
+    public function __construct(UploadPathNormalizer $uploadPathNormalizer)
+    {
+        parent::__construct($uploadPathNormalizer);
+    }
+
     public static function getEntityFqcn(): string
     {
         return SitePage::class;
@@ -31,6 +38,16 @@ class SitePageCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_EDIT, 'Редактировать страницу')
             ->setDefaultSort(['sortOrder' => 'ASC', 'id' => 'ASC'])
             ->setSearchFields(['title', 'slug']);
+    }
+
+    protected function uploadPathMap(): array
+    {
+        return [
+            'kitchenVideo1' => 'pages/kitchen',
+            'kitchenVideo2' => 'pages/kitchen',
+            'kitchenVideo3' => 'pages/kitchen',
+            'kitchenVideo4' => 'pages/kitchen',
+        ];
     }
 
     public function configureFields(string $pageName): iterable
@@ -62,9 +79,12 @@ class SitePageCrudController extends AbstractCrudController
                 'Кухня / питание (с видео)' => SitePageTemplate::Kitchen,
             ])
             ->renderAsNativeWidget();
-        yield TextareaField::new('contentHtml', 'Содержимое (HTML)')
-            ->setNumOfRows(18)
-            ->setHelp('HTML без комментариев WordPress.');
+        yield HtmlEditorField::new('contentHtml', 'Содержимое', 18);
+        yield FormField::addFieldset('Видео (шаблон «Кухня»)')->onlyOnForms();
+        yield PublicVideoField::new('kitchenVideo1', 'Видео 1', 'pages/kitchen')->onlyOnForms();
+        yield PublicVideoField::new('kitchenVideo2', 'Видео 2', 'pages/kitchen')->onlyOnForms();
+        yield PublicVideoField::new('kitchenVideo3', 'Видео 3', 'pages/kitchen')->onlyOnForms();
+        yield PublicVideoField::new('kitchenVideo4', 'Видео 4', 'pages/kitchen')->onlyOnForms();
         yield IntegerField::new('sortOrder', 'Порядок в футере');
         yield BooleanField::new('showInFooter', 'Показывать в меню футера');
         yield BooleanField::new('published', 'Опубликовано');

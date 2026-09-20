@@ -1,6 +1,12 @@
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
 {% if field.value %}
     {% set webPath = public_upload_url(field.value) %}
     {% if webPath %}
         <img src="{{ asset(webPath) }}" alt="" class="hf-admin-thumb" loading="lazy">
+    {% else %}
+        <span class="text-muted">Нет файла</span>
     {% endif %}
+{% else %}
+    <span class="text-muted">Нет файла</span>
 {% endif %}

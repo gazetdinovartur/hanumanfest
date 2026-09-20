@@ -40,6 +40,15 @@ class SiteSettings
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $notificationEmail = null;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $discountsHtml = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $tentNoteHtml = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $cooperationCtaHtml = null;
+
     public function getId(): ?int { return $this->id; }
     public function getSiteName(): string { return $this->siteName; }
     public function setSiteName(string $v): static { $this->siteName = $v; return $this; }
@@ -59,4 +68,10 @@ class SiteSettings
     public function setTelegramUrl(?string $v): static { $this->telegramUrl = $v; return $this; }
     public function getNotificationEmail(): ?string { return $this->notificationEmail; }
     public function setNotificationEmail(?string $v): static { $this->notificationEmail = $v; return $this; }
+    public function getDiscountsHtml(): ?string { return $this->discountsHtml; }
+    public function setDiscountsHtml(?string $v): static { $this->discountsHtml = $v; return $this; }
+    public function getTentNoteHtml(): ?string { return $this->tentNoteHtml; }
+    public function setTentNoteHtml(?string $v): static { $this->tentNoteHtml = $v; return $this; }
+    public function getCooperationCtaHtml(): ?string { return $this->cooperationCtaHtml; }
+    public function setCooperationCtaHtml(?string $v): static { $this->cooperationCtaHtml = $v; return $this; }
 }

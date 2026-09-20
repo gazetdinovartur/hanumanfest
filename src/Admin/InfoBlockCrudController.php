@@ -2,6 +2,7 @@
 
 namespace App\Admin;
 
+use App\Admin\Field\HtmlEditorField;
 use App\Admin\Field\PublicImageField;
 use App\Entity\InfoBlock;
 use App\Service\Content\UploadPathNormalizer;
@@ -62,9 +63,7 @@ class InfoBlockCrudController extends AbstractSortableUploadCrudController
 
         yield FormField::addFieldset('Контент');
         yield TextField::new('title', 'Заголовок');
-        yield TextareaField::new('content', 'Текст')
-            ->setHelp('HTML без комментариев WordPress.')
-            ->setNumOfRows(6);
+        yield HtmlEditorField::new('content', 'Текст', 6);
         yield PublicImageField::new('imagePath', 'Изображение', 'info');
         yield BooleanField::new('published', 'Опубликовано');
     }

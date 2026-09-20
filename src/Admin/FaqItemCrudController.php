@@ -2,6 +2,7 @@
 
 namespace App\Admin;
 
+use App\Admin\Field\HtmlEditorField;
 use App\Entity\FaqItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -52,9 +53,7 @@ class FaqItemCrudController extends AbstractSortableCrudController
 
         yield FormField::addFieldset('FAQ');
         yield TextField::new('question', 'Вопрос');
-        yield TextareaField::new('answer', 'Ответ')
-            ->setHelp('HTML без комментариев WordPress.')
-            ->setNumOfRows(6);
+        yield HtmlEditorField::new('answer', 'Ответ', 6);
         yield BooleanField::new('published', 'Опубликовано');
     }
 }

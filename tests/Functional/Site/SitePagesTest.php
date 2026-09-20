@@ -2,8 +2,11 @@
 
 namespace App\Tests\Functional\Site;
 
+use App\Entity\HomeHighlight;
 use App\Entity\SitePage;
 use App\Entity\SiteSettings;
+use App\Enum\HomeHighlightColumn;
+use App\Enum\HomeHighlightStyle;
 use App\Enum\SitePageTemplate;
 use App\Tests\Support\HanumanFestFixtures;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -19,6 +22,7 @@ final class SitePagesTest extends WebTestCase
         $client = static::createClient();
         $this->bootSchema($client);
         $this->seedFooterSettings($client);
+        $this->seedHomeHighlights($client);
         $this->seedCmsPages($client);
 
         $client->request('GET', '/');
@@ -50,6 +54,9 @@ final class SitePagesTest extends WebTestCase
         self::assertStringContainsString('icons/fb.svg', $html);
         self::assertStringContainsString('icons/inst.svg', $html);
         self::assertStringContainsString('icons/tg.svg', $html);
+        self::assertStringContainsString('id="about"', $html);
+        self::assertStringContainsString('href="/#about"', $html);
+        self::assertStringContainsString('Море йоги, музыки и творчества', $html);
     }
 
     public function testCmsPagesAreOk(): void
@@ -77,6 +84,17 @@ final class SitePagesTest extends WebTestCase
         self::assertSelectorExists('section.promo-grid');
         self::assertStringContainsString('Фудкорт', (string) $client->getResponse()->getContent());
         self::assertStringContainsString('IMG_8652.mp4', (string) $client->getResponse()->getContent());
+    }
+
+    public function testUnknownCmsPageReturns404(): void
+    {
+        $client = static::createClient();
+        $this->bootSchema($client);
+        $router = $client->getContainer()->get('router');
+
+        $client->request('GET', $router->generate('site_page', ['slug' => 'несуществующая-страница']));
+
+        self::assertResponseStatusCodeSame(404);
     }
 
     public function testProgramPageIsOk(): void
@@ -166,8 +184,27 @@ final class SitePagesTest extends WebTestCase
                 ->setShowInFooter($footer)
                 ->setSortOrder($sort)
                 ->setPublished(true);
+            if ($template === SitePageTemplate::Kitchen) {
+                $page->setKitchenVideo1('/uploads/wp/2026/03/IMG_8652.mp4')
+                    ->setKitchenVideo2('/uploads/wp/2026/03/IMG_8223.mp4')
+                    ->setKitchenVideo3('/uploads/wp/2026/03/IMG_8224.mp4')
+                    ->setKitchenVideo4('/uploads/wp/2026/03/IMG_8222.mp4');
+            }
             $em->persist($page);
         }
+        $em->flush();
+    }
+
+    private function seedHomeHighlights(KernelBrowser $client): void
+    {
+        $em = $client->getContainer()->get('doctrine')->getManager();
+        $tile = (new HomeHighlight())
+            ->setText('Море йоги, музыки и творчества')
+            ->setColumnSide(HomeHighlightColumn::Left)
+            ->setStyle(HomeHighlightStyle::Big)
+            ->setSortOrder(1)
+            ->setPublished(true);
+        $em->persist($tile);
         $em->flush();
     }
 }

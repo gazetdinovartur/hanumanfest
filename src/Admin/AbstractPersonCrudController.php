@@ -2,6 +2,7 @@
 
 namespace App\Admin;
 
+use App\Admin\Field\HtmlEditorField;
 use App\Admin\Field\PublicImageField;
 use App\Entity\Person;
 use App\Enum\PersonKind;
@@ -95,9 +96,7 @@ abstract class AbstractPersonCrudController extends AbstractSortableUploadCrudCo
         yield PublicImageField::new('photoPath', 'Фото', 'people');
         yield FormField::addFieldset('Тексты');
         yield TextareaField::new('excerpt', 'Кратко')->setNumOfRows(3);
-        yield TextareaField::new('bio', 'Био')
-            ->setHelp('HTML без комментариев WordPress.')
-            ->setNumOfRows(8);
+        yield HtmlEditorField::new('bio', 'Био', 8);
         yield BooleanField::new('published', 'Опубликовано');
     }
 

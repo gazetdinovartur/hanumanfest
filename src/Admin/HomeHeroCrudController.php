@@ -2,9 +2,11 @@
 
 namespace App\Admin;
 
+use App\Admin\Field\HtmlEditorField;
 use App\Admin\Field\PublicImageField;
 use App\Admin\Field\PublicVideoField;
 use App\Entity\HomeHero;
+use App\Service\Content\SiteContentDefaults;
 use App\Service\Content\UploadPathNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -13,7 +15,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -24,6 +25,7 @@ class HomeHeroCrudController extends AbstractUploadCrudController
         UploadPathNormalizer $uploadPathNormalizer,
         private readonly EntityManagerInterface $em,
         private readonly AdminUrlGenerator $adminUrlGenerator,
+        private readonly SiteContentDefaults $siteContentDefaults,
     ) {
         parent::__construct($uploadPathNormalizer);
     }
@@ -81,12 +83,11 @@ class HomeHeroCrudController extends AbstractUploadCrudController
         yield TextField::new('titleMain', 'Подзаголовок сверху');
         yield TextField::new('headline', 'Заголовок');
         yield TextField::new('titleSecondary', 'Подзаголовок снизу');
-        yield PublicImageField::new('imagePath', 'Фон', 'hero')
-            ->setHelp('Фоновое изображение первого экрана.');
+        yield FormField::addFieldset('Фон hero');
+        yield PublicImageField::new('imagePath', 'Картинка фона', 'hero')
+            ->setHelp('Фоновое изображение первого экрана (как на хануманфест.рф).');
         yield FormField::addFieldset('Контент');
-        yield TextareaField::new('aboutHtml', 'Блок «О фестивале»')
-            ->setHelp('HTML без комментариев WordPress — разметка очищается при сохранении.')
-            ->setNumOfRows(8);
+        yield HtmlEditorField::new('aboutHtml', 'Блок «О фестивале»', 8);
         yield FormField::addFieldset('Промо-видео');
         yield PublicVideoField::new('promoVideoLeft', 'Видео слева', 'hero/video');
         yield PublicVideoField::new('promoVideoRight', 'Видео справа', 'hero/video');
@@ -97,10 +98,11 @@ class HomeHeroCrudController extends AbstractUploadCrudController
 
     private function redirectToHeroEdit(): RedirectResponse
     {
-        $hero = $this->em->getRepository(HomeHero::class)->findOneBy([], ['id' => 'ASC']) ?? new HomeHero();
-        if (null === $hero->getId()) {
-            $this->em->persist($hero);
-            $this->em->flush();
+        $this->siteContentDefaults->ensureCoreContent();
+
+        $hero = $this->em->getRepository(HomeHero::class)->findOneBy([], ['id' => 'ASC']);
+        if (!$hero instanceof HomeHero || null === $hero->getId()) {
+            throw new \RuntimeException('Home hero record missing after CMS bootstrap.');
         }
 
         $url = $this->adminUrlGenerator

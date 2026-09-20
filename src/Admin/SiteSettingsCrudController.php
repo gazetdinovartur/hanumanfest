@@ -2,8 +2,10 @@
 
 namespace App\Admin;
 
+use App\Admin\Field\HtmlEditorField;
 use App\Admin\Field\PublicImageField;
 use App\Entity\SiteSettings;
+use App\Service\Content\SiteContentDefaults;
 use App\Service\Content\UploadPathNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -25,6 +27,7 @@ class SiteSettingsCrudController extends AbstractUploadCrudController
         UploadPathNormalizer $uploadPathNormalizer,
         private readonly EntityManagerInterface $em,
         private readonly AdminUrlGenerator $adminUrlGenerator,
+        private readonly SiteContentDefaults $siteContentDefaults,
     ) {
         parent::__construct($uploadPathNormalizer);
     }
@@ -79,7 +82,9 @@ class SiteSettingsCrudController extends AbstractUploadCrudController
         yield FormField::addFieldset('Бренд');
         yield TextField::new('siteName', 'Название');
         yield TextField::new('tagline', 'Слоган');
-        yield PublicImageField::new('logoPath', 'Логотип', 'site');
+        yield FormField::addFieldset('Логотип в шапке');
+        yield PublicImageField::new('logoPath', 'Логотип', 'site')
+            ->setHelp('Круглый логотип в шапке сайта. Пустой путь при открытии настроек подставится автоматически.');
         yield PublicImageField::new('footerBackgroundPath', 'Фон футера', 'site');
         yield FormField::addFieldset('Контакты');
         yield TextareaField::new('companyInfo', 'Реквизиты')
@@ -92,14 +97,19 @@ class SiteSettingsCrudController extends AbstractUploadCrudController
         yield UrlField::new('telegramUrl', 'Telegram (доп.)')
             ->setHelp('Не обязательно: футер читает соцсети из поля «Контакты».');
         yield EmailField::new('notificationEmail', 'Email уведомлений');
+        yield FormField::addFieldset('Блоки на главной');
+        yield HtmlEditorField::new('discountsHtml', 'Скидки', 6);
+        yield HtmlEditorField::new('tentNoteHtml', 'Примечание о палатках', 4);
+        yield HtmlEditorField::new('cooperationCtaHtml', 'Призыв к сотрудничеству', 4);
     }
 
     private function redirectToSettingsEdit(): RedirectResponse
     {
-        $settings = $this->em->getRepository(SiteSettings::class)->findOneBy([], ['id' => 'ASC']) ?? new SiteSettings();
-        if (null === $settings->getId()) {
-            $this->em->persist($settings);
-            $this->em->flush();
+        $this->siteContentDefaults->ensureCoreContent();
+
+        $settings = $this->em->getRepository(SiteSettings::class)->findOneBy([], ['id' => 'ASC']);
+        if (!$settings instanceof SiteSettings || null === $settings->getId()) {
+            throw new \RuntimeException('Site settings record missing after CMS bootstrap.');
         }
 
         $url = $this->adminUrlGenerator

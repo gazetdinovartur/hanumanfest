@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\FaqItem;
+use App\Entity\HomeHighlight;
 use App\Entity\InfoBlock;
 use App\Entity\Person;
 use App\Entity\Review;
@@ -28,6 +29,7 @@ final class ContentReorderController extends AbstractController
         'faq' => FaqItem::class,
         'info' => InfoBlock::class,
         'review' => Review::class,
+        'highlight' => HomeHighlight::class,
     ];
 
     public function __construct(
@@ -36,7 +38,7 @@ final class ContentReorderController extends AbstractController
     ) {
     }
 
-    #[AdminRoute(path: '/cms/reorder/{kind}', name: 'cms_reorder', options: ['methods' => ['POST'], 'requirements' => ['kind' => 'person-guest|person-musician|person-master|faq|info|review']])]
+    #[AdminRoute(path: '/cms/reorder/{kind}', name: 'cms_reorder', options: ['methods' => ['POST'], 'requirements' => ['kind' => 'person-guest|person-musician|person-master|faq|info|review|highlight']])]
     public function reorder(string $kind, Request $request): JsonResponse
     {
         $payload = json_decode((string) $request->getContent(), true);

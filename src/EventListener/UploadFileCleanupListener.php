@@ -7,6 +7,7 @@ use App\Entity\HomeHero;
 use App\Entity\InfoBlock;
 use App\Entity\Person;
 use App\Entity\Review;
+use App\Entity\SitePage;
 use App\Entity\SiteSettings;
 use App\Service\Content\UploadFileRemover;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
@@ -33,6 +34,7 @@ final class UploadFileCleanupListener
             $entity instanceof Review => $this->uploadFileRemover->deletePublicPath($entity->getPhotoPath()),
             $entity instanceof InfoBlock => $this->uploadFileRemover->deletePublicPath($entity->getImagePath()),
             $entity instanceof HomeHero => $this->removeHomeHeroFiles($entity),
+            $entity instanceof SitePage => $this->removeSitePageFiles($entity),
             default => null,
         };
     }
@@ -48,6 +50,7 @@ final class UploadFileCleanupListener
             $entity instanceof Review => $this->deleteChangedPath($args, 'photoPath'),
             $entity instanceof InfoBlock => $this->deleteChangedPath($args, 'imagePath'),
             $entity instanceof HomeHero => $this->updateHomeHeroFiles($args),
+            $entity instanceof SitePage => $this->updateSitePageFiles($args),
             default => null,
         };
     }
@@ -59,11 +62,26 @@ final class UploadFileCleanupListener
         $this->uploadFileRemover->deletePublicPath($hero->getPromoVideoRight());
     }
 
+    private function removeSitePageFiles(SitePage $page): void
+    {
+        foreach ($page->getKitchenVideos() as $videoPath) {
+            $this->uploadFileRemover->deletePublicPath($videoPath);
+        }
+    }
+
     private function updateHomeHeroFiles(PreUpdateEventArgs $args): void
     {
         $this->deleteChangedPath($args, 'imagePath');
         $this->deleteChangedPath($args, 'promoVideoLeft');
         $this->deleteChangedPath($args, 'promoVideoRight');
+    }
+
+    private function updateSitePageFiles(PreUpdateEventArgs $args): void
+    {
+        $this->deleteChangedPath($args, 'kitchenVideo1');
+        $this->deleteChangedPath($args, 'kitchenVideo2');
+        $this->deleteChangedPath($args, 'kitchenVideo3');
+        $this->deleteChangedPath($args, 'kitchenVideo4');
     }
 
     private function updateSiteSettingsFiles(PreUpdateEventArgs $args): void

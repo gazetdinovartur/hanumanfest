@@ -6,7 +6,8 @@
     <meta name="color-scheme" content="light only">
     <title>{% block title %}Хануман Фест{% endblock %}</title>
     {% if settings is defined and settings and settings.logoPath %}
-        <meta property="og:image" content="{{ absolute_url(asset(settings.logoPath)) }}">
+        <meta property="og:image" content="{{ absolute_url(asset(public_upload_url(settings.logoPath)|default(settings.logoPath))) }}">
+        <link rel="icon" href="{{ asset(public_upload_url(settings.logoPath)|default(settings.logoPath)) }}">
     {% endif %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,13 +24,13 @@
         <div class="nav-logo">
             <a href="{{ path('site_home') }}">
                 {% if settings and settings.logoPath %}
-                    <img src="{{ asset(settings.logoPath) }}" class="custom-logo" alt="{{ settings.siteName|default('Хануман Фест') }}">
+                    <img src="{{ asset(public_upload_url(settings.logoPath)|default(settings.logoPath)) }}" class="custom-logo" alt="{{ settings.siteName|default('Хануман Фест') }}">
                 {% else %}
                     <span class="site-title">Хануман Фест</span>
                 {% endif %}
             </a>
         </div>
-        <a href="{{ path('site_home') }}#infoblocks" class="nav-link d-none d-md-block">О фестивале</a>
+        <a href="{{ path('site_home') }}#about" class="nav-link d-none d-md-block">О фестивале</a>
         <a href="{{ path('site_home') }}#program" class="nav-link d-none d-md-block">Программа</a>
         <a href="{{ path('site_home') }}#guests" class="nav-link d-none d-md-block">Специальные гости</a>
         <a href="{{ path('site_home') }}#masters" class="nav-link d-none d-md-block">Мастера и практики</a>
@@ -54,7 +55,7 @@
     <!-- Мобильное меню -->
     <div class="collapse mobile-menu p-4 d-md-none" id="mobileMenu">
         <ul class="nav flex-column gap-3 mobile-menu-list">
-            <li><a href="{{ path('site_home') }}#infoblocks"><span>О фестивале</span></a></li>
+            <li><a href="{{ path('site_home') }}#about"><span>О фестивале</span></a></li>
             <li><a href="{{ path('site_home') }}#program"><span>Программа</span></a></li>
             <li><a href="{{ path('site_home') }}#guests"><span>Специальные гости</span></a></li>
             <li><a href="{{ path('site_home') }}#masters"><span>Мастера и практики</span></a></li>

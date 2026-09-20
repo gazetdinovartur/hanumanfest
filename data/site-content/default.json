@@ -1,0 +1,62 @@
+{
+    "home": {
+        "event_dates": "26 - 28 ИЮНЯ",
+        "title": "ХАНУМАН ФЕСТ-2026!",
+        "title_main": "Душевный, объединяющий и просветляющий, шестой",
+        "title_secondary": "Ещё больше любимых музыкантов, практик, мастеров, музыки и творчества — в эко-поселении Большая Медведица на Хануман-Фесте 2026!",
+        "content": "<h2 class=\"text-brand-main mb-4\" style=\"text-align: center;\">В 100 км от Екатеринбурга и в 100 км от Челябинска</h2>\n<h4 class=\"text-brand-accent mb-4\" style=\"text-align: center;\">В живописном месте в окружении семи озёр — микс этнической и мантровой музыки, трансформирующих практик, летней уральской природы и глубокого погружения в счастье.</h4>",
+        "title_image_rel": "2025/10/2.jpg",
+        "promo_video_left": "/uploads/wp/2026/02/IMG_4608.mp4",
+        "promo_video_right": "/uploads/wp/2026/02/IMG_4611.mp4"
+    },
+    "settings": {
+        "site_name": "Хануман Фест",
+        "tagline": "Море йоги, музыки и творчества в экологически чистом месте.",
+        "logo_path": "/uploads/wp/2025/10/logo-hanuman.png",
+        "footer_background_path": "/uploads/wp/2025/10/KxUveqx2_ySkKL1uodMLRlPX-AHveG67FW4hOk7tRbAIMeBeq5k8Rhc_QzrWH5dek6rzlxxbjUq7lY9XEafi9XBy.jpg",
+        "company_info": "ИП Сараев Антон Валерьевич\n\nОГРНИП 304662518300032\nИНН 662504951300",
+        "contacts_html": "+7 (343) 385-83-70\n+7 922 211 61 18\nhanumanfest@gmail.com\nhttps://vk.com/hanumanyoga\nhttps://www.facebook.com/hanumanyoga.ru/\nhttps://www.instagram.com/hanuman_yoga.ru/\nhttps://t.me/Hanuman_ekb",
+        "vk_url": "https://vk.com/hanumanyoga",
+        "telegram_url": "https://t.me/Hanuman_ekb",
+        "notification_email": "hanumanfest@gmail.com",
+        "discounts_html": "<h4 class=\"text-brand-main mt-5\">🔥 Скидки:</h4>\n<ul>\n    <li>50% для детей и подростков до 16 лет включительно</li>\n    <li>N% для семей и групп товарищей, где N- количество участников группы. (Скидка действует при централизованной оплате за всю группу, дети и подростки до 16 лет в количество участников не входят)</li>\n</ul>",
+        "tent_note_html": "<h4 class=\"text-brand-accent mt-5\" style=\"text-align: center;\">Тем, кто бронирует нашу палатку, предоставляется палатка, спальник и коврик. Палатка без соседей. На каждого участника по палатке, на семьи и группы друзей палатки большего размера.</h4>",
+        "cooperation_cta_html": "<h4 class=\"text-brand-accent mt-5 mb-5\" style=\"text-align: center;\">\n    Приглашаются к сотрудничеству мастера и умельцы для участия в ярмарке, а также, ведущие мастер-классов. Пишите:\n    <a href=\"https://vk.com/skazka_108\" class=\"contact-link\">vk.com/skazka_108</a>\n    или\n    <a href=\"https://t.me/+79222108041\" class=\"contact-link\">+7 9222 108 041 TG</a>\n</h4>"
+    },
+    "highlights": {
+        "left": [
+            {"text": "Море йоги, музыки и творчества", "style": "big"},
+            {"text": "Экологически-чистое место среди полей, озёр и лесов", "style": "big"},
+            {"text": "Проживание в палатках и домиках — одна большая семья", "style": "big"},
+            {"text": "Детская зона в течение дня", "style": "big"},
+            {"text": "Несколько площадок для практик в месте силы", "style": "big"},
+            {"text": "Кухня, столовая, детская площадка, баня", "style": "big"},
+            {"text": "Вегетарианское питание от шеф-повара", "style": "big"},
+            {"text": "Другие активности — правИло, ходули, восточный базар, баня и пармастера", "style": "big"}
+        ],
+        "right": [
+            {"text": "Углехождение и Гвоздестояние", "style": "normal"},
+            {"text": "Хатха и Раджа-йога", "style": "normal"},
+            {"text": "Кундалини и Гонг-сатори", "style": "normal"},
+            {"text": "Женский класс и Ароматерапия", "style": "normal"},
+            {"text": "Дыхание и Шаманские практики", "style": "normal"},
+            {"text": "Ошо и Телесная терапия", "style": "normal"},
+            {"text": "Пранаяма и Медитация", "style": "normal"},
+            {"text": "Регрессия и Саунд-хиллинг", "style": "normal"},
+            {"text": "Парная йога и Мандала", "style": "normal"},
+            {"text": "Трайбл и Йога-вокал", "style": "normal"},
+            {"text": "Лекции и Мастер-классы", "style": "normal"},
+            {"text": "Ягья — огненная церемония", "style": "normal"},
+            {"text": "Джемы у костра", "style": "normal"},
+            {"text": "Киртан и Бхаджаны", "style": "normal"},
+            {"text": "Хороводы и Барабаны", "style": "normal"},
+            {"text": "Экстатик-дэнс и Концерт", "style": "normal"},
+            {"text": "ХОЛИ", "style": "wide"}
+        ]
+    },
+    "people": [],
+    "gallery_rels": [],
+    "faqs": [],
+    "info_blocks": [],
+    "reviews": []
+}

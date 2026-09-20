@@ -37,6 +37,18 @@ class SitePage
     #[ORM\Column]
     private bool $published = true;
 
+    #[ORM\Column(name: 'kitchen_video_1', length: 500, nullable: true)]
+    private ?string $kitchenVideo1 = null;
+
+    #[ORM\Column(name: 'kitchen_video_2', length: 500, nullable: true)]
+    private ?string $kitchenVideo2 = null;
+
+    #[ORM\Column(name: 'kitchen_video_3', length: 500, nullable: true)]
+    private ?string $kitchenVideo3 = null;
+
+    #[ORM\Column(name: 'kitchen_video_4', length: 500, nullable: true)]
+    private ?string $kitchenVideo4 = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -124,6 +136,65 @@ class SitePage
         $this->published = $published;
 
         return $this;
+    }
+
+    public function getKitchenVideo1(): ?string
+    {
+        return $this->kitchenVideo1;
+    }
+
+    public function setKitchenVideo1(?string $kitchenVideo1): static
+    {
+        $this->kitchenVideo1 = $kitchenVideo1;
+
+        return $this;
+    }
+
+    public function getKitchenVideo2(): ?string
+    {
+        return $this->kitchenVideo2;
+    }
+
+    public function setKitchenVideo2(?string $kitchenVideo2): static
+    {
+        $this->kitchenVideo2 = $kitchenVideo2;
+
+        return $this;
+    }
+
+    public function getKitchenVideo3(): ?string
+    {
+        return $this->kitchenVideo3;
+    }
+
+    public function setKitchenVideo3(?string $kitchenVideo3): static
+    {
+        $this->kitchenVideo3 = $kitchenVideo3;
+
+        return $this;
+    }
+
+    public function getKitchenVideo4(): ?string
+    {
+        return $this->kitchenVideo4;
+    }
+
+    public function setKitchenVideo4(?string $kitchenVideo4): static
+    {
+        $this->kitchenVideo4 = $kitchenVideo4;
+
+        return $this;
+    }
+
+    /** @return list<string> */
+    public function getKitchenVideos(): array
+    {
+        return array_values(array_filter([
+            $this->kitchenVideo1,
+            $this->kitchenVideo2,
+            $this->kitchenVideo3,
+            $this->kitchenVideo4,
+        ], static fn (?string $path): bool => $path !== null && $path !== ''));
     }
 
     public function __toString(): string

@@ -3,6 +3,7 @@
 namespace App\Tests\Integration\EventListener;
 
 use App\Entity\GalleryItem;
+use App\Entity\SitePage;
 use App\Tests\Support\DatabaseTestCase;
 use PHPUnit\Framework\Attributes\Group;
 
@@ -34,6 +35,37 @@ final class UploadFileCleanupListenerTest extends DatabaseTestCase
         self::assertFileExists($absolute);
 
         $em->remove($item);
+        $em->flush();
+
+        self::assertFileDoesNotExist($absolute);
+    }
+
+    public function testDeletingSitePageRemovesKitchenVideosFromDisk(): void
+    {
+        $projectDir = static::getContainer()->getParameter('kernel.project_dir');
+        $kitchenDir = $projectDir.'/public/uploads/pages/kitchen';
+        if (!is_dir($kitchenDir)) {
+            mkdir($kitchenDir, 0775, true);
+        }
+
+        $filename = 'kitchen-'.bin2hex(random_bytes(4)).'.mp4';
+        $absolute = $kitchenDir.'/'.$filename;
+        file_put_contents($absolute, 'video');
+
+        $page = new SitePage();
+        $page->setTitle('Питание')
+            ->setSlug('test-kitchen-'.bin2hex(random_bytes(2)))
+            ->setContentHtml('<p>x</p>')
+            ->setKitchenVideo1('/uploads/pages/kitchen/'.$filename)
+            ->setPublished(true);
+
+        $em = $this->entityManager;
+        $em->persist($page);
+        $em->flush();
+
+        self::assertFileExists($absolute);
+
+        $em->remove($page);
         $em->flush();
 
         self::assertFileDoesNotExist($absolute);

@@ -2,6 +2,7 @@
 
 namespace App\Admin;
 
+use App\Admin\Field\HtmlEditorField;
 use App\Admin\Field\PublicImageField;
 use App\Entity\Review;
 use App\Service\Content\UploadPathNormalizer;
@@ -62,9 +63,7 @@ class ReviewCrudController extends AbstractSortableUploadCrudController
 
         yield FormField::addFieldset('Отзыв');
         yield TextField::new('authorName', 'Автор');
-        yield TextareaField::new('body', 'Текст')
-            ->setHelp('HTML без комментариев WordPress.')
-            ->setNumOfRows(6);
+        yield HtmlEditorField::new('body', 'Текст', 6);
         yield PublicImageField::new('photoPath', 'Фото', 'reviews');
         yield BooleanField::new('published', 'Опубликовано');
     }

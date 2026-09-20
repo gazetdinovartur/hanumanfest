@@ -82,6 +82,12 @@ class SeedSitePagesCommand extends Command
                 ->setShowInFooter($def['footer'])
                 ->setSortOrder($def['sort'])
                 ->setPublished(true);
+            if ($def['template'] === SitePageTemplate::Kitchen) {
+                $page->setKitchenVideo1('/uploads/wp/2026/03/IMG_8652.mp4')
+                    ->setKitchenVideo2('/uploads/wp/2026/03/IMG_8223.mp4')
+                    ->setKitchenVideo3('/uploads/wp/2026/03/IMG_8224.mp4')
+                    ->setKitchenVideo4('/uploads/wp/2026/03/IMG_8222.mp4');
+            }
             $this->em->persist($page);
         }
 

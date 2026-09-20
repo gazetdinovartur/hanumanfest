@@ -3,6 +3,7 @@
 namespace App\Admin;
 
 use App\Service\Admin\AdminDashboardStatsService;
+use App\Service\Content\SiteContentDefaults;
 use App\Infrastructure\GoogleSheets\GoogleSheetsRegistrationsReference;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
@@ -18,11 +19,13 @@ class DashboardController extends AbstractDashboardController
     public function __construct(
         private readonly AdminDashboardStatsService $dashboardStats,
         private readonly GoogleSheetsRegistrationsReference $registrations,
+        private readonly SiteContentDefaults $siteContentDefaults,
     ) {
     }
 
     public function index(): Response
     {
+        $bootstrapped = $this->siteContentDefaults->ensureCoreContent();
         $stats = $this->dashboardStats->getRegistrationStats();
 
         return $this->render('admin/dashboard.html.twig', [
@@ -31,13 +34,15 @@ class DashboardController extends AbstractDashboardController
             'receivedSum' => $stats['receivedSum'],
             'registrationsTotal' => $stats['registrationsTotal'],
             'registrationsSpreadsheetUrl' => $this->registrations->spreadsheetViewUrl(),
+            'cmsBootstrapped' => $bootstrapped,
         ]);
     }
 
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('Хануман Фест');
+            ->setTitle('<img src="/uploads/wp/2025/10/logo-hanuman.png" alt="" class="hf-admin-brand-logo" width="36" height="36"> Хануман Фест')
+            ->setFaviconPath('/uploads/wp/2025/10/logo-hanuman.png');
     }
 
     public function configureCrud(): Crud
@@ -49,7 +54,8 @@ class DashboardController extends AbstractDashboardController
     public function configureAssets(): Assets
     {
         return Assets::new()
-            ->addCssFile('css/admin-custom.css');
+            ->addCssFile('css/admin-custom.css')
+            ->addJsFile('js/admin-html-editor.js');
     }
 
     public function configureMenuItems(): iterable
@@ -58,6 +64,7 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::section('Сайт');
         yield MenuItem::linkTo(HomeHeroCrudController::class, 'Главный экран', 'fa fa-image');
+        yield MenuItem::linkTo(HomeHighlightCrudController::class, 'Плитки «О фестивале»', 'fa fa-th');
         yield MenuItem::linkTo(SiteSettingsCrudController::class, 'Настройки', 'fa fa-sliders');
         yield MenuItem::linkTo(GuestPersonCrudController::class, 'Специальные гости', 'fa fa-star');
         yield MenuItem::linkTo(MusicianPersonCrudController::class, 'Музыканты', 'fa fa-music');

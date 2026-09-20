@@ -23,6 +23,8 @@ class LoginController extends AbstractController
             'action' => $this->generateUrl('admin_login'),
             'target_path' => $this->generateUrl('admin'),
             'csrf_token_intention' => 'authenticate',
+            'page_title' => '<img src="/uploads/wp/2025/10/logo-hanuman.png" alt="" class="hf-admin-brand-logo" width="36" height="36"> Хануман Фест',
+            'favicon_path' => '/uploads/wp/2025/10/logo-hanuman.png',
         ]);
     }
 }

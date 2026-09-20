@@ -36,6 +36,11 @@ final class UploadFileRemover
             return;
         }
 
+        // Импортированные WP-медиа могут шариться (логотип, hero, видео) — не удаляем.
+        if (str_starts_with($relative, 'wp/') || str_starts_with($relative, 'wp\\')) {
+            return;
+        }
+
         $absolute = rtrim($this->uploadsDirectory, '/').'/'.$relative;
         if (is_file($absolute)) {
             @unlink($absolute);

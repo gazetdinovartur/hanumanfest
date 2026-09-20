@@ -60,6 +60,9 @@ services:
         arguments:
             $defaultSourceUrl: '%env(SCHEDULE_SHEET_URL)%'
 
+    App\Service\Content\SiteContentDefaults:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
 
     App\Service\Content\GalleryUploadService:
         arguments:

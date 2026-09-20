@@ -14,12 +14,17 @@ final class PublicImageField
             ->setBasePath('uploads')
             ->setUploadDir('public/'.$base)
             ->setUploadedFileNamePattern('[uuid].[extension]')
-            ->setTemplatePath('admin/field/public_image.html.twig');
+            ->setTemplatePath('admin/field/public_image.html.twig')
+            ->setFormTypeOption('attr', ['data-hf-image-field' => '1']);
     }
 
     public static function thumbnail(string $propertyName, string $subdir): ImageField
     {
-        return self::new($propertyName, ' ', $subdir)
+        return ImageField::new($propertyName, 'Фото')
+            ->setBasePath('uploads')
+            ->setUploadDir('public/uploads/'.$subdir)
+            ->setUploadedFileNamePattern('[uuid].[extension]')
+            ->setTemplatePath('admin/field/public_image.html.twig')
             ->onlyOnIndex()
             ->setSortable(false);
     }

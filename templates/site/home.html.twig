@@ -47,33 +47,14 @@
     <section class="py-5 festival-highlights container">
         <div class="highlights-grid tiles">
             <div class="tiles-column left">
-                <div class="tile big">Море йоги, музыки и творчества</div>
-                <div class="tile big">Экологически-чистое место среди полей, озёр и лесов</div>
-                <div class="tile big">Проживание в палатках и домиках — одна большая семья</div>
-                <div class="tile big">Детская зона в течение дня</div>
-                <div class="tile big">Несколько площадок для практик в месте силы</div>
-                <div class="tile big">Кухня, столовая, детская площадка, баня</div>
-                <div class="tile big">Вегетарианское питание от шеф-повара</div>
-                <div class="tile big">Другие активности — правИло, ходули, восточный базар, баня и пармастера</div>
+                {% for tile in highlightsLeft %}
+                    <div class="tile{% if tile.style.value == 'big' %} big{% endif %}">{{ tile.text }}</div>
+                {% endfor %}
             </div>
             <div class="tiles-column right">
-                <div class="tile">Углехождение и Гвоздестояние</div>
-                <div class="tile">Хатха и Раджа-йога</div>
-                <div class="tile">Кундалини и Гонг-сатори</div>
-                <div class="tile">Женский класс и Ароматерапия</div>
-                <div class="tile">Дыхание и Шаманские практики</div>
-                <div class="tile">Ошо и Телесная терапия</div>
-                <div class="tile">Пранаяма и Медитация</div>
-                <div class="tile">Регрессия и Саунд-хиллинг</div>
-                <div class="tile">Парная йога и Мандала</div>
-                <div class="tile">Трайбл и Йога-вокал</div>
-                <div class="tile">Лекции и Мастер-классы</div>
-                <div class="tile">Ягья — огненная церемония</div>
-                <div class="tile">Джемы у костра</div>
-                <div class="tile">Киртан и Бхаджаны</div>
-                <div class="tile">Хороводы и Барабаны</div>
-                <div class="tile">Экстатик-дэнс и Концерт</div>
-                <div class="tile wide">ХОЛИ</div>
+                {% for tile in highlightsRight %}
+                    <div class="tile{% if tile.style.value == 'wide' %} wide{% endif %}">{{ tile.text }}</div>
+                {% endfor %}
             </div>
         </div>
     </section>
@@ -165,11 +146,11 @@
             {% endfor %}
         </div>
     </div>
-    <div class="modal-overlay"></div>
-    <button class="modal-close" aria-label="Закрыть">&times;</button>
-    <div class="modal">
-        <div class="modal-inner">
-            <div class="modal-content"></div>
+    <div class="hf-master-modal-overlay" data-hf-master-overlay></div>
+    <button class="hf-master-modal-close" data-hf-master-close aria-label="Закрыть">&times;</button>
+    <div class="hf-master-modal" data-hf-master-modal>
+        <div class="hf-master-modal__inner">
+            <div class="hf-master-modal__body" data-hf-master-body></div>
         </div>
     </div>
 </section>
@@ -282,12 +263,12 @@
         {% endif %}
     </div>
     <div class="container">
-        <h4 class="text-brand-main mt-5">🔥 Скидки:</h4>
-        <ul>
-            <li>50% для детей и подростков до 16 лет включительно</li>
-            <li>N% для семей и групп товарищей, где N- количество участников группы. (Скидка действует при централизованной оплате за всю группу, дети и подростки до 16 лет в количество участников не входят)</li>
-        </ul>
-        <h4 class="text-brand-accent mt-5" style="text-align: center;">Тем, кто бронирует нашу палатку, предоставляется палатка, спальник и коврик. Палатка без соседей. На каждого участника по палатке, на семьи и группы друзей палатки большего размера.</h4>
+        {% if settings and settings.discountsHtml %}
+            {{ settings.discountsHtml|raw }}
+        {% endif %}
+        {% if settings and settings.tentNoteHtml %}
+            {{ settings.tentNoteHtml|raw }}
+        {% endif %}
     </div>
 </section>
 
@@ -354,14 +335,11 @@
     </div>
 </section>
 
+{% if settings and settings.cooperationCtaHtml %}
 <div class="container">
-    <h4 class="text-brand-accent mt-5 mb-5" style="text-align: center;">
-        Приглашаются к сотрудничеству мастера и умельцы для участия в ярмарке, а также, ведущие мастер-классов. Пишите:
-        <a href="https://vk.com/skazka_108" class="contact-link">vk.com/skazka_108</a>
-        или
-        <a href="https://t.me/+79222108041" class="contact-link">+7 9222 108 041 TG</a>
-    </h4>
+    {{ settings.cooperationCtaHtml|raw }}
 </div>
+{% endif %}
 
 <a href="#hero" class="scroll-up" id="scroll-up">
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"

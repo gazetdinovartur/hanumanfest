@@ -26,8 +26,17 @@ final class SiteGlobalsExtension extends AbstractExtension implements GlobalsInt
         }
 
         return [
-            'settings' => $this->em->getRepository(SiteSettings::class)->findOneBy([], ['id' => 'ASC']),
+            'settings' => $this->safeSettings(),
             'footerPages' => $footerPages,
         ];
+    }
+
+    private function safeSettings(): ?SiteSettings
+    {
+        try {
+            return $this->em->getRepository(SiteSettings::class)->findOneBy([], ['id' => 'ASC']);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 }

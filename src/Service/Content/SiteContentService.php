@@ -5,6 +5,7 @@ namespace App\Service\Content;
 use App\Entity\FaqItem;
 use App\Entity\GalleryItem;
 use App\Entity\HomeHero;
+use App\Entity\HomeHighlight;
 use App\Entity\InfoBlock;
 use App\Entity\ParticipationOption;
 use App\Entity\ParticipationPrice;
@@ -12,6 +13,7 @@ use App\Entity\Person;
 use App\Entity\PricingPeriod;
 use App\Entity\Review;
 use App\Entity\SiteSettings;
+use App\Enum\HomeHighlightColumn;
 use App\Enum\PersonKind;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,6 +34,8 @@ final class SiteContentService
         return [
             'hero' => $hero,
             'settings' => $settings,
+            'highlightsLeft' => $this->highlights(HomeHighlightColumn::Left),
+            'highlightsRight' => $this->highlights(HomeHighlightColumn::Right),
             'guests' => $this->people(PersonKind::Guest),
             'musicians' => $this->people(PersonKind::Musician),
             'masters' => $this->people(PersonKind::Master),
@@ -200,5 +204,18 @@ final class SiteContentService
             ['kind' => $kind, 'published' => true],
             ['sortOrder' => 'ASC'],
         );
+    }
+
+    /** @return list<HomeHighlight> */
+    private function highlights(HomeHighlightColumn $column): array
+    {
+        try {
+            return $this->em->getRepository(HomeHighlight::class)->findBy(
+                ['columnSide' => $column, 'published' => true],
+                ['sortOrder' => 'ASC'],
+            );
+        } catch (\Throwable) {
+            return [];
+        }
     }
 }

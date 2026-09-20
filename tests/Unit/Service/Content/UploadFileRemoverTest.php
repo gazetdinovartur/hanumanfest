@@ -30,6 +30,17 @@ final class UploadFileRemoverTest extends TestCase
         self::assertFileDoesNotExist($file);
     }
 
+    public function testDeletePublicPathKeepsLegacyWpMedia(): void
+    {
+        mkdir($this->uploadsDir.'/wp/2025/10', 0775, true);
+        $file = $this->uploadsDir.'/wp/2025/10/logo-hanuman.png';
+        file_put_contents($file, 'logo');
+
+        (new UploadFileRemover($this->uploadsDir))->deletePublicPath('/uploads/wp/2025/10/logo-hanuman.png');
+
+        self::assertFileExists($file);
+    }
+
     public function testDeletePublicPathIgnoresExternalUrls(): void
     {
         $file = $this->uploadsDir.'/gallery/photo.jpg';
