@@ -77,7 +77,7 @@ final class PricingMatrixController extends AbstractController
     {
         $periods = $this->em->getRepository(PricingPeriod::class)->findBy(
             ['product' => $product, 'season' => $this->requireSelectedSeason()],
-            ['startAt' => 'ASC'],
+            ['startAt' => 'ASC', 'endAt' => 'ASC'],
         );
         $priceMap = $this->buildPriceMap($periods);
 
@@ -154,6 +154,8 @@ final class PricingMatrixController extends AbstractController
             }
         }
 
+        $columns = $this->sortPeriodColumns($columns);
+
         return $this->render('admin/pricing_matrix.html.twig', [
             'product' => $product,
             'columns' => $columns,
@@ -179,6 +181,25 @@ final class PricingMatrixController extends AbstractController
         }
 
         return min(max($max + 2, 24), 64);
+    }
+
+    /**
+     * @param list<array{key: string, isNew: bool, name: string, startAt: string, endAt: string, isActive: bool}> $columns
+     *
+     * @return list<array{key: string, isNew: bool, name: string, startAt: string, endAt: string, isActive: bool}>
+     */
+    private function sortPeriodColumns(array $columns): array
+    {
+        usort($columns, static function (array $left, array $right): int {
+            $byStart = strcmp($left['startAt'], $right['startAt']);
+            if ($byStart !== 0) {
+                return $byStart;
+            }
+
+            return strcmp($left['endAt'], $right['endAt']);
+        });
+
+        return $columns;
     }
 
     /**

@@ -1,0 +1,19 @@
+<div class="hf-notice mb-4">
+    <div class="hf-amount-row d-none" data-uae-return-detail="name"><span>Имя</span><strong data-uae-return-detail-value></strong></div>
+    <div class="hf-amount-row d-none" data-uae-return-detail="email"><span>Email</span><strong data-uae-return-detail-value></strong></div>
+    <div class="hf-amount-row d-none" data-uae-return-detail="phone"><span>Телефон</span><strong data-uae-return-detail-value></strong></div>
+    <div class="hf-amount-row d-none" data-uae-return-detail="option"><span>Вариант участия</span><strong data-uae-return-detail-value></strong></div>
+    <div class="hf-amount-row d-none" data-uae-return-detail="period"><span>Ценовой период</span><strong data-uae-return-detail-value></strong></div>
+    <div class="hf-amount-row d-none" data-uae-return-detail="adults"><span>Взрослых</span><strong data-uae-return-detail-value></strong></div>
+    <div class="hf-amount-row d-none" data-uae-return-detail="children"><span>Детей до 16 лет</span><strong data-uae-return-detail-value></strong></div>
+    <div class="hf-amount-row d-none" data-uae-return-detail="transfer"><span>Трансфер</span><strong data-uae-return-detail-value></strong></div>
+    <div class="hf-amount-row d-none" data-uae-return-detail="payment"><span>Вариант оплаты</span><strong data-uae-return-detail-value></strong></div>
+    <div class="hf-amount-row d-none" data-uae-return-detail="roommate"><span>С кем в палатке</span><strong data-uae-return-detail-value></strong></div>
+    <div class="hf-amount-row"><span>Стоимость</span><strong data-uae-return-total></strong></div>
+    <div class="hf-amount-row"><span>Оплачено</span><strong data-uae-return-paid></strong></div>
+    {% if show_remaining %}
+    <div class="hf-amount-row hf-amount-row--remain"><span>Осталось</span><strong data-uae-return-remaining></strong></div>
+    {% else %}
+    <p class="small text-muted mt-3 mb-0">До встречи на фестивале.</p>
+    {% endif %}
+</div>

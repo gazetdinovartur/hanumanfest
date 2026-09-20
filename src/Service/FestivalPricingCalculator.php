@@ -105,7 +105,7 @@ class FestivalPricingCalculator
     {
         $periods = $this->entityManager->getRepository(PricingPeriod::class)->findBy(
             ['product' => $product, 'season' => $season, 'isActive' => true],
-            ['startAt' => 'ASC'],
+            ['startAt' => 'ASC', 'endAt' => 'ASC'],
         );
 
         foreach ($periods as $period) {

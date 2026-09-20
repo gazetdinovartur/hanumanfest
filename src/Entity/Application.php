@@ -26,7 +26,7 @@ class Application
     #[ORM\Column(type: 'uuid', unique: true)]
     private Uuid $uuid;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: 'applications')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
@@ -97,7 +97,16 @@ class Application
 
     public function setUser(?User $user): static
     {
+        if ($this->user === $user) {
+            return $this;
+        }
+
+        $previous = $this->user;
         $this->user = $user;
+        $previous?->getApplications()->removeElement($this);
+        if ($user !== null && !$user->getApplications()->contains($this)) {
+            $user->getApplications()->add($this);
+        }
 
         return $this;
     }
@@ -179,6 +188,25 @@ class Application
         return max(0, $this->totalAmount - $this->paidAmount);
     }
 
+    public function getAmountDueNow(): int
+    {
+        $remaining = $this->getRemainingAmount();
+        if ($remaining <= 0) {
+            return 0;
+        }
+
+        if ($this->paidAmount > 0) {
+            return $remaining;
+        }
+
+        $payNow = (int) ($this->payload['payNowAmount'] ?? 0);
+        if ($payNow <= 0) {
+            return $remaining;
+        }
+
+        return min($payNow, $remaining);
+    }
+
     public function isTest(): bool
     {
         return $this->isTest;
@@ -203,6 +231,86 @@ class Application
         $this->payload = $payload;
 
         return $this;
+    }
+
+    public function getParticipationOptionName(): string
+    {
+        return trim((string) ($this->payload['participationOptionName'] ?? ''));
+    }
+
+    public function getAdultsCount(): int
+    {
+        return max(1, (int) ($this->payload['adultsCount'] ?? 1));
+    }
+
+    public function getChildrenCount(): int
+    {
+        return max(0, (int) ($this->payload['childrenCount'] ?? 0));
+    }
+
+    public function isTransferIncluded(): bool
+    {
+        return !empty($this->payload['transferIncluded']);
+    }
+
+    public function getPaymentFactorLabel(): string
+    {
+        $factor = (float) ($this->payload['paymentFactor'] ?? 1);
+
+        return $factor < 1 ? 'Предоплата 50%' : 'Полная оплата';
+    }
+
+    public function getTentRoommate(): string
+    {
+        return trim((string) ($this->payload['tentRoommate'] ?? ''));
+    }
+
+    public function getPayNowAmount(): int
+    {
+        return (int) ($this->payload['payNowAmount'] ?? $this->getAmountDueNow());
+    }
+
+    /**
+     * Человекочитаемые строки заявки для админки.
+     *
+     * @return list<array{label: string, value: string}>
+     */
+    public function getReadableDetails(): array
+    {
+        $user = $this->user;
+        $periodName = trim((string) ($this->payload['pricingPeriodName'] ?? $this->pricingPeriod?->getName() ?? ''));
+        $rows = [
+            ['label' => 'Имя', 'value' => $user?->getName() ?? ''],
+            ['label' => 'Email', 'value' => $user?->getEmail() ?? ''],
+            ['label' => 'Телефон', 'value' => $user?->getPhone() ?? ''],
+            ['label' => 'Статус', 'value' => $this->status->label()],
+            ['label' => 'Вариант участия', 'value' => $this->getParticipationOptionName()],
+            ['label' => 'Ценовой период', 'value' => $periodName],
+            ['label' => 'Взрослых', 'value' => (string) $this->getAdultsCount()],
+            ['label' => 'Детей до 16 лет', 'value' => (string) $this->getChildrenCount()],
+            ['label' => 'Трансфер', 'value' => $this->isTransferIncluded() ? 'Да' : 'Нет'],
+            ['label' => 'Вариант оплаты', 'value' => $this->getPaymentFactorLabel()],
+            ['label' => 'С кем в палатке', 'value' => $this->getTentRoommate()],
+            ['label' => 'Итого', 'value' => self::formatMoney($this->totalAmount)],
+            ['label' => 'Оплачено', 'value' => self::formatMoney($this->paidAmount)],
+            ['label' => 'Осталось', 'value' => self::formatMoney($this->getRemainingAmount())],
+            ['label' => 'К оплате сейчас', 'value' => self::formatMoney($this->getPayNowAmount())],
+            ['label' => 'Создана', 'value' => $this->createdAt?->format('d.m.Y H:i') ?? ''],
+        ];
+
+        if ($this->isTest) {
+            array_splice($rows, 4, 0, [['label' => 'Тест', 'value' => 'Да']]);
+        }
+
+        return array_values(array_filter(
+            $rows,
+            static fn (array $row): bool => $row['value'] !== '',
+        ));
+    }
+
+    private static function formatMoney(int $amount): string
+    {
+        return number_format($amount, 0, ',', ' ').' ₽';
     }
 
     /** @return Collection<int, Payment> */
@@ -261,6 +369,12 @@ class Application
 
     public function __toString(): string
     {
-        return (string) $this->uuid;
+        $name = trim((string) ($this->user?->getName() ?? ''));
+        $id = $this->id ?? 0;
+        if ($name !== '') {
+            return $id > 0 ? sprintf('#%d %s', $id, $name) : $name;
+        }
+
+        return $id > 0 ? sprintf('#%d', $id) : 'Заявка';
     }
 }

@@ -17,6 +17,15 @@ final class PaymentLinkEmailTemplateTest extends KernelTestCase
 
         $html = $twig->render('email/payment_link.html.twig', [
             'name' => 'Анна',
+            'details' => [
+                ['label' => 'Имя', 'value' => 'Анна'],
+                ['label' => 'Email', 'value' => 'anna@example.com'],
+                ['label' => 'Вариант участия', 'value' => 'Палатка'],
+            ],
+            'contacts' => [
+                ['href' => 'mailto:hanumanfest@gmail.com', 'label' => 'hanumanfest@gmail.com'],
+                ['href' => 'https://t.me/Hanuman_ekb', 'label' => 'Telegram'],
+            ],
             'paidAmount' => 1800,
             'remainingAmount' => 1800,
             'totalAmount' => 3600,
@@ -26,10 +35,15 @@ final class PaymentLinkEmailTemplateTest extends KernelTestCase
         ]);
 
         self::assertStringContainsString('Здравствуйте, Анна', $html);
-        self::assertStringContainsString('предоплата принята', $html);
+        self::assertStringContainsString('Вы зарегистрировались и внесли предоплату за участие в Хануман Фест!', $html);
+        self::assertStringContainsString('Палатка', $html);
+        self::assertStringContainsString('hanumanfest@gmail.com', $html);
+        self::assertStringContainsString('Если есть вопрос, напишите нам', $html);
         self::assertStringContainsString('Оплатить остаток', $html);
+        self::assertTrue(strpos($html, 'Если есть вопрос') < strpos($html, 'Оплатить остаток'));
         self::assertStringContainsString('#f65414', $html);
         self::assertStringContainsString('https://example.test/pay/token', $html);
         self::assertStringNotContainsString('Hanuman Fest', $html);
+        self::assertStringNotContainsString('предоплата принята', $html);
     }
 }

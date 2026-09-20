@@ -6,6 +6,7 @@ use App\Tests\Support\HanumanFestFixtures;
 use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Security\Core\User\InMemoryUser;
 
 #[Group('functional')]
 final class AdminDashboardAfterLoginTest extends WebTestCase
@@ -47,5 +48,26 @@ final class AdminDashboardAfterLoginTest extends WebTestCase
         self::assertSelectorNotExists('.dropdown-settings');
         self::assertSelectorTextContains('.hf-admin-season', 'Сезоны');
         self::assertSelectorTextContains('.admin-dashboard__test-mode-btn', 'Включить');
+
+        $sidebar = $client->getCrawler()->filter('.sidebar-wrapper')->text();
+        self::assertStringNotContainsString('Программа', $sidebar);
+        self::assertStringNotContainsString('События', $sidebar);
+        self::assertStringNotContainsString('/admin/schedule-event', (string) $client->getResponse()->getContent());
+    }
+
+    public function testScheduleEventAdminPageIsGone(): void
+    {
+        $client = static::createClient();
+        $em = $client->getContainer()->get('doctrine')->getManager();
+        $schemaTool = new SchemaTool($em);
+        $metadata = $em->getMetadataFactory()->getAllMetadata();
+        $schemaTool->dropSchema($metadata);
+        $schemaTool->createSchema($metadata);
+        HanumanFestFixtures::seed($em);
+
+        $client->loginUser(new InMemoryUser('admin', 'TempAdmin!2026', ['ROLE_SUPER_ADMIN']), 'main');
+        $client->request('GET', '/admin/schedule-event');
+
+        self::assertResponseRedirects('/admin');
     }
 }

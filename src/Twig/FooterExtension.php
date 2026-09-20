@@ -17,6 +17,7 @@ final class FooterExtension extends AbstractExtension
         return [
             new TwigFunction('footer_contact_links', $this->parser->contactLinks(...)),
             new TwigFunction('footer_social_links', $this->parser->socialLinks(...)),
+            new TwigFunction('footer_feedback_contacts', $this->parser->feedbackContacts(...)),
         ];
     }
 }

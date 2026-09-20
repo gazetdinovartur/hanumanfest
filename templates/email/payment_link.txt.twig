@@ -1,12 +1,17 @@
 Здравствуйте{% if name %}, {{ name }}{% endif %}!
 
-Спасибо, предоплата принята.
+Вы зарегистрировались и внесли предоплату за участие в Хануман Фест!
 
+{% if details is defined %}{% for row in details %}{{ row.label }}: {{ row.value }}
+{% endfor %}{% endif %}Стоимость: {{ totalAmount|number_format(0, ',', ' ') }} ₽
 Оплачено: {{ paidAmount|number_format(0, ',', ' ') }} ₽
 Осталось: {{ remainingAmount|number_format(0, ',', ' ') }} ₽
-Всего по заявке: {{ totalAmount|number_format(0, ',', ' ') }} ₽
 
-Оплатить остаток:
+{% if contacts is defined and contacts %}Если есть вопрос, напишите нам:
+{% for contact in contacts %}{{ contact.label }}
+{{ contact.href }}
+{% endfor %}
+{% endif %}Остаток можно внести сейчас или позже по этой ссылке:
 {{ payUrl }}
 
 С уважением,

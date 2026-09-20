@@ -101,8 +101,5 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::section('Цены');
         yield MenuItem::linkToRoute('Периоды и цены', 'fa fa-table', 'admin_pricing_matrix');
-
-        yield MenuItem::section('Программа');
-        yield MenuItem::linkTo(ScheduleEventCrudController::class, 'События', 'fa fa-clock');
     }
 }

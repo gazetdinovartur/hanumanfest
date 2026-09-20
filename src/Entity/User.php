@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Entity\Trait\TimestampableTrait;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -26,6 +28,15 @@ class User
 
     #[ORM\Column(length: 32, nullable: true)]
     private ?string $phone = null;
+
+    /** @var Collection<int, Application> */
+    #[ORM\OneToMany(targetEntity: Application::class, mappedBy: 'user')]
+    private Collection $applications;
+
+    public function __construct()
+    {
+        $this->applications = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -66,6 +77,25 @@ class User
         $this->phone = $phone;
 
         return $this;
+    }
+
+    /** @return Collection<int, Application> */
+    public function getApplications(): Collection
+    {
+        return $this->applications;
+    }
+
+    /** @return list<Payment> */
+    public function getPayments(): array
+    {
+        $payments = [];
+        foreach ($this->applications as $application) {
+            foreach ($application->getPayments() as $payment) {
+                $payments[] = $payment;
+            }
+        }
+
+        return $payments;
     }
 
     public function __toString(): string

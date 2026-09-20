@@ -7,8 +7,13 @@
     <div class="container">
         <div class="hf-pay"{% if state == 'payable' %} data-uae-widget="payment" data-token="{{ token }}"{% endif %}>
             {% if state == 'payable' %}
+            {% if paidAmount > 0 %}
                 <h1 class="text-brand-main text-center mb-3">Оплата остатка</h1>
                 <p class="text-center text-muted mb-4">Это доплата по вашей заявке. Анкету заполнять заново не нужно.</p>
+            {% else %}
+                <h1 class="text-brand-main text-center mb-3">Оплата заявки</h1>
+                <p class="text-center text-muted mb-4">Это оплата по вашей заявке. Анкету заполнять заново не нужно.</p>
+            {% endif %}
                 {% if name %}
                     <p class="text-center mb-2">{{ name }}</p>
                 {% endif %}
@@ -17,13 +22,17 @@
                 {% endif %}
                 <div class="hf-notice mb-4">
                     <div class="hf-amount-row"><span>Оплачено</span><strong>{{ paidAmount|number_format(0, ',', ' ') }} ₽</strong></div>
+                    {% if paidAmount > 0 %}
                     <div class="hf-amount-row hf-amount-row--remain"><span>Осталось</span><strong>{{ remainingAmount|number_format(0, ',', ' ') }} ₽</strong></div>
+                    {% else %}
+                    <div class="hf-amount-row hf-amount-row--remain"><span>К оплате сейчас</span><strong>{{ amountDueNow|number_format(0, ',', ' ') }} ₽</strong></div>
+                    {% endif %}
                     <div class="hf-amount-row"><span>Всего по заявке</span><strong>{{ totalAmount|number_format(0, ',', ' ') }} ₽</strong></div>
                 </div>
                 <div class="alert alert-danger d-none" data-uae-error></div>
-                <p class="small text-muted text-center hf-reg-status" data-uae-status></p>
+                <p class="small text-muted text-center hf-reg-status" data-uae-status aria-live="polite"></p>
                 <div class="text-center">
-                    <button type="button" class="btn btn-brand-main text-white fw-bold px-4 py-2" data-uae-pay-btn>Оплатить остаток {{ remainingAmount|number_format(0, ',', ' ') }} ₽</button>
+                    <button type="button" class="btn btn-brand-main text-white fw-bold px-4 py-2" data-uae-pay-btn>{% if paidAmount > 0 %}Оплатить остаток {{ remainingAmount|number_format(0, ',', ' ') }} ₽{% else %}Оплатить {{ amountDueNow|number_format(0, ',', ' ') }} ₽{% endif %}</button>
                 </div>
                 <p class="small text-muted text-center mt-3 mb-0">Перейдёте на страницу ЮKassa. После оплаты вернётесь на сайт.</p>
             {% elseif state == 'paid' %}

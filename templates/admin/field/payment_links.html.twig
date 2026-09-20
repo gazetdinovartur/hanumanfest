@@ -1,0 +1,14 @@
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{% set items = field.value %}
+{% if items is empty %}
+    <span class="text-muted">Нет</span>
+{% else %}
+    <ul class="hf-admin-rel-list">
+        {% for item in items %}
+            {% set payUrl = url('site_pay', {token: item.token}) %}
+            <li>
+                <a class="hf-admin-pay-link" href="{{ payUrl }}" target="_blank" rel="noopener noreferrer">{{ payUrl }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

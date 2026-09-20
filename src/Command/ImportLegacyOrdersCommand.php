@@ -13,6 +13,7 @@ use App\Entity\User;
 use App\Enum\ApplicationStatus;
 use App\Enum\PaymentProvider;
 use App\Enum\PaymentStatus;
+use App\Infrastructure\GoogleSheets\Dto\RegistrationSheetRow;
 use App\Infrastructure\GoogleSheets\GoogleSheetsRegistrationsReference;
 use App\Repository\ApplicationRepository;
 use App\Repository\PaymentRepository;
@@ -127,7 +128,7 @@ class ImportLegacyOrdersCommand extends Command
         /** @var list<PricingPeriod> $periods */
         $periods = $this->entityManager->getRepository(PricingPeriod::class)->findBy(
             ['product' => $product, 'season' => $season],
-            ['startAt' => 'ASC']
+            ['startAt' => 'ASC', 'endAt' => 'ASC']
         );
         foreach ($periods as $period) {
             $periodsByName[$this->normalizeText($period->getName())] = $period;
@@ -730,6 +731,9 @@ class ImportLegacyOrdersCommand extends Command
         $optionName = $this->pick($row, ['participationoptionname', 'вариантучастия', 'вариантучастия|select-1', 'select-1']);
 
         if ($email === '' && $name === '' && $phone === '') {
+            return null;
+        }
+        if (RegistrationSheetRow::isRussianLabelRow(['name' => $name, 'email' => $email])) {
             return null;
         }
 

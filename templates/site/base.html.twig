@@ -17,7 +17,7 @@
     <link href="{{ asset('assets/site/style.css') }}" rel="stylesheet">
     {% block stylesheets %}{% endblock %}
 </head>
-<body>
+<body{% if app.request.attributes.get('_route') == 'site_home' %} class="is-home"{% endif %}>
 <header id="header">
     <nav class="container d-flex align-items-center justify-content-between py-2">
         <!-- Логотип -->
@@ -114,8 +114,7 @@
         window.addEventListener("scroll", () => {
             scrollUpBtn.classList.toggle("show", window.scrollY > 300);
             header.classList.toggle("header-background--white", window.scrollY > 100);
-            header.classList.toggle("fixed-top", window.scrollY > 500);
-        });
+        }, { passive: true });
     }
 </script>
 {% block javascripts %}{% endblock %}

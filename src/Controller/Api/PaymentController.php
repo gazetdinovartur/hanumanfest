@@ -71,7 +71,6 @@ class PaymentController extends AbstractController
 
             return $this->json([
                 'token' => $paymentLink->getToken(),
-                'expiresAt' => $paymentLink->getExpiresAt()->format(\DateTimeInterface::ATOM),
                 'application' => [
                     'uuid' => (string) $application?->getUuid(),
                     'name' => $user?->getName(),
@@ -79,6 +78,7 @@ class PaymentController extends AbstractController
                     'totalAmount' => $application?->getTotalAmount(),
                     'paidAmount' => $application?->getPaidAmount(),
                     'remainingAmount' => $application?->getRemainingAmount() ?? 0,
+                    'amountDueNow' => $application?->getAmountDueNow() ?? 0,
                     'status' => $application?->getStatus()->value,
                 ],
             ]);

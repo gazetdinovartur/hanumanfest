@@ -32,8 +32,9 @@ DEFAULT_URI=http://localhost:8080
 ```dotenv
 YOOKASSA_SHOP_ID=
 YOOKASSA_SECRET_KEY=
-REGISTRATION_SHEET_URL=      # лист регистраций (таблица или Apps Script)
-REGISTRATION_SHEET_URL_TEST= # тестовый режим админки, не боевой лист
+REGISTRATION_SHEET_URL=      # ссылка на таблицу регистраций
+REGISTRATION_SHEET_URL_TEST= # тестовый режим, не боевой лист
+GOOGLE_SHEETS_CREDENTIALS=   # JSON service account или путь к файлу
 SCHEDULE_SHEET_URL=          # CSV/export URL программы (отдельный Sheet)
 ADMIN_PASSWORD=TempAdmin!2026
 ```

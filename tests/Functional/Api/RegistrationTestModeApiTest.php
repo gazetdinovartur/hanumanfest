@@ -99,13 +99,16 @@ final class RegistrationTestModeApiTest extends WebTestCase
         $optionId = $em->getRepository(\App\Entity\ParticipationOption::class)->findOneBy([])?->getId();
         self::assertNotNull($optionId);
 
+        $charged = [];
         $yookassa = $this->createMock(YookassaClient::class);
         $yookassa->expects(self::exactly(2))
             ->method('createPayment')
-            ->willReturnOnConsecutiveCalls(
-                new CreatePaymentResult('yk-test-1', 'https://yookassa.test/pay-1'),
-                new CreatePaymentResult('yk-test-2', 'https://yookassa.test/pay-2'),
-            );
+            ->willReturnCallback(static function (string $email, string $phone, int $amount) use (&$charged): CreatePaymentResult {
+                $charged[] = $amount;
+                $n = count($charged);
+
+                return new CreatePaymentResult('yk-test-'.$n, 'https://yookassa.test/pay-'.$n);
+            });
         $yookassa->method('verifyPayment')->willReturn(['status' => 'succeeded']);
         $client->getContainer()->set(YookassaClient::class, $yookassa);
 
@@ -122,8 +125,11 @@ final class RegistrationTestModeApiTest extends WebTestCase
                 'paymentFactor' => 0.5,
             ], JSON_THROW_ON_ERROR),
         );
-        self::assertResponseStatusCodeSame(201);
-        $uuid = json_decode($client->getResponse()->getContent(), true)['uuid'] ?? '';
+        self::assertSame(201, $client->getResponse()->getStatusCode());
+        $created = json_decode($client->getResponse()->getContent(), true);
+        self::assertSame(2, $created['totalAmount']);
+        self::assertSame(1, $created['payNowAmount']);
+        $uuid = $created['uuid'] ?? '';
 
         $client->request(
             'POST',
@@ -165,6 +171,7 @@ final class RegistrationTestModeApiTest extends WebTestCase
         self::assertNotNull($application);
         self::assertSame(2, $application->getPaidAmount());
         self::assertSame(ApplicationStatus::Paid, $application->getStatus());
+        self::assertSame([1, 1], $charged);
     }
 
     private function bootSchema(KernelBrowser $client): \Doctrine\ORM\EntityManagerInterface

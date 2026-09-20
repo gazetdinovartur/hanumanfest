@@ -1,0 +1,18 @@
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{% set items = field.value %}
+{% set controller = field.customOptions.get('crudController') %}
+{% if items is empty %}
+    <span class="text-muted">Нет</span>
+{% else %}
+    <ul class="hf-admin-rel-list">
+        {% for item in items %}
+            <li>
+                {% if controller and item.id %}
+                    <a href="{{ ea_url().unsetAll().setController(controller).setAction('detail').setEntityId(item.id) }}">{{ item }}</a>
+                {% else %}
+                    {{ item }}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

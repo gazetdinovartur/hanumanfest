@@ -50,6 +50,10 @@ WordPress 2026 уходит в архив на `2026.хануманфест.рф
 
 ### ADR-007: Google Sheets регистрации
 
-Один env `REGISTRATION_SHEET_URL` (ссылка на таблицу или Apps Script): экспорт заявок/оплат, ссылка на таблицу в админке, default CSV для `app:import:legacy-orders`.  
-`REGISTRATION_SHEET_URL_TEST` — отдельный лист для тестового режима регистрации в админке; пустой = тестовые заявки не экспортируются в Sheet.  
+Источник правды — MySQL. Sheet — зеркало для команды.
+
+Экспорт: Google Sheets API (service account, `GOOGLE_SHEETS_CREDENTIALS`) в таблицу из `REGISTRATION_SHEET_URL`.  
+`REGISTRATION_SHEET_URL_TEST` — отдельная таблица для тестового режима; пустой = тестовые заявки не пишутся в Sheet.  
 `SCHEDULE_SHEET_URL` — отдельный документ программы.
+
+Apps Script больше не используется.

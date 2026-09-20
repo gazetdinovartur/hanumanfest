@@ -4,6 +4,7 @@ namespace App\Tests\Functional\Admin;
 
 use App\Entity\ParticipationOption;
 use App\Entity\PricingPeriod;
+use App\Entity\Product;
 use App\Tests\Support\HanumanFestFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -90,6 +91,55 @@ final class PricingMatrixTest extends WebTestCase
         $saved = $em->getRepository(ParticipationOption::class)->findOneBy(['name' => 'В нашей палатке, с питанием']);
         self::assertNotNull($saved);
         self::assertSame(7400, $this->findPrice($em, $period->getId(), $saved->getId()));
+    }
+
+    public function testPricingMatrixColumnsAreSortedByStartThenEnd(): void
+    {
+        $client = $this->adminClient();
+        /** @var EntityManagerInterface $em */
+        $em = $client->getContainer()->get('doctrine')->getManager();
+
+        $product = $em->getRepository(Product::class)->findOneBy(['slug' => 'hanuman-fest']);
+        self::assertNotNull($product);
+        $season = HanumanFestFixtures::currentSeason($em);
+
+        $late = new PricingPeriod();
+        $late->setProduct($product);
+        $late->setSeason($season);
+        $late->setName('Позже');
+        $late->setStartAt(new \DateTimeImmutable('2027-06-01 00:00:00'));
+        $late->setEndAt(new \DateTimeImmutable('2027-08-01 23:59:00'));
+        $late->setIsActive(true);
+        $em->persist($late);
+
+        $sameStartShorter = new PricingPeriod();
+        $sameStartShorter->setProduct($product);
+        $sameStartShorter->setSeason($season);
+        $sameStartShorter->setName('Короткий');
+        $sameStartShorter->setStartAt(new \DateTimeImmutable('2026-01-01 00:00:00'));
+        $sameStartShorter->setEndAt(new \DateTimeImmutable('2026-02-01 23:59:00'));
+        $sameStartShorter->setIsActive(true);
+        $em->persist($sameStartShorter);
+        $em->flush();
+
+        $crawler = $client->request('GET', '/admin/pricing');
+        self::assertResponseIsSuccessful();
+
+        $starts = $crawler->filter('[data-hf-period-col] input[name$="[startAt]"]')->each(
+            static fn ($node) => $node->attr('value')
+        );
+        $ends = $crawler->filter('[data-hf-period-col] input[name$="[endAt]"]')->each(
+            static fn ($node) => $node->attr('value')
+        );
+
+        self::assertSame(
+            ['2026-01-01T00:00', '2026-01-01T00:00', '2027-06-01T00:00'],
+            $starts
+        );
+        self::assertSame(
+            ['2026-02-01T23:59', '2026-12-31T23:59', '2027-08-01T23:59'],
+            $ends
+        );
     }
 
     public function testPricingMatrixPageHasOptionColumnWidthVariable(): void

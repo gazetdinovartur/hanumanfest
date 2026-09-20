@@ -21,8 +21,8 @@ class PaymentLink
     #[ORM\JoinColumn(nullable: false)]
     private ?Application $application = null;
 
-    #[ORM\Column]
-    private \DateTimeImmutable $expiresAt;
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $expiresAt = null;
 
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
@@ -31,7 +31,6 @@ class PaymentLink
     {
         $this->token = Uuid::v7()->toRfc4122();
         $this->createdAt = new \DateTimeImmutable();
-        $this->expiresAt = new \DateTimeImmutable('+90 days');
     }
 
     public function getId(): ?int
@@ -63,12 +62,12 @@ class PaymentLink
         return $this;
     }
 
-    public function getExpiresAt(): \DateTimeImmutable
+    public function getExpiresAt(): ?\DateTimeImmutable
     {
         return $this->expiresAt;
     }
 
-    public function setExpiresAt(\DateTimeImmutable $expiresAt): static
+    public function setExpiresAt(?\DateTimeImmutable $expiresAt): static
     {
         $this->expiresAt = $expiresAt;
 
@@ -85,11 +84,6 @@ class PaymentLink
         $this->createdAt = $createdAt;
 
         return $this;
-    }
-
-    public function isExpired(): bool
-    {
-        return $this->expiresAt < new \DateTimeImmutable();
     }
 
     public function __toString(): string

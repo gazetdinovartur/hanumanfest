@@ -1,0 +1,12 @@
+{% set footerContactsRaw = settings is defined and settings ? settings.contactsHtml : null %}
+{% set feedbackContacts = footer_feedback_contacts(footerContactsRaw) %}
+{% if feedbackContacts %}
+<div class="hf-return-contacts mb-4">
+    <p class="fw-bold mb-2">Если есть вопрос, напишите нам:</p>
+    <ul class="list-unstyled mb-0">
+        {% for contact in feedbackContacts %}
+            <li><a class="contact-link" href="{{ contact.href }}">{{ contact.label }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}

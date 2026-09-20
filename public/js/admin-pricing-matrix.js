@@ -100,6 +100,34 @@
       return tr;
     }
 
+    function periodTime(col, field) {
+      const input = col.querySelector('input[name$="[' + field + ']"]');
+      const value = input && input.value ? input.value : '';
+      if (!value) return Number.POSITIVE_INFINITY;
+      const stamp = Date.parse(value);
+      return Number.isNaN(stamp) ? Number.POSITIVE_INFINITY : stamp;
+    }
+
+    function sortPeriodColumns() {
+      const cols = Array.from(root.querySelectorAll('[data-hf-period-col]'));
+      cols.sort(function (left, right) {
+        const start = periodTime(left, 'startAt') - periodTime(right, 'startAt');
+        if (start !== 0) return start;
+        return periodTime(left, 'endAt') - periodTime(right, 'endAt');
+      });
+      cols.forEach(function (col) {
+        headRow.insertBefore(col, addCol);
+        const key = col.dataset.key;
+        body.querySelectorAll('[data-hf-option-row]').forEach(function (row) {
+          const cell = row.querySelector('[data-hf-price-cell][data-key="' + key + '"]');
+          const spacer = row.querySelector('[data-hf-add-col-spacer]');
+          if (cell && spacer) {
+            row.insertBefore(cell, spacer);
+          }
+        });
+      });
+    }
+
     function addPeriod() {
       const key = 'new_' + uid();
       const th = buildPeriodHeader(key);
@@ -114,6 +142,7 @@
       });
 
       updateAddOptionColspan();
+      sortPeriodColumns();
 
       const wrap = root.querySelector('.hf-price__sheet-wrap');
       if (wrap) wrap.scrollLeft = wrap.scrollWidth;
@@ -203,7 +232,15 @@
       }
     });
 
+    root.addEventListener('change', function (e) {
+      const name = e.target && e.target.getAttribute('name') ? e.target.getAttribute('name') : '';
+      if (name.indexOf('[startAt]') !== -1 || name.indexOf('[endAt]') !== -1) {
+        sortPeriodColumns();
+      }
+    });
+
     updateAddOptionColspan();
+    sortPeriodColumns();
   }
 
   function boot() {

@@ -3,8 +3,8 @@
  * Поддерживает action: application | payment
  *
  * Заголовки (регистр не важен). Рекомендуемый порядок колонок заявки:
- * applicationUuid, name, email, phone, productName, participationOptionName,
- * pricingPeriodName, adultsCount, childrenCount, totalAmount, payNowAmount,
+ * name, phone, email, adultsCount, childrenCount, totalAmount, payNowAmount,
+ * pricingPeriodName, applicationUuid, productName, participationOptionName,
  * transferIncluded, paymentFactor, notes,
  * payment1Amount, payment1Date, payment1Id,
  * payment2Amount, payment2Date, payment2Id,

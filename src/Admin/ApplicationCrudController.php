@@ -3,25 +3,28 @@
 namespace App\Admin;
 
 use App\Entity\Application;
-use App\Enum\ApplicationStatus;
 use App\Service\Admin\AdminSeasonContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class ApplicationCrudController extends AbstractCrudController
 {
+    use ReadOnlyCrudTrait;
+
     public function __construct(
         private readonly AdminSeasonContext $seasonContext,
     ) {
@@ -39,8 +42,19 @@ class ApplicationCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('Заявки')
             ->setDefaultSort(['createdAt' => 'DESC'])
             ->setPageTitle(Crud::PAGE_INDEX, 'Заявки')
-            ->setPageTitle(Crud::PAGE_DETAIL, 'Заявка')
+            ->setPageTitle(Crud::PAGE_DETAIL, static function (Application $application): string {
+                $name = trim((string) ($application->getUser()?->getName() ?? ''));
+
+                return $name !== '' ? $name : 'Заявка';
+            })
+            ->setSearchFields(['uuid', 'user.name', 'user.email', 'user.phone'])
+            ->setDefaultRowAction(Action::DETAIL)
             ->showEntityActionsInlined();
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        return $this->configureReadOnlyActions($actions);
     }
 
     public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
@@ -67,35 +81,28 @@ class ApplicationCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        yield TextField::new('uuid')->setLabel('UUID')->hideOnForm();
-        yield AssociationField::new('user')->setLabel('Пользователь');
-        yield AssociationField::new('season')->setLabel('Сезон')->hideOnForm();
-        yield AssociationField::new('pricingPeriod')
-            ->setLabel('Период стоимости')
-            ->setQueryBuilder(function (QueryBuilder $qb): QueryBuilder {
-                $season = $this->seasonContext->getSelectedSeason();
-                if ($season !== null) {
-                    $qb->andWhere('entity.season = :season')->setParameter('season', $season);
-                }
+        yield AssociationField::new('user')
+            ->setLabel('Пользователь')
+            ->setCrudController(UserCrudController::class)
+            ->hideOnDetail();
+        yield ChoiceField::new('status')->setLabel('Статус')->hideOnDetail();
+        yield IntegerField::new('totalAmount')->setLabel('Итого (₽)')->hideOnDetail();
+        yield IntegerField::new('paidAmount')->setLabel('Оплачено (₽)')->hideOnDetail();
+        yield BooleanField::new('isTest', 'Тест')->renderAsSwitch(false)->hideOnForm()->hideOnDetail();
+        yield DateTimeField::new('createdAt')->setLabel('Создана')->hideOnForm()->hideOnDetail()->setFormat('dd.MM.yyyy HH:mm');
 
-                return $qb;
-            });
-        yield ChoiceField::new('status')
-            ->setChoices([
-                'Новая' => ApplicationStatus::New,
-                'Частично оплачена' => ApplicationStatus::PartiallyPaid,
-                'Оплачена' => ApplicationStatus::Paid,
-                'Возврат' => ApplicationStatus::Refunded,
-                'Отменена' => ApplicationStatus::Cancelled,
-            ])->setLabel('Статус');
-        yield IntegerField::new('totalAmount')->setLabel('Итого (₽)');
-        yield IntegerField::new('paidAmount')->setLabel('Оплачено (₽)');
-        yield BooleanField::new('isTest', 'Тест')->renderAsSwitch(false)->hideOnForm();
-        yield TextField::new('payload')
+        yield ArrayField::new('readableDetails')
             ->setLabel('Данные формы')
             ->onlyOnDetail()
-            ->formatValue(static fn ($value): string => json_encode($value, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) ?: '{}');
-        yield DateTimeField::new('createdAt')->setLabel('Создана')->hideOnForm();
-        yield DateTimeField::new('updatedAt')->setLabel('Обновлена')->hideOnForm();
+            ->setTemplatePath('admin/field/definition_list.html.twig');
+        yield AssociationField::new('payments')
+            ->setLabel('Платежи')
+            ->onlyOnDetail()
+            ->setTemplatePath('admin/field/related_entities.html.twig')
+            ->setCustomOption('crudController', PaymentCrudController::class);
+        yield AssociationField::new('paymentLinks')
+            ->setLabel('Ссылки на оплату')
+            ->onlyOnDetail()
+            ->setTemplatePath('admin/field/payment_links.html.twig');
     }
 }

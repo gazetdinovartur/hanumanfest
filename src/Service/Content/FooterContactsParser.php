@@ -56,6 +56,29 @@ final class FooterContactsParser
     }
 
     /**
+     * Телефоны, почта, Telegram и ВК — для письма и страницы после оплаты.
+     *
+     * @return list<array{href: string, label: string}>
+     */
+    public function feedbackContacts(?string $raw): array
+    {
+        $items = $this->contactLinks($raw);
+        foreach ($this->socialLinks($raw) as $social) {
+            $label = match ($social['name']) {
+                'tg' => 'Telegram',
+                'vk' => 'ВКонтакте',
+                default => null,
+            };
+            if ($label === null) {
+                continue;
+            }
+            $items[] = ['href' => $social['url'], 'label' => $label];
+        }
+
+        return $items;
+    }
+
+    /**
      * @return list<string>
      */
     private function lines(?string $raw): array

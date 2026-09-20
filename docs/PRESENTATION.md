@@ -137,14 +137,14 @@ flowchart LR
 хануманфест.рф (Symfony: Twig-сайт + /api + /admin + MySQL)
         │
         ├── YooKassa
-        ├── Google Sheets (Apps Script webhook)
+        ├── Google Sheets API
         └── SMTP
 ```
 
 Переходный / параллельный контур (до cutover): WordPress + bridge на том же домене может ещё принимать боевые заявки; см. `PARALLEL_TESTING.md`.
 
 - **Источник правды после cutover:** MySQL (`Application`, `Payment`, `PaymentLink`, `PricingPeriod`, …).
-- **Sheets:** зеркало для команды; экспорт через `REGISTRATION_SHEET_URL` → Apps Script `Code.by-columns.gs`.
+- **Sheets:** зеркало для команды; Symfony пишет строки через Google Sheets API.
 - **Публичная форма:** Symfony Twig + `public/assets/site/registration.js` (legacy bridge в `legacy/wordpress/` — архив / параллельный тест).
 
 ---
@@ -175,18 +175,14 @@ flowchart LR
 
 ## Google Sheets
 
-**Клиент:** `GoogleSheetsClient` → POST на `REGISTRATION_SHEET_URL` (если это Apps Script webhook).
+**Клиент:** `GoogleSheetsClient` → Google Sheets API (service account, `GOOGLE_SHEETS_CREDENTIALS`) в таблицу `REGISTRATION_SHEET_URL`.
 
-**Payloads:**
+Строка листа «Регистрации»: name, phone, email, adultsCount, childrenCount, totalAmount, paidTotal, participationOptionName, transferIncluded, paymentFactor, notes, payment1*, payment2*, remaining, payNowAmount, pricingPeriodName, applicationUuid.
 
-- `ApplicationExportPayload` — `action: application`, поля заявки, `applicationUuid`.
-- `PaymentExportPayload` — `action: payment`, `paymentId`, `paidTotal`, `remaining`.
+- `paidTotal` — сумма успешных платежей.
+- `remaining` — остаток к оплате.
 
-**Apps Script v2** (`legacy/google-apps-script/Code.by-columns.gs`):
-
-- `buildColumnMap` — колонки по заголовкам (регистр не важен).
-- Поиск строки: `applicationUuid` → `paymentId` → email + phone.
-- Ручные колонки / notes не перезаписываются экспортом payment.
+Поиск строки: `applicationUuid`. Заявка не перезаписывает уже существующую строку; оплата дописывает payment1/payment2.
 
 **Ресинк:** `app:payments:sync-google-sheets`.
 

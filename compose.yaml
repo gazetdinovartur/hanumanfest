@@ -20,6 +20,11 @@ services:
     depends_on:
       - php
 
+  mailer:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "8025:8025"
+
 ###> doctrine/doctrine-bundle ###
   database:
     image: mysql:${MYSQL_VERSION:-8.0}

@@ -50,6 +50,19 @@ class ApplicationController extends AbstractController
         }
     }
 
+    #[Route('/applications/cancel', name: 'api_applications_cancel', methods: ['POST'])]
+    public function cancel(Request $request): JsonResponse
+    {
+        try {
+            $token = (string) ($request->toArray()['token'] ?? '');
+            $this->applicationService->cancelUnpaidByPaymentToken($token);
+
+            return $this->json(['ok' => true]);
+        } catch (HttpExceptionInterface $e) {
+            return $this->json(['error' => $e->getMessage()], $e->getStatusCode());
+        }
+    }
+
     #[Route('/applications', name: 'api_applications_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
@@ -89,12 +102,19 @@ class ApplicationController extends AbstractController
                 'participationOptionName' => $payload['participationOptionName'] ?? null,
             ], Response::HTTP_CREATED);
         } catch (DuplicateApplicationException $e) {
-            $body = ['error' => $e->getMessage()];
+            $body = [
+                'error' => $e->getMessage(),
+                'paidAmount' => $e->getPaidAmount(),
+                'remainingAmount' => $e->getRemainingAmount(),
+                'amountDueNow' => $e->getAmountDueNow(),
+                'totalAmount' => $e->getTotalAmount(),
+                'cancellable' => $e->isCancellable(),
+            ];
             if ($e->getPayUrl()) {
                 $body['payUrl'] = $e->getPayUrl();
-                $body['paidAmount'] = $e->getPaidAmount();
-                $body['remainingAmount'] = $e->getRemainingAmount();
-                $body['totalAmount'] = $e->getTotalAmount();
+            }
+            if ($e->getPaymentToken()) {
+                $body['token'] = $e->getPaymentToken();
             }
 
             return $this->json($body, $e->getStatusCode());

@@ -24,14 +24,10 @@ class PaymentLinkService
     ) {
     }
 
-    public function createForApplication(Application $application, ?\DateTimeImmutable $expiresAt = null): PaymentLink
+    public function createForApplication(Application $application): PaymentLink
     {
         $paymentLink = new PaymentLink();
         $application->addPaymentLink($paymentLink);
-
-        if ($expiresAt) {
-            $paymentLink->setExpiresAt($expiresAt);
-        }
 
         $this->entityManager->persist($paymentLink);
         $this->entityManager->flush();
@@ -60,8 +56,8 @@ class PaymentLinkService
         }
 
         if (
-            $application->getStatus() !== ApplicationStatus::PartiallyPaid
-            || $application->getRemainingAmount() <= 0
+            $application->getRemainingAmount() <= 0
+            || !\in_array($application->getStatus(), [ApplicationStatus::New, ApplicationStatus::PartiallyPaid], true)
         ) {
             return null;
         }
@@ -79,7 +75,7 @@ class PaymentLinkService
         }
 
         if ($state !== self::STATE_PAYABLE || !$paymentLink) {
-            throw new NotFoundHttpException('Payment link not found or expired.');
+            throw new NotFoundHttpException('Payment link not found.');
         }
 
         return $paymentLink;
@@ -104,7 +100,10 @@ class PaymentLinkService
             return self::STATE_PAID;
         }
 
-        if ($application->getStatus() === ApplicationStatus::PartiallyPaid && $application->getPaidAmount() > 0) {
+        if (
+            $application->getRemainingAmount() > 0
+            && \in_array($application->getStatus(), [ApplicationStatus::New, ApplicationStatus::PartiallyPaid], true)
+        ) {
             return self::STATE_PAYABLE;
         }
 
@@ -122,8 +121,11 @@ class PaymentLinkService
      *     name: ?string,
      *     paidAmount: int,
      *     remainingAmount: int,
+     *     amountDueNow: int,
      *     totalAmount: int,
-     *     payUrl: string
+     *     payUrl: string,
+     *     token: string,
+     *     cancellable: bool
      * }|null
      */
     public function lookupPartialPayment(string $email, bool $isTest = false): ?array
@@ -133,7 +135,7 @@ class PaymentLinkService
             return null;
         }
 
-        $application = $this->applicationRepository->findPartiallyPaidByEmail($email, $isTest);
+        $application = $this->applicationRepository->findPayableByEmail($email, $isTest);
         if (!$application) {
             return null;
         }
@@ -148,8 +150,12 @@ class PaymentLinkService
             'name' => $application->getUser()?->getName(),
             'paidAmount' => $application->getPaidAmount(),
             'remainingAmount' => $application->getRemainingAmount(),
+            'amountDueNow' => $application->getAmountDueNow(),
             'totalAmount' => $application->getTotalAmount(),
             'payUrl' => $this->publicPayUrl($link),
+            'token' => $link->getToken(),
+            'cancellable' => $application->getPaidAmount() === 0
+                && $application->getStatus() === ApplicationStatus::New,
         ];
     }
 }

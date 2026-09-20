@@ -27,6 +27,7 @@ final class PaymentLinkServiceTest extends DatabaseTestCase
         $link = $service->createForApplication($application);
 
         self::assertNotSame('', $link->getToken());
+        self::assertNull($link->getExpiresAt());
         self::assertSame(PaymentLinkService::STATE_PAYABLE, $service->state($link));
 
         $resolved = $service->getValidLink($link->getToken());
@@ -43,10 +44,13 @@ final class PaymentLinkServiceTest extends DatabaseTestCase
 
         /** @var PaymentLinkService $service */
         $service = static::getContainer()->get(PaymentLinkService::class);
-        $link = $service->createForApplication($application, new \DateTimeImmutable('-1 day'));
+        $link = $service->createForApplication($application);
+        $link->setExpiresAt(new \DateTimeImmutable('-1 day'));
+        $this->entityManager->flush();
 
         $resolved = $service->getValidLink($link->getToken());
         self::assertSame($link->getToken(), $resolved->getToken());
+        self::assertSame(PaymentLinkService::STATE_PAYABLE, $service->state($link));
     }
 
     public function testPaidLinkIsRejected(): void
@@ -96,8 +100,35 @@ final class PaymentLinkServiceTest extends DatabaseTestCase
         self::assertNotNull($result);
         self::assertTrue($result['found']);
         self::assertSame(1800, $result['remainingAmount']);
+        self::assertSame(1800, $result['amountDueNow']);
         self::assertNotSame('', $result['payUrl']);
+        self::assertFalse($result['cancellable']);
+        self::assertNotSame('', $result['token']);
         self::assertNotNull($service->findForApplication($application));
+    }
+
+    public function testLookupFindsNewUnpaidApplicationByEmail(): void
+    {
+        HanumanFestFixtures::seed($this->entityManager);
+
+        $application = $this->createPartialApplication('new-lookup@test.example');
+        $application->setStatus(ApplicationStatus::New);
+        $application->setPaidAmount(0);
+        $application->setPayload(['payNowAmount' => 1800, 'paymentFactor' => 0.5]);
+        $this->entityManager->flush();
+
+        /** @var PaymentLinkService $service */
+        $service = static::getContainer()->get(PaymentLinkService::class);
+        $result = $service->lookupPartialPayment('new-lookup@test.example');
+
+        self::assertNotNull($result);
+        self::assertTrue($result['found']);
+        self::assertSame(3600, $result['remainingAmount']);
+        self::assertSame(0, $result['paidAmount']);
+        self::assertSame(1800, $result['amountDueNow']);
+        self::assertNotSame('', $result['payUrl']);
+        self::assertTrue($result['cancellable']);
+        self::assertNotSame('', $result['token']);
     }
 
     private function createPartialApplication(string $email = 'link@test.example'): Application

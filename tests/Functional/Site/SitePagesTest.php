@@ -56,6 +56,7 @@ final class SitePagesTest extends WebTestCase
         self::assertStringContainsString('icons/tg.svg', $html);
         self::assertStringContainsString('id="about"', $html);
         self::assertStringContainsString('href="/#about"', $html);
+        self::assertStringContainsString('class="is-home"', $html);
         self::assertStringContainsString('Море йоги, музыки и творчества', $html);
     }
 
@@ -105,6 +106,7 @@ final class SitePagesTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'Программа фестиваля');
+        self::assertSelectorNotExists('body.is-home');
     }
 
     public function testRegistrationPageIsOk(): void
@@ -127,12 +129,17 @@ final class SitePagesTest extends WebTestCase
     {
         $client = static::createClient();
         $this->bootSchema($client);
+        $this->seedFooterSettings($client);
         $client->request('GET', '/return');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-uae-widget="return"]');
         self::assertSelectorExists('[data-uae-copy-btn]');
-        self::assertStringContainsString('Ссылка на оплату остатка', (string) $client->getResponse()->getContent());
+        self::assertSelectorExists('[data-uae-return-pay]');
+        $html = (string) $client->getResponse()->getContent();
+        self::assertStringContainsString('Вы зарегистрировались и внесли предоплату за участие в Хануман Фест!', $html);
+        self::assertStringContainsString('Если есть вопрос, напишите нам', $html);
+        self::assertStringContainsString('Ссылка на оплату остатка', $html);
     }
 
     public function testPayPageIsOk(): void
@@ -175,6 +182,8 @@ final class SitePagesTest extends WebTestCase
         /** @var \App\Service\PaymentLinkService $links */
         $links = $client->getContainer()->get(\App\Service\PaymentLinkService::class);
         $link = $links->createForApplication($application);
+        $link->setExpiresAt(new \DateTimeImmutable('-1 day'));
+        $em->flush();
 
         $client->request('GET', '/pay/'.$link->getToken());
 
@@ -187,6 +196,47 @@ final class SitePagesTest extends WebTestCase
         self::assertStringNotContainsString((string) $application->getUuid(), $html);
     }
 
+    public function testPayPageForUnpaidHalfPaymentShowsAmountDueNow(): void
+    {
+        $client = static::createClient();
+        $em = $this->bootSchema($client);
+        HanumanFestFixtures::enableRegistrationTestMode($em);
+        $optionId = $em->getRepository(\App\Entity\ParticipationOption::class)->findOneBy([])?->getId();
+        self::assertNotNull($optionId);
+
+        $client->request(
+            'POST',
+            '/api/applications',
+            server: ['CONTENT_TYPE' => 'application/json'],
+            content: json_encode([
+                'name' => 'Предоплата',
+                'email' => 'half-pay-page@test.example',
+                'phone' => '+79001112255',
+                'participationOptionId' => $optionId,
+                'adultsCount' => 1,
+                'paymentFactor' => 0.5,
+            ], JSON_THROW_ON_ERROR),
+        );
+        self::assertResponseStatusCodeSame(201);
+        $uuid = json_decode($client->getResponse()->getContent(), true)['uuid'] ?? '';
+
+        $application = $em->getRepository(\App\Entity\Application::class)->findOneBy(['uuid' => $uuid]);
+        self::assertNotNull($application);
+
+        /** @var \App\Service\PaymentLinkService $links */
+        $links = $client->getContainer()->get(\App\Service\PaymentLinkService::class);
+        $link = $links->ensureForPartialApplication($application);
+        self::assertNotNull($link);
+
+        $client->request('GET', '/pay/'.$link->getToken());
+        self::assertResponseIsSuccessful();
+        $html = (string) $client->getResponse()->getContent();
+        self::assertStringContainsString('К оплате сейчас', $html);
+        self::assertStringContainsString('Оплатить 1 ₽', $html);
+        self::assertStringNotContainsString('Оплатить 2 ₽', $html);
+        self::assertStringContainsString('Всего по заявке', $html);
+    }
+
     public function testRegistrationPageOffersExistingPaymentHintMarkup(): void
     {
         $client = static::createClient();
@@ -195,7 +245,20 @@ final class SitePagesTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-uae-existing-payment]');
-        self::assertSelectorExists('[data-uae-factor-hint]');
+        self::assertSelectorExists('[data-uae-existing-cancel]');
+        self::assertSelectorExists('[data-uae-factor-hint="0.5"]');
+        self::assertSelectorExists('[data-uae-factor-hint="1"]');
+        $html = (string) $client->getResponse()->getContent();
+        self::assertStringContainsString('Сейчас спишется половина', $html);
+        self::assertStringContainsString('Сейчас спишется вся сумма', $html);
+        $submitPos = strpos($html, 'data-uae-submit');
+        $noticePos = strpos($html, 'data-uae-existing-payment');
+        $errorPos = strpos($html, 'data-uae-error');
+        self::assertNotFalse($submitPos);
+        self::assertNotFalse($noticePos);
+        self::assertNotFalse($errorPos);
+        self::assertGreaterThan($submitPos, $noticePos);
+        self::assertGreaterThan($submitPos, $errorPos);
     }
 
     private function bootSchema(KernelBrowser $client): \Doctrine\ORM\EntityManagerInterface

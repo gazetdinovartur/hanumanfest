@@ -55,7 +55,16 @@ class Payment
 
     public function setApplication(?Application $application): static
     {
+        if ($this->application === $application) {
+            return $this;
+        }
+
+        $previous = $this->application;
         $this->application = $application;
+        $previous?->removePayment($this);
+        if ($application !== null && !$application->getPayments()->contains($this)) {
+            $application->addPayment($this);
+        }
 
         return $this;
     }
@@ -120,6 +129,15 @@ class Payment
         return $this;
     }
 
+    public function getStatusLabel(): string
+    {
+        if ($this->status === PaymentStatus::Succeeded && $this->refundedAmount >= $this->amount && $this->amount > 0) {
+            return 'Возврат';
+        }
+
+        return $this->status->label();
+    }
+
     public function getPaidAt(): ?\DateTimeImmutable
     {
         return $this->paidAt;
@@ -132,8 +150,26 @@ class Payment
         return $this;
     }
 
+    public function getPaidAtLabel(): string
+    {
+        if ($this->paidAt === null) {
+            return '—';
+        }
+
+        $formatter = new \IntlDateFormatter(
+            'ru_RU',
+            \IntlDateFormatter::NONE,
+            \IntlDateFormatter::NONE,
+            'Europe/Moscow',
+            \IntlDateFormatter::GREGORIAN,
+            'd MMMM y, HH:mm',
+        );
+
+        return $formatter->format($this->paidAt) ?: '—';
+    }
+
     public function __toString(): string
     {
-        return sprintf('#%d — %d ₽', $this->id ?? 0, $this->amount);
+        return sprintf('#%d — %s ₽ (%s)', $this->id ?? 0, number_format($this->amount, 0, ',', ' '), $this->getStatusLabel());
     }
 }

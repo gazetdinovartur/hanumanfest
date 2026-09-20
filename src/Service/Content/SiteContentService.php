@@ -61,7 +61,7 @@ final class SiteContentService
 
         $periods = $this->em->getRepository(PricingPeriod::class)->findBy(
             ['product' => $product, 'isActive' => true],
-            ['startAt' => 'ASC'],
+            ['startAt' => 'ASC', 'endAt' => 'ASC'],
         );
         if ($periods === []) {
             return [];

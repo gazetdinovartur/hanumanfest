@@ -35,7 +35,7 @@ class ProductController extends AbstractController
 
         $periods = $em->getRepository(PricingPeriod::class)->findBy(
             ['product' => $product, 'isActive' => true],
-            ['startAt' => 'ASC'],
+            ['startAt' => 'ASC', 'endAt' => 'ASC'],
         );
 
         $now = new \DateTimeImmutable();

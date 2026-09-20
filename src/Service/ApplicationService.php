@@ -14,6 +14,7 @@ use App\Repository\UserRepository;
 use App\Util\PhoneNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ApplicationService
 {
@@ -25,6 +26,7 @@ class ApplicationService
         private readonly GoogleSheetsExportService $googleSheetsExportService,
         private readonly RegistrationTestMode $registrationTestMode,
         private readonly PaymentLinkService $paymentLinkService,
+        private readonly AfterResponseWork $afterResponseWork,
     ) {
     }
 
@@ -47,8 +49,6 @@ class ApplicationService
             ),
         );
 
-        $user = $this->findOrCreateUser($request->name, $email, $phone);
-
         $isTest = $this->registrationTestMode->isEnabled();
         $duplicate = $this->applicationRepository->findActiveDuplicateByEmail(
             $email,
@@ -59,16 +59,19 @@ class ApplicationService
         );
         if ($duplicate) {
             $payUrl = null;
-            if (
-                $duplicate->getStatus() === ApplicationStatus::PartiallyPaid
-                && $duplicate->getRemainingAmount() > 0
-            ) {
+            $token = null;
+            if ($duplicate->getRemainingAmount() > 0) {
                 $link = $this->paymentLinkService->ensureForPartialApplication($duplicate);
-                $payUrl = $link ? $this->paymentLinkService->publicPayUrl($link) : null;
+                if ($link) {
+                    $payUrl = $this->paymentLinkService->publicPayUrl($link);
+                    $token = $link->getToken();
+                }
             }
 
-            throw new DuplicateApplicationException($duplicate, $payUrl);
+            throw new DuplicateApplicationException($duplicate, $payUrl, $token);
         }
+
+        $user = $this->findOrCreateUser($request->name, $email, $phone);
 
         $payNowAmount = $pricingContext->result->payNowAmount;
 
@@ -111,7 +114,16 @@ class ApplicationService
         $this->entityManager->persist($application);
         $this->entityManager->flush();
 
-        $this->googleSheetsExportService->exportApplication($application);
+        $applicationId = $application->getId();
+        $this->afterResponseWork->add(function () use ($applicationId): void {
+            if ($applicationId === null) {
+                return;
+            }
+            $stored = $this->applicationRepository->find($applicationId);
+            if ($stored instanceof Application) {
+                $this->googleSheetsExportService->exportApplication($stored);
+            }
+        });
 
         return $application;
     }
@@ -135,5 +147,30 @@ class ApplicationService
         $this->entityManager->persist($user);
 
         return $user;
+    }
+
+    public function cancelUnpaidByPaymentToken(string $token): void
+    {
+        $token = trim($token);
+        if ($token === '') {
+            throw new BadRequestHttpException('Не найден токен заявки.');
+        }
+
+        $link = $this->paymentLinkService->findByToken($token);
+        $application = $link?->getApplication();
+        if (!$link || !$application) {
+            throw new NotFoundHttpException('Заявка не найдена.');
+        }
+
+        if ($application->getStatus() === ApplicationStatus::Cancelled) {
+            return;
+        }
+
+        if ($application->getPaidAmount() > 0 || $application->getStatus() !== ApplicationStatus::New) {
+            throw new BadRequestHttpException('Нельзя отменить заявку с оплатой. Если нужна помощь — напишите нам.');
+        }
+
+        $application->setStatus(ApplicationStatus::Cancelled);
+        $this->entityManager->flush();
     }
 }

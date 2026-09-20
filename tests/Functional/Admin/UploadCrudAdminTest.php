@@ -54,6 +54,9 @@ final class UploadCrudAdminTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('form.ea-edit-form');
+        self::assertSelectorExists('input[name$="[siteName]"]');
+        self::assertSelectorNotExists('input[name$="[tagline]"]');
+        self::assertStringNotContainsString('Слоган', (string) $client->getResponse()->getContent());
     }
 
     public function testPersonEditFormLoadsWithPhotoField(): void

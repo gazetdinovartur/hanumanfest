@@ -5,7 +5,7 @@
 {% block body %}
 <main class="py-5">
     <div class="container hf-return" data-uae-widget="return">
-        <h1 class="text-brand-main text-center mb-4">Статус оплаты</h1>
+        <h1 class="visually-hidden">Статус оплаты</h1>
         <div class="alert alert-danger d-none" data-uae-error></div>
 
         <div class="text-center text-muted" data-uae-return-panel="loading">Проверяем оплату…</div>
@@ -15,18 +15,20 @@
             <p class="small text-muted mb-0">Обычно это занимает несколько секунд. Если предоплата уже прошла, ссылку на остаток отправим на email.</p>
         </div>
 
-        <div class="hf-notice d-none" data-uae-return-panel="full">
-            <p class="mb-2">Регистрация оплачена полностью.</p>
-            <p class="mb-0">Сумма: <strong data-uae-return-amount></strong></p>
-            <p class="small text-muted mt-3 mb-0">До встречи на фестивале.</p>
+        <div class="d-none" data-uae-return-panel="full">
+            <p class="text-brand-main text-center fw-bold fs-4 mb-4">Вы зарегистрировались и внесли оплату за участие в Хануман Фест!</p>
+            {% include 'site/_return_application.html.twig' with { show_remaining: false } %}
+            {% include 'site/_return_contacts.html.twig' %}
         </div>
 
-        <div class="hf-notice d-none" data-uae-return-panel="partial">
-            <p class="mb-3">Предоплата прошла.</p>
-            <div class="hf-amount-row"><span>Оплачено</span><strong data-uae-return-paid></strong></div>
-            <div class="hf-amount-row hf-amount-row--remain"><span>Осталось</span><strong data-uae-return-remaining></strong></div>
-            <div class="hf-amount-row mb-3"><span>Всего по заявке</span><strong data-uae-return-total></strong></div>
-            <p class="small text-muted">Ссылка на оплату остатка отправлена на <span data-uae-return-email></span>. Если письма нет — проверьте папку «Спам» или скопируйте ссылку.</p>
+        <div class="d-none" data-uae-return-panel="partial">
+            <p class="text-brand-main text-center fw-bold fs-4 mb-4">Вы зарегистрировались и внесли предоплату за участие в Хануман Фест!</p>
+            {% include 'site/_return_application.html.twig' with { show_remaining: true } %}
+            {% include 'site/_return_contacts.html.twig' %}
+            <p class="mb-3">Остаток можно внести сейчас или позже по этой ссылке.</p>
+            <p class="text-center mb-3">
+                <a class="btn btn-brand-main text-white fw-bold px-4 py-2" data-uae-return-pay>Оплатить остаток</a>
+            </p>
             <label class="form-label" for="hf-return-pay-url">Ссылка на оплату остатка</label>
             <div class="hf-copy-link">
                 <input id="hf-return-pay-url" class="form-control" type="text" readonly data-uae-copy-input>

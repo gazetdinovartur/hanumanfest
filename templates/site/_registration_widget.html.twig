@@ -1,23 +1,11 @@
 <div class="container py-2" data-uae-widget="registration" >
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <div class="alert alert-danger d-none mb-2" data-uae-error></div>
             {% if settings is defined and settings and settings.registrationTestMode %}
                 <div class="alert alert-warning mb-3" role="status">
                     Тестовый режим: итого 2 ₽ — предоплата 1+1 или сразу 2 ₽. Боевые цены выключены.
                 </div>
             {% endif %}
-            <p class="small text-muted mb-2 hf-reg-status" data-uae-status></p>
-
-            <div class="hf-notice hf-notice--soft d-none mb-3" data-uae-existing-payment>
-                <p class="mb-3" data-uae-existing-text></p>
-                <a class="btn btn-brand-main text-white fw-bold px-4 py-2 mb-3" data-uae-existing-pay>Перейти к оплате остатка</a>
-                <label class="form-label" for="hf-existing-pay-url">Ссылка на оплату остатка</label>
-                <div class="hf-copy-link">
-                    <input id="hf-existing-pay-url" class="form-control" type="text" readonly data-uae-copy-input>
-                    <button type="button" class="btn btn-outline-secondary" data-uae-copy-btn>Скопировать</button>
-                </div>
-            </div>
 
             <form class="row g-3" data-uae-form>
                 <div class="col-md-6">
@@ -34,17 +22,19 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Вариант участия</label>
-                    <select class="form-select" name="participationOptionId" required></select>
+                    <select class="form-select hf-reg-select" name="participationOptionId" required></select>
                 </div>
-                <div class="col-12 d-none" data-uae-conditional="tent-roommate">
-                    <label class="form-label" for="hf-tent-roommate">С кем будете проживать в палатке</label>
-                    <textarea class="form-control" id="hf-tent-roommate" name="tentRoommate" rows="2"></textarea>
-                </div>
-                <div class="col-12 d-none" data-uae-conditional="house-booking">
-                    <div class="form-label">Ссылка на бронирование домика</div>
-                    <p class="mb-0">
-                        <a href="https://www.helloferma.ru/" class="contact-link" target="_blank" rel="noopener">Перейти на сайт</a>
-                    </p>
+                <div class="col-12 hf-reg-option-extra">
+                    <div data-uae-conditional="tent-roommate" class="hf-reg-extra--off" inert>
+                        <label class="form-label" for="hf-tent-roommate">С кем будете проживать в палатке</label>
+                        <textarea class="form-control" id="hf-tent-roommate" name="tentRoommate" rows="2"></textarea>
+                    </div>
+                    <div data-uae-conditional="house-booking" class="hf-reg-extra--off" inert>
+                        <div class="form-label">Ссылка на бронирование домика</div>
+                        <p class="mb-0">
+                            <a href="https://www.helloferma.ru/" class="contact-link" target="_blank" rel="noopener">Перейти на сайт</a>
+                        </p>
+                    </div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Количество взрослых</label>
@@ -56,16 +46,22 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Вариант оплаты</label>
-                    <select class="form-select" name="paymentFactor">
+                    <select class="form-select hf-reg-select" name="paymentFactor" data-uae-payment-factor>
                         <option value="0.5">Предоплата 50%</option>
                         <option value="1">Полная оплата</option>
                     </select>
-                    <p class="small text-muted mb-0 mt-1" data-uae-factor-hint>Сейчас спишется половина. Ссылку на остаток пришлём на email и покажем после оплаты — её можно будет скопировать.</p>
+                    <div class="hf-reg-factor-hint">
+                        <p class="small text-muted mb-0" data-uae-factor-hint="0.5">Сейчас спишется половина. Ссылку на остаток пришлём на email и покажем после оплаты — её можно будет скопировать.</p>
+                        <p class="small text-muted mb-0 hf-reg-hint--off" data-uae-factor-hint="1" aria-hidden="true">Сейчас спишется вся сумма. Доплата позже не понадобится.</p>
+                    </div>
                 </div>
-                <div class="col-md-6 d-flex align-items-end">
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" type="checkbox" name="transferIncluded" id="hf-transfer">
-                        <label class="form-check-label" for="hf-transfer">Трансфер туда-обратно (+600 ₽/чел)</label>
+                <div class="col-md-6">
+                    <label class="form-label d-none d-md-block" aria-hidden="true">&nbsp;</label>
+                    <div class="hf-reg-transfer">
+                        <div class="form-check mb-0">
+                            <input class="form-check-input" type="checkbox" name="transferIncluded" id="hf-transfer">
+                            <label class="form-check-label" for="hf-transfer">Трансфер туда-обратно (+600 ₽/чел)</label>
+                        </div>
                     </div>
                 </div>
 
@@ -78,7 +74,21 @@
                 </div>
 
                 <div class="col-12">
-                    <button type="submit" class="btn btn-brand-main text-white fw-bold px-4 py-2" data-uae-submit>Оплатить</button>
+                    <button type="submit" class="btn btn-brand-main text-white fw-bold px-4 py-2" data-uae-submit>Зарегистрироваться</button>
+                    <p class="small text-muted mt-2 mb-0 hf-reg-status" data-uae-status aria-live="polite"></p>
+                    <div class="hf-notice hf-notice--soft d-none mt-3" data-uae-existing-payment>
+                        <p class="mb-3" data-uae-existing-text></p>
+                        <a class="btn btn-brand-main text-white fw-bold px-4 py-2 mb-3" data-uae-existing-pay>Перейти к оплате</a>
+                        <div data-uae-copy-wrap>
+                            <label class="form-label" for="hf-existing-pay-url" data-uae-copy-label>Ссылка на оплату</label>
+                            <div class="hf-copy-link">
+                                <input id="hf-existing-pay-url" class="form-control" type="text" readonly data-uae-copy-input>
+                                <button type="button" class="btn btn-outline-secondary" data-uae-copy-btn>Скопировать</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary mt-3 d-none" data-uae-existing-cancel>Отменить заявку и заполнить заново</button>
+                    </div>
+                    <div class="alert alert-danger d-none mt-3 mb-0" data-uae-error></div>
                 </div>
             </form>
         </div>

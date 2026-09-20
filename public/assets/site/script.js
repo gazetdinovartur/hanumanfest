@@ -147,5 +147,62 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   festivalItems.forEach(item => festivalObserver.observe(item));
-  
+
+  // === ПЕРЕХОДЫ ПО ЯКОРЯМ МЕНЮ ===
+  function headerOffset() {
+    const headerEl = document.getElementById("header");
+    if (!headerEl) {
+      return 88;
+    }
+    // После прыжка шапка станет компактной; не брать высоту оверлея на герое.
+    if (document.body.classList.contains("is-home") && !headerEl.classList.contains("header-background--white")) {
+      return 88;
+    }
+    return Math.round(headerEl.getBoundingClientRect().height) + 8;
+  }
+
+  function scrollToAnchor(id) {
+    if (id === "hero") {
+      window.scrollTo(0, 0);
+      return true;
+    }
+    const target = document.getElementById(id);
+    if (!target) {
+      return false;
+    }
+    const top = Math.max(0, window.scrollY + target.getBoundingClientRect().top - headerOffset());
+    window.scrollTo(0, top);
+    return true;
+  }
+
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest("a[href*='#']");
+    if (!link || link.getAttribute("href") === "#") {
+      return;
+    }
+    const url = new URL(link.href, window.location.href);
+    if (url.pathname !== window.location.pathname) {
+      return;
+    }
+    const id = decodeURIComponent(url.hash.replace(/^#/, ""));
+    if (!id) {
+      return;
+    }
+    if (scrollToAnchor(id)) {
+      event.preventDefault();
+      if (history.replaceState) {
+        history.replaceState(null, "", url.hash);
+      }
+    }
+  });
+
+  if (window.location.hash) {
+    const id = decodeURIComponent(window.location.hash.replace(/^#/, ""));
+    if (id && document.getElementById(id)) {
+      if ("scrollRestoration" in history) {
+        history.scrollRestoration = "manual";
+      }
+      scrollToAnchor(id);
+    }
+  }
 });

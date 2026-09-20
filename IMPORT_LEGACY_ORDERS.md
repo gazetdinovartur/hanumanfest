@@ -8,7 +8,7 @@ php bin/console app:seed:hanuman-fest
 
 ## 2) Import live applications/payments from CSV
 
-По умолчанию `--sheet-source` берётся из `REGISTRATION_SHEET_URL`: если это ссылка на таблицу или Apps Script webhook, команда скачивает CSV листа «Регистрации».
+По умолчанию `--sheet-source` берётся из `REGISTRATION_SHEET_URL`: ссылка на таблицу, команда скачивает CSV листа «Регистрации».
 
 Dry run:
 

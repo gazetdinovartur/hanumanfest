@@ -12,7 +12,7 @@
 хануманфест.рф (Symfony Twig + API + EasyAdmin + MySQL)
         │
         ├── YooKassa
-        ├── Google Sheets (Apps Script webhook)
+        ├── Google Sheets API
         └── SMTP
 ```
 

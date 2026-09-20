@@ -57,6 +57,7 @@ final class SiteController extends AbstractController
             'name' => $user?->getName(),
             'paidAmount' => $application?->getPaidAmount() ?? 0,
             'remainingAmount' => $application?->getRemainingAmount() ?? 0,
+            'amountDueNow' => $application?->getAmountDueNow() ?? 0,
             'totalAmount' => $application?->getTotalAmount() ?? 0,
             'optionName' => $payload['participationOptionName'] ?? null,
         ]);

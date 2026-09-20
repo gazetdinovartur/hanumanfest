@@ -27,5 +27,13 @@ final class FooterContactsParserTest extends TestCase
             ['url' => 'https://www.instagram.com/hanuman_yoga.ru/', 'name' => 'inst'],
             ['url' => 'https://t.me/Hanuman_ekb', 'name' => 'tg'],
         ], $parser->socialLinks($raw));
+
+        self::assertSame([
+            ['href' => 'tel:73433858370', 'label' => '+7 (343) 385-83-70'],
+            ['href' => 'tel:79222116118', 'label' => '+7 922 211 61 18'],
+            ['href' => 'mailto:hanumanfest@gmail.com', 'label' => 'hanumanfest@gmail.com'],
+            ['href' => 'https://vk.com/hanumanyoga', 'label' => 'ВКонтакте'],
+            ['href' => 'https://t.me/Hanuman_ekb', 'label' => 'Telegram'],
+        ], $parser->feedbackContacts($raw));
     }
 }

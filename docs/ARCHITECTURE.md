@@ -10,7 +10,7 @@
 └───────────────┬──────────────────┬─────────────┬───────────┘
                 ▼                  ▼             ▼
           YooKassa           Google Sheets     SMTP
-                             (Apps Script)
+                             (Sheets API)
 ```
 
 **После cutover:** источник правды — MySQL. Sheets — зеркало для людей.

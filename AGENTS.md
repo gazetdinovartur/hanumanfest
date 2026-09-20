@@ -25,7 +25,7 @@
 
 - PHP 8.5+, Symfony 8, Doctrine ORM 3, EasyAdmin 5, Twig
 - MySQL 8 (prod/dev), SQLite в тестах
-- YooKassa, Google Sheets (Apps Script webhook), Mailer
+- YooKassa, Google Sheets API, Mailer
 - Публичный сайт: Twig + Bootstrap 5 + vanilla JS (дизайн на базе WP 2026)
 
 ## Доменный язык

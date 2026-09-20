@@ -28,6 +28,7 @@ class PaymentService
         private readonly GoogleSheetsExportService $googleSheetsExportService,
         private readonly PaymentLinkService $paymentLinkService,
         private readonly PaymentNotificationService $paymentNotificationService,
+        private readonly AfterResponseWork $afterResponseWork,
     ) {
     }
 
@@ -176,6 +177,7 @@ class PaymentService
 
         $application = $payment->getApplication();
         $user = $application?->getUser();
+        $payload = $application?->getPayload() ?? [];
         $payUrl = null;
 
         if ($application && $application->getStatus() === ApplicationStatus::PartiallyPaid) {
@@ -184,7 +186,9 @@ class PaymentService
             if ($paymentLink instanceof PaymentLink) {
                 $payUrl = $this->paymentLinkService->publicPayUrl($paymentLink);
                 if (!$existingLink instanceof PaymentLink) {
-                    $this->paymentNotificationService->sendPartialPaymentEmail($application, $paymentLink);
+                    $this->afterResponseWork->add(function () use ($application, $paymentLink): void {
+                        $this->paymentNotificationService->sendPartialPaymentEmail($application, $paymentLink);
+                    });
                 }
             }
         }
@@ -203,6 +207,14 @@ class PaymentService
             'remainingAmount' => $application?->getRemainingAmount(),
             'totalAmount' => $application?->getTotalAmount(),
             'payUrl' => $payUrl,
+            'name' => $user?->getName(),
+            'participationOptionName' => $payload['participationOptionName'] ?? null,
+            'adultsCount' => max(1, (int) ($payload['adultsCount'] ?? 1)),
+            'childrenCount' => max(0, (int) ($payload['childrenCount'] ?? 0)),
+            'transferIncluded' => !empty($payload['transferIncluded']),
+            'tentRoommate' => trim((string) ($payload['tentRoommate'] ?? '')) ?: null,
+            'pricingPeriodName' => $payload['pricingPeriodName'] ?? null,
+            'paymentFactor' => isset($payload['paymentFactor']) ? (float) $payload['paymentFactor'] : null,
         ];
     }
 
@@ -226,19 +238,7 @@ class PaymentService
         }
 
         if ($application) {
-            $remaining = $application->getRemainingAmount();
-            if ($remaining <= 0) {
-                return 0;
-            }
-
-            if ($application->getPaidAmount() === 0) {
-                $payload = $application->getPayload();
-                $payNow = (int) ($payload['payNowAmount'] ?? $remaining);
-
-                return min($payNow, $remaining);
-            }
-
-            return $remaining;
+            return $application->getAmountDueNow();
         }
 
         return max(0, $request->amount);
@@ -280,11 +280,22 @@ class PaymentService
         $this->entityManager->flush();
 
         if ($application) {
-            $this->googleSheetsExportService->exportSuccessfulPayment($payment);
-
-            if ($createdPaymentLink instanceof PaymentLink) {
-                $this->paymentNotificationService->sendPartialPaymentEmail($application, $createdPaymentLink);
-            }
+            $paymentId = $payment->getId();
+            $applicationId = $application->getId();
+            $linkId = $createdPaymentLink?->getId();
+            $this->afterResponseWork->add(function () use ($paymentId, $applicationId, $linkId): void {
+                $storedPayment = $paymentId !== null ? $this->paymentRepository->find($paymentId) : null;
+                $storedApplication = $applicationId !== null ? $this->applicationRepository->find($applicationId) : null;
+                if ($storedPayment instanceof Payment && $storedApplication instanceof Application) {
+                    $this->googleSheetsExportService->exportSuccessfulPayment($storedPayment);
+                }
+                if ($linkId !== null && $storedApplication instanceof Application) {
+                    $link = $this->entityManager->find(PaymentLink::class, $linkId);
+                    if ($link instanceof PaymentLink) {
+                        $this->paymentNotificationService->sendPartialPaymentEmail($storedApplication, $link);
+                    }
+                }
+            });
         }
     }
 

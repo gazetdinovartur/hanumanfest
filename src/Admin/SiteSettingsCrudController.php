@@ -81,7 +81,6 @@ class SiteSettingsCrudController extends AbstractUploadCrudController
         yield IdField::new('id')->hideOnForm();
         yield FormField::addFieldset('Бренд');
         yield TextField::new('siteName', 'Название');
-        yield TextField::new('tagline', 'Слоган');
         yield FormField::addFieldset('Логотип в шапке');
         yield PublicImageField::new('logoPath', 'Логотип', 'site')
             ->setHelp('Круглый логотип в шапке сайта. Пустой путь при открытии настроек подставится автоматически.');

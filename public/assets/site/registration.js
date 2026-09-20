@@ -19,7 +19,10 @@
           error.payUrl = data.payUrl || '';
           error.paidAmount = data.paidAmount;
           error.remainingAmount = data.remainingAmount;
+          error.amountDueNow = data.amountDueNow;
           error.totalAmount = data.totalAmount;
+          error.token = data.token || '';
+          error.cancellable = !!data.cancellable;
           throw error;
         }
 
@@ -53,11 +56,16 @@
     }
     errorBox.classList.remove('d-none');
     errorBox.textContent = message;
+    errorBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   function setStatus(root, message) {
     const status = root.querySelector('[data-uae-status]');
-    if (status) status.textContent = message || '';
+    if (!status) {
+      return;
+    }
+    status.textContent = message || '';
+    status.classList.toggle('is-busy', Boolean(message));
   }
 
   function getQueryParam(name) {
@@ -77,6 +85,11 @@
     } catch (e) {
       return null;
     }
+  }
+
+  function tokenFromPayUrl(url) {
+    const match = String(url || '').match(/\/pay\/([^/?#]+)/);
+    return match ? decodeURIComponent(match[1]) : '';
   }
 
   function detectTokenFromPath() {
@@ -128,6 +141,51 @@
     bindCopyButton(root);
   }
 
+  function fillReturnDetail(panel, key, value) {
+    const row = panel.querySelector('[data-uae-return-detail="' + key + '"]');
+    if (!row) {
+      return;
+    }
+    const text = value == null || value === '' ? '' : String(value);
+    row.classList.toggle('d-none', text === '');
+    const el = row.querySelector('[data-uae-return-detail-value]');
+    if (el && text !== '') {
+      el.textContent = text;
+    }
+  }
+
+  function fillReturnSummary(panel, status) {
+    if (!panel) {
+      return;
+    }
+    const paid = panel.querySelector('[data-uae-return-paid]');
+    const remaining = panel.querySelector('[data-uae-return-remaining]');
+    const total = panel.querySelector('[data-uae-return-total]');
+    if (paid) paid.textContent = formatMoney(status.paidAmount);
+    if (remaining) remaining.textContent = formatMoney(status.remainingAmount);
+    if (total) total.textContent = formatMoney(status.totalAmount);
+
+    fillReturnDetail(panel, 'name', status.name);
+    fillReturnDetail(panel, 'email', status.email);
+    fillReturnDetail(panel, 'phone', status.phone);
+    fillReturnDetail(panel, 'option', status.participationOptionName);
+    fillReturnDetail(panel, 'period', status.pricingPeriodName);
+    fillReturnDetail(panel, 'adults', status.adultsCount != null ? String(status.adultsCount) : '');
+    fillReturnDetail(panel, 'children', status.childrenCount != null ? String(status.childrenCount) : '');
+    fillReturnDetail(panel, 'transfer', status.transferIncluded ? 'Да' : 'Нет');
+    fillReturnDetail(panel, 'roommate', status.tentRoommate);
+
+    let paymentLabel = '';
+    if (status.paymentFactor != null && status.paymentFactor !== '') {
+      paymentLabel = Number(status.paymentFactor) < 1 ? 'Предоплата 50%' : 'Полная оплата';
+    } else if (Number(status.remainingAmount || 0) > 0) {
+      paymentLabel = 'Предоплата 50%';
+    } else if (status.paid) {
+      paymentLabel = 'Полная оплата';
+    }
+    fillReturnDetail(panel, 'payment', paymentLabel);
+  }
+
   function initRegistration(root) {
     const form = root.querySelector('[data-uae-form]');
         let latestPricing = null;
@@ -157,10 +215,13 @@
       now: root.querySelector('[data-uae-now]'),
       meta: root.querySelector('[data-uae-meta]'),
       submit: root.querySelector('[data-uae-submit]'),
-      factorHint: root.querySelector('[data-uae-factor-hint]'),
+      factorHints: root.querySelectorAll('[data-uae-factor-hint]'),
       existing: root.querySelector('[data-uae-existing-payment]'),
       existingText: root.querySelector('[data-uae-existing-text]'),
       existingPay: root.querySelector('[data-uae-existing-pay]'),
+      existingCancel: root.querySelector('[data-uae-existing-cancel]'),
+      copyWrap: root.querySelector('[data-uae-copy-wrap]'),
+      copyLabel: root.querySelector('[data-uae-copy-label]'),
     };
 
     function optionKind(option) {
@@ -179,40 +240,125 @@
       const showHouse = kind === 'house';
 
       if (conditional.tentRoommate) {
-        conditional.tentRoommate.classList.toggle('d-none', !showTent);
+        conditional.tentRoommate.classList.toggle('hf-reg-extra--off', !showTent);
+        conditional.tentRoommate.toggleAttribute('inert', !showTent);
         if (!showTent && fields.tentRoommate) {
           fields.tentRoommate.value = '';
         }
       }
       if (conditional.houseBooking) {
-        conditional.houseBooking.classList.toggle('d-none', !showHouse);
+        conditional.houseBooking.classList.toggle('hf-reg-extra--off', !showHouse);
+        conditional.houseBooking.toggleAttribute('inert', !showHouse);
       }
     }
 
     function updateFactorHint() {
-      if (!ui.factorHint) return;
-      ui.factorHint.classList.toggle('d-none', Number(fields.paymentFactor.value || 1) !== 0.5);
+      if (!ui.factorHints.length) return;
+      const factor = String(fields.paymentFactor.value || '1');
+      ui.factorHints.forEach((hint) => {
+        const match = hint.getAttribute('data-uae-factor-hint') === factor;
+        hint.classList.toggle('hf-reg-hint--off', !match);
+        hint.setAttribute('aria-hidden', match ? 'false' : 'true');
+      });
     }
 
     function hideExistingPayment() {
       if (!ui.existing) return;
       ui.existing.classList.add('d-none');
+      if (ui.existingCancel) {
+        ui.existingCancel.disabled = false;
+        ui.existingCancel.dataset.token = '';
+      }
+      if (ui.submit) {
+        ui.submit.classList.remove('d-none');
+        ui.submit.disabled = false;
+      }
     }
 
     function showExistingPayment(data) {
-      if (!ui.existing || !data.payUrl) return;
-      const remaining = formatMoney(data.remainingAmount);
+      if (!ui.existing) return;
+      const paid = Number(data.paidAmount || 0);
+      const remaining = Number(data.remainingAmount || 0);
+      const dueNow = Number(data.amountDueNow || remaining);
+      const payUrl = data.payUrl || '';
+      const token = data.token || tokenFromPayUrl(payUrl);
+      const cancellable = paid === 0 && !!token && data.cancellable !== false;
+
       if (ui.existingText) {
-        ui.existingText.textContent =
-          'По этому email уже внесена предоплата. Осталось оплатить ' +
-          remaining +
-          '. Ссылка также в письме — если его нет, проверьте папку «Спам».';
+        if (payUrl && paid > 0) {
+          ui.existingText.textContent =
+            'По этому email уже внесена предоплата. Осталось оплатить ' +
+            formatMoney(remaining) +
+            '. Ссылка также в письме — если его нет, проверьте папку «Спам».';
+        } else if (payUrl) {
+          ui.existingText.textContent =
+            'По этому email уже есть заявка. К оплате сейчас ' +
+            formatMoney(dueNow) +
+            '. Анкету заполнять заново не нужно.' +
+            (cancellable ? ' Если данные другие — отмените заявку и заполните форму снова.' : '');
+        } else {
+          ui.existingText.textContent =
+            data.error || 'По этому email регистрация уже полностью оплачена.';
+        }
       }
+
       if (ui.existingPay) {
-        ui.existingPay.href = data.payUrl;
+        ui.existingPay.classList.toggle('d-none', !payUrl);
+        if (payUrl) {
+          ui.existingPay.href = payUrl;
+          ui.existingPay.textContent = paid > 0
+            ? 'Перейти к оплате остатка'
+            : 'Оплатить ' + formatMoney(dueNow);
+        }
       }
-      fillCopyField(ui.existing, data.payUrl);
+
+      if (ui.copyWrap) {
+        ui.copyWrap.classList.toggle('d-none', !payUrl);
+      }
+      if (ui.copyLabel) {
+        ui.copyLabel.textContent = paid > 0 ? 'Ссылка на оплату остатка' : 'Ссылка на оплату';
+      }
+      if (payUrl) {
+        fillCopyField(ui.existing, payUrl);
+      }
+
+      if (ui.existingCancel) {
+        ui.existingCancel.classList.toggle('d-none', !cancellable);
+        ui.existingCancel.dataset.token = cancellable ? token : '';
+        ui.existingCancel.disabled = false;
+      }
+
+      if (ui.submit) {
+        ui.submit.classList.add('d-none');
+        ui.submit.disabled = true;
+      }
+
+      setError(root, '');
+      setStatus(root, '');
       ui.existing.classList.remove('d-none');
+      ui.existing.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function cancelExistingApplication() {
+      const token = ui.existingCancel ? ui.existingCancel.dataset.token || '' : '';
+      if (!token || !ui.existingCancel) {
+        return;
+      }
+
+      ui.existingCancel.disabled = true;
+      setError(root, '');
+      request('/applications/cancel', {
+        method: 'POST',
+        body: JSON.stringify({ token }),
+      })
+        .then(() => {
+          hideExistingPayment();
+          setStatus(root, 'Заявка отменена. Можно зарегистрироваться заново.');
+        })
+        .catch((err) => {
+          ui.existingCancel.disabled = false;
+          setError(root, err.message);
+        });
     }
 
     function lookupExistingPayment() {
@@ -309,6 +455,7 @@
       updateFactorHint();
       recalculate();
     });
+    fields.paymentFactor.addEventListener('input', updateFactorHint);
     fields.transferIncluded.addEventListener('change', recalculate);
     fields.adultsCount.addEventListener('input', recalculate);
     fields.childrenCount.addEventListener('input', recalculate);
@@ -317,11 +464,15 @@
       scheduleEmailLookup();
     });
     fields.email.addEventListener('blur', lookupExistingPayment);
+    if (ui.existingCancel) {
+      ui.existingCancel.addEventListener('click', cancelExistingApplication);
+    }
+    updateFactorHint();
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       setError(root, '');
-      setStatus(root, 'Создаём заявку...');
+      setStatus(root, 'Создаём заявку');
       ui.submit.disabled = true;
 
       const phone = normalizePhone(fields.phone.value);
@@ -352,7 +503,7 @@
         body: JSON.stringify(payload),
       })
         .then((application) => {
-          setStatus(root, 'Создаём оплату...');
+          setStatus(root, 'Готовим страницу оплаты');
           return request('/payments', {
             method: 'POST',
             body: JSON.stringify({ applicationUuid: application.uuid }),
@@ -365,7 +516,7 @@
         .catch((err) => {
           ui.submit.disabled = false;
           setStatus(root, '');
-          if (err.payUrl) {
+          if (err.payUrl || typeof err.remainingAmount === 'number') {
             showExistingPayment(err);
             return;
           }
@@ -390,7 +541,7 @@
 
     button.addEventListener('click', () => {
       setError(root, '');
-      setStatus(root, 'Перенаправление на оплату...');
+      setStatus(root, 'Открываем оплату');
       button.disabled = true;
 
       request(`/payment-links/${encodeURIComponent(token)}/pay`, {
@@ -417,24 +568,27 @@
   function applyReturnStatus(root, status) {
     if (status.paid && Number(status.remainingAmount || 0) > 0) {
       showReturnPanel(root, 'partial');
-      const paid = root.querySelector('[data-uae-return-paid]');
-      const remaining = root.querySelector('[data-uae-return-remaining]');
-      const total = root.querySelector('[data-uae-return-total]');
-      const email = root.querySelector('[data-uae-return-email]');
-      if (paid) paid.textContent = formatMoney(status.paidAmount);
-      if (remaining) remaining.textContent = formatMoney(status.remainingAmount);
-      if (total) total.textContent = formatMoney(status.totalAmount);
-      if (email) email.textContent = status.email || 'ваш email';
+      const panel = root.querySelector('[data-uae-return-panel="partial"]');
+      fillReturnSummary(panel, status);
+      const pay = panel.querySelector('[data-uae-return-pay]');
+      if (pay) {
+        if (status.payUrl) {
+          pay.setAttribute('href', status.payUrl);
+          pay.classList.remove('d-none');
+        } else {
+          pay.removeAttribute('href');
+          pay.classList.add('d-none');
+        }
+      }
       if (status.payUrl) {
-        fillCopyField(root, status.payUrl);
+        fillCopyField(panel, status.payUrl);
       }
       return;
     }
 
     if (status.paid) {
       showReturnPanel(root, 'full');
-      const amount = root.querySelector('[data-uae-return-amount]');
-      if (amount) amount.textContent = formatMoney(status.amount);
+      fillReturnSummary(root.querySelector('[data-uae-return-panel="full"]'), status);
       return;
     }
 

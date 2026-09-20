@@ -3,7 +3,8 @@
 namespace App\Infrastructure\GoogleSheets;
 
 /**
- * Один env REGISTRATION_SHEET_URL: ссылка на таблицу или Apps Script webhook.
+ * Ссылка на таблицу регистраций: REGISTRATION_SHEET_URL (docs.google.com/.../edit).
+ * Экспорт строк — Google Sheets API + service account.
  */
 final class GoogleSheetsRegistrationsReference
 {
@@ -16,6 +17,16 @@ final class GoogleSheetsRegistrationsReference
         private readonly string $configuredUrl = '',
         private readonly ?string $fallbackSpreadsheetId = self::DEFAULT_SPREADSHEET_ID,
     ) {
+    }
+
+    public function spreadsheetId(): string
+    {
+        return $this->resolveSpreadsheetId();
+    }
+
+    public function sheetTitle(): string
+    {
+        return self::DEFAULT_SHEET_NAME;
     }
 
     public function webhookUrl(): string

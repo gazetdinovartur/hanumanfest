@@ -24,6 +24,11 @@ html, body {
   background: #fff;
 }
 
+html {
+  scroll-padding-top: 88px;
+  scroll-behavior: auto;
+}
+
 .text-brand-main { color: var(--brand-main) !important; }
 .text-brand-accent { color: var(--brand-accent) !important; }
 
@@ -40,7 +45,19 @@ html, body {
 header {
   display: flex;
   height: 150px;
-  transition: all 0.4s, background 0.3s, transform 0.2s;
+  transition: background 0.3s, height 0.3s;
+  z-index: 1030;
+}
+
+body.is-home header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+body.is-home header.header-background--white {
+  position: fixed;
 }
 
 .header-background--white {
@@ -71,7 +88,7 @@ header {
 }
 
 #about, #program, #register, #contacts, #infoblocks, #guest, #guests, #masters, #cost {
-  scroll-margin-top: 70px;
+  scroll-margin-top: 96px;
 }
 
 .text-brand-xs {
@@ -81,6 +98,19 @@ header {
 /* HERO */
 .hero {
   position: relative;
+  box-sizing: border-box;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  padding-top: 150px;
+}
+
+.hero-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  z-index: 2;
 }
 .hero-section {
   position: relative;
@@ -867,12 +897,6 @@ header {
     margin-bottom: 3rem;
   }
 }
-
-@media (min-width: 992px) {
-  .hero {
-    /* height: 100vh; */
-  }
-}
 .accordion-button {
   font-size: 1.5rem;
 }
@@ -1188,7 +1212,10 @@ color: #fff;
     max-height: 60px;
   }
   .hero {
-    height: auto;
+    min-height: 100vh;
+    min-height: 100svh;
+    min-height: 100dvh;
+    padding-top: 80px;
   }
   .hero-content {
     padding: 60px 20px 30px 20px;
@@ -1218,9 +1245,66 @@ color: #fff;
 }
 
 /* Registration widget: avoid layout jump on recalculate */
+.hf-reg-select {
+  height: calc(1.5em + 0.75rem + 2px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hf-reg-option-extra {
+  display: grid;
+}
+
+.hf-reg-option-extra:not(:has([data-uae-conditional]:not(.hf-reg-extra--off))) {
+  display: none;
+}
+
+.hf-reg-option-extra > [data-uae-conditional] {
+  grid-area: 1 / 1;
+}
+
+.hf-reg-extra--off,
+.hf-reg-hint--off {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.hf-reg-factor-hint {
+  display: grid;
+  margin-top: 0.25rem;
+}
+
+.hf-reg-factor-hint > p {
+  grid-area: 1 / 1;
+}
+
 .hf-reg-status {
-  min-height: 1.25rem;
-  margin-bottom: 0.5rem;
+  min-height: 1.5rem;
+}
+
+.hf-reg-status.is-busy {
+  color: var(--brand-main) !important;
+  font-weight: 600;
+}
+
+.hf-reg-status.is-busy::after {
+  content: '';
+  animation: hf-status-dots 1.4s infinite;
+}
+
+@keyframes hf-status-dots {
+  0%, 20% { content: ''; }
+  25%, 45% { content: '.'; }
+  50%, 70% { content: '..'; }
+  75%, 100% { content: '...'; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hf-reg-status.is-busy::after {
+    animation: none;
+    content: '…';
+  }
 }
 
 .hf-reg-meta {
@@ -1229,6 +1313,12 @@ color: #fff;
 
 .hf-reg-pricing {
   transition: opacity 0.15s ease;
+}
+
+.hf-reg-transfer {
+  display: flex;
+  align-items: center;
+  min-height: calc(1.5em + 0.75rem + 2px);
 }
 
 [data-uae-widget="registration"].is-calculating .hf-reg-pricing {

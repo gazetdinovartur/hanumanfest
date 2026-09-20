@@ -47,6 +47,7 @@ final class PaymentApiTest extends WebTestCase
         self::assertTrue($payload['paid']);
         self::assertSame('succeeded', $payload['status']);
         self::assertSame('pay@test.example', $payload['email']);
+        self::assertSame('Pay Test', $payload['name']);
         self::assertSame(1800, $payload['remainingAmount']);
         self::assertNotEmpty($payload['payUrl']);
     }
@@ -71,7 +72,9 @@ final class PaymentApiTest extends WebTestCase
         $payload = json_decode($client->getResponse()->getContent(), true);
         self::assertTrue($payload['found']);
         self::assertSame(1800, $payload['remainingAmount']);
+        self::assertSame(1800, $payload['amountDueNow']);
         self::assertNotEmpty($payload['payUrl']);
+        self::assertFalse($payload['cancellable']);
     }
 
     public function testPaymentLinkLookupUnknownEmailReturnsNotFound(): void
@@ -109,8 +112,10 @@ final class PaymentApiTest extends WebTestCase
         self::assertResponseIsSuccessful();
         $payload = json_decode($client->getResponse()->getContent(), true);
         self::assertSame($link->getToken(), $payload['token']);
+        self::assertArrayNotHasKey('expiresAt', $payload);
         self::assertSame((string) $application->getUuid(), $payload['application']['uuid']);
         self::assertSame(1800, $payload['application']['remainingAmount']);
+        self::assertSame(1800, $payload['application']['amountDueNow']);
     }
 
     public function testYookassaWebhookIgnoresLegacyPayment(): void

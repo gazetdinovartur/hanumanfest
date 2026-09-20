@@ -1,0 +1,13 @@
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{% if field.value is empty %}
+    <span class="text-muted">Нет данных</span>
+{% else %}
+    <dl class="hf-admin-dl">
+        {% for row in field.value %}
+            <div class="hf-admin-dl__row">
+                <dt>{{ row.label }}</dt>
+                <dd>{{ row.value }}</dd>
+            </div>
+        {% endfor %}
+    </dl>
+{% endif %}

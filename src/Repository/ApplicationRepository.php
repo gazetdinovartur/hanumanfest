@@ -49,16 +49,20 @@ class ApplicationRepository extends ServiceEntityRepository
 
     public function findPartiallyPaidByEmail(string $email, bool $isTest = false): ?Application
     {
+        return $this->findPayableByEmail($email, $isTest);
+    }
+
+    public function findPayableByEmail(string $email, bool $isTest = false): ?Application
+    {
         return $this->createQueryBuilder('a')
             ->innerJoin('a.user', 'u')
             ->andWhere('LOWER(u.email) = :email')
             ->andWhere('a.isTest = :isTest')
-            ->andWhere('a.status = :status')
-            ->andWhere('a.paidAmount > 0')
+            ->andWhere('a.status IN (:statuses)')
             ->andWhere('a.paidAmount < a.totalAmount')
             ->setParameter('email', mb_strtolower(trim($email)))
             ->setParameter('isTest', $isTest)
-            ->setParameter('status', ApplicationStatus::PartiallyPaid)
+            ->setParameter('statuses', [ApplicationStatus::New, ApplicationStatus::PartiallyPaid])
             ->orderBy('a.createdAt', 'DESC')
             ->setMaxResults(1)
             ->getQuery()

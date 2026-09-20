@@ -1,15 +1,46 @@
 {% extends 'email/base.html.twig' %}
 
-{% block title %}Хануман Фест — предоплата принята{% endblock %}
+{% block title %}Хануман Фест — вы зарегистрировались{% endblock %}
 
-{% block preheader %}Осталось оплатить {{ remainingAmount|number_format(0, ',', ' ') }} ₽ — ссылка внутри.{% endblock %}
+{% block preheader %}Вы зарегистрировались на Хануман Фест. Осталось {{ remainingAmount|number_format(0, ',', ' ') }} ₽.{% endblock %}
 
 {% block content %}
-    <p style="margin:0 0 16px;">Здравствуйте{% if name %}, {{ name }}{% endif %}!</p>
-    <p style="margin:0 0 16px;">Спасибо, предоплата принята.</p>
-    <p style="margin:0 0 8px;"><strong>Оплачено:</strong> {{ paidAmount|number_format(0, ',', ' ') }} ₽</p>
-    <p style="margin:0 0 8px;"><strong>Осталось:</strong> {{ remainingAmount|number_format(0, ',', ' ') }} ₽</p>
-    <p style="margin:0 0 24px;"><strong>Всего по заявке:</strong> {{ totalAmount|number_format(0, ',', ' ') }} ₽</p>
+    <p style="margin:0 0 8px;">Здравствуйте{% if name %}, {{ name }}{% endif %}!</p>
+    <p style="margin:0 0 24px;font-size:20px;line-height:1.4;font-weight:700;">Вы зарегистрировались и внесли предоплату за участие в Хануман Фест!</p>
+
+    {% if details is defined and details %}
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 24px;border-collapse:collapse;">
+        {% for row in details %}
+        <tr>
+            <td style="padding:10px 12px 10px 0;border-bottom:1px solid #eee;color:#6b6b6b;width:42%;vertical-align:top;">{{ row.label }}</td>
+            <td style="padding:10px 0;border-bottom:1px solid #eee;font-weight:600;vertical-align:top;">{{ row.value }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td style="padding:10px 12px 10px 0;border-bottom:1px solid #eee;color:#6b6b6b;">Стоимость</td>
+            <td style="padding:10px 0;border-bottom:1px solid #eee;font-weight:600;">{{ totalAmount|number_format(0, ',', ' ') }} ₽</td>
+        </tr>
+        <tr>
+            <td style="padding:10px 12px 10px 0;border-bottom:1px solid #eee;color:#6b6b6b;">Оплачено</td>
+            <td style="padding:10px 0;border-bottom:1px solid #eee;font-weight:600;">{{ paidAmount|number_format(0, ',', ' ') }} ₽</td>
+        </tr>
+        <tr>
+            <td style="padding:10px 12px 10px 0;color:#f65414;">Осталось</td>
+            <td style="padding:10px 0;color:#f65414;font-weight:700;">{{ remainingAmount|number_format(0, ',', ' ') }} ₽</td>
+        </tr>
+    </table>
+    {% endif %}
+
+    {% if contacts is defined and contacts %}
+    <p style="margin:0 0 8px;font-weight:700;">Если есть вопрос, напишите нам:</p>
+    <p style="margin:0 0 28px;line-height:1.8;">
+        {% for contact in contacts %}
+            <a href="{{ contact.href }}" style="color:#f65414;text-decoration:none;">{{ contact.label }}</a>{% if not loop.last %}<br>{% endif %}
+        {% endfor %}
+    </p>
+    {% endif %}
+
+    <p style="margin:0 0 16px;">Остаток можно внести сейчас или позже по этой ссылке.</p>
     <p style="margin:0 0 24px;text-align:center;">
         <a href="{{ payUrl }}" style="display:inline-block;background:#f65414;color:#ffffff;font-weight:700;text-decoration:none;padding:12px 28px;border-radius:4px;">Оплатить остаток</a>
     </p>

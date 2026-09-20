@@ -601,3 +601,83 @@ body.ea,
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.85rem;
 }
+
+/* Списки CRUD: таблица не раздвигает страницу вширь */
+.wrapper .content-wrapper,
+.content-wrapper .content,
+.content-body,
+.content-panel {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.content-panel:has(table.datagrid) {
+    overflow-x: auto;
+}
+
+table.datagrid {
+    width: 100%;
+    max-width: 100%;
+}
+
+.datagrid thead a,
+.datagrid thead span:not(.icon) {
+    white-space: normal;
+}
+
+.datagrid td {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.datagrid td.actions,
+.datagrid td.actions a {
+    overflow-wrap: normal;
+    word-break: normal;
+    white-space: nowrap;
+}
+
+.hf-admin-rel-list {
+    margin: 0;
+    padding-left: 1.15rem;
+}
+
+.hf-admin-rel-list li + li {
+    margin-top: 0.35rem;
+}
+
+.hf-admin-pay-link {
+    overflow-wrap: anywhere;
+    word-break: break-all;
+}
+
+.hf-admin-dl {
+    display: grid;
+    gap: 0.65rem 0;
+    margin: 0;
+    max-width: 40rem;
+}
+
+.hf-admin-dl__row {
+    display: grid;
+    grid-template-columns: minmax(9rem, 13rem) minmax(0, 1fr);
+    gap: 0.35rem 1.25rem;
+    align-items: baseline;
+}
+
+.hf-admin-dl dt {
+    margin: 0;
+    color: var(--hf-muted);
+    font-weight: 500;
+}
+
+.hf-admin-dl dd {
+    margin: 0;
+}
+
+@media (max-width: 575px) {
+    .hf-admin-dl__row {
+        grid-template-columns: 1fr;
+        gap: 0.15rem;
+    }
+}
