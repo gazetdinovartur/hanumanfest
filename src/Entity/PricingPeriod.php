@@ -19,6 +19,10 @@ class PricingPeriod
     #[ORM\JoinColumn(nullable: false)]
     private ?Product $product = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?FestivalSeason $season = null;
+
     #[ORM\Column(length: 255)]
     private string $name = '';
 
@@ -55,6 +59,18 @@ class PricingPeriod
     public function setProduct(?Product $product): static
     {
         $this->product = $product;
+
+        return $this;
+    }
+
+    public function getSeason(): ?FestivalSeason
+    {
+        return $this->season;
+    }
+
+    public function setSeason(?FestivalSeason $season): static
+    {
+        $this->season = $season;
 
         return $this;
     }

@@ -48,7 +48,7 @@ final class PricingMatrixTest extends WebTestCase
         self::assertResponseIsSuccessful();
 
         $crawler = $client->getCrawler();
-        $token = $crawler->filter('input[name="_token"]')->attr('value');
+        $token = $crawler->filter('#hf-pricing-form input[name="_token"]')->attr('value');
         self::assertNotEmpty($token);
 
         $period = $em->getRepository(PricingPeriod::class)->findOneBy([]);

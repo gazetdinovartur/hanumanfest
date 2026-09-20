@@ -34,6 +34,7 @@ final class RecalculateApplicationStatusesCommandTest extends DatabaseTestCase
         $application->setUser($user);
         $application->setProduct($product);
         $application->setPricingPeriod($period);
+        $application->setSeason($period?->getSeason());
         $application->setStatus(ApplicationStatus::New);
         $application->setTotalAmount(3600);
         $application->setPaidAmount(0);

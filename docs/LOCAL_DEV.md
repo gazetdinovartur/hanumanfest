@@ -32,7 +32,7 @@ DEFAULT_URI=http://localhost:8080
 ```dotenv
 YOOKASSA_SHOP_ID=
 YOOKASSA_SECRET_KEY=
-GOOGLE_SHEETS_WEBHOOK_URL=   # Apps Script …/macros/s/…/exec
+REGISTRATION_SHEET_URL=      # лист регистраций (таблица или Apps Script)
 SCHEDULE_SHEET_URL=          # CSV/export URL программы (отдельный Sheet)
 ADMIN_PASSWORD=TempAdmin!2026
 ```
@@ -71,7 +71,7 @@ docker compose exec php php bin/console app:import:legacy-orders --dry-run
 | Галерея | `/admin/gallery` |
 | Заявки | CRUD «Заявки» |
 
-Метрики на дашборде — из MySQL (не из Sheet). Ссылка на таблицу регистраций появляется, если задан `GOOGLE_SHEETS_WEBHOOK_URL`.
+Метрики на дашборде — из MySQL (не из Sheet). Ссылка на таблицу регистраций — из `REGISTRATION_SHEET_URL`.
 
 ## Тесты
 

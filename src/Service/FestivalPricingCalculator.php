@@ -5,10 +5,12 @@ namespace App\Service;
 use App\DTO\CalculatePriceRequest;
 use App\DTO\PricingContext;
 use App\DTO\PricingResult;
+use App\Entity\FestivalSeason;
 use App\Entity\ParticipationOption;
 use App\Entity\ParticipationPrice;
 use App\Entity\PricingPeriod;
 use App\Entity\Product;
+use App\Repository\FestivalSeasonRepository;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -18,6 +20,7 @@ class FestivalPricingCalculator
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly ProductRepository $productRepository,
+        private readonly FestivalSeasonRepository $festivalSeasonRepository,
     ) {
     }
 
@@ -40,8 +43,13 @@ class FestivalPricingCalculator
             throw new NotFoundHttpException('Выбранный вариант участия не найден.');
         }
 
+        $season = $this->festivalSeasonRepository->findCurrent();
+        if (!$season) {
+            throw new NotFoundHttpException('No current festival season configured.');
+        }
+
         $registrationDate = $request->registrationDate ?? new \DateTimeImmutable();
-        $pricingPeriod = $this->resolvePricingPeriod($product, $registrationDate);
+        $pricingPeriod = $this->resolvePricingPeriod($product, $season, $registrationDate);
         $participationPrice = $this->resolveParticipationPrice($pricingPeriod, $participationOption);
 
         $basePrice = $participationPrice->getPrice();
@@ -87,10 +95,10 @@ class FestivalPricingCalculator
         return 1 - ($discountPercent / 100);
     }
 
-    private function resolvePricingPeriod(Product $product, \DateTimeImmutable $date): PricingPeriod
+    private function resolvePricingPeriod(Product $product, FestivalSeason $season, \DateTimeImmutable $date): PricingPeriod
     {
         $periods = $this->entityManager->getRepository(PricingPeriod::class)->findBy(
-            ['product' => $product, 'isActive' => true],
+            ['product' => $product, 'season' => $season, 'isActive' => true],
             ['startAt' => 'ASC'],
         );
 

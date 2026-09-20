@@ -65,7 +65,7 @@ FRONTEND_URL=https://хануманфест.рф
 5. На **API-хостинге** в `.env.local`:
 
 ```dotenv
-GOOGLE_SHEETS_WEBHOOK_URL=https://script.google.com/macros/s/XXXX/exec
+REGISTRATION_SHEET_URL=https://script.google.com/macros/s/XXXX/exec
 ```
 
 Боевая таблица не затронется.
@@ -103,7 +103,7 @@ Symfony после оплаты тестовой заявки обновит с�
 
 ## 4. Проверка end-to-end (чеклист)
 
-1. [ ] API: `curl https://хануманфест.рф/api/products/hanuman-fest`
+1. [ ] API: `curl https://хануманфест.рф/api/product`
 2. [ ] Secret-страница регистрации открывается, цена считается
 3. [ ] Тестовая оплата минимальной суммы (или 50%)
 4. [ ] Webhook: в Symfony `/admin` — платёж `SUCCEEDED`, заявка обновилась
@@ -120,3 +120,7 @@ Symfony после оплаты тестовой заявки обновит с�
 - Пароль: из `ADMIN_PASSWORD` в `.env` (локально по умолчанию `TempAdmin!2026`)
 
 ---
+
+## 6. Cutover на Symfony (боевой поток)
+
+Когда параллельные тесты пройдены — см. **`CUTOVER.md`** (webhook YooKassa, отключение WP-регистрации, cron, seeds).

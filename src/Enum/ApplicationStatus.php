@@ -8,4 +8,5 @@ enum ApplicationStatus: string
     case PartiallyPaid = 'PARTIALLY_PAID';
     case Paid = 'PAID';
     case Cancelled = 'CANCELLED';
+    case Refunded = 'REFUNDED';
 }

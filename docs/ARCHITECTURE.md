@@ -23,13 +23,13 @@ Symfony-админка и метрики читают **только MySQL** (п
 | Область | Источник | Env / команда |
 |---------|----------|---------------|
 | Заявки / платежи | MySQL (`application`, `payment`) | импорт: `app:import:legacy-orders` |
-| Зеркало регистраций | Google Sheet «Регистрации» | `GOOGLE_SHEETS_WEBHOOK_URL` (Apps Script) |
+| Зеркало регистраций | Google Sheet «Регистрации» | `REGISTRATION_SHEET_URL` |
 | Цены | MySQL periods × options | `/admin/pricing`, seed `app:seed:hanuman-fest` |
 | Контент лендинга | MySQL CMS + `public/uploads` | `app:seed:site-content`, админка |
 | Страницы (юр., питание) | MySQL `site_page` | `app:seed:site-pages`, `/admin` → Страницы |
 | Расписание | отдельный Spreadsheet → MySQL | `SCHEDULE_SHEET_URL`, `app:import:schedule` |
 
-Два Google-документа: **регистрации** (`GOOGLE_SHEETS_WEBHOOK_URL`) и **программа** (`SCHEDULE_SHEET_URL`) — не путать.
+Два Google-документа: **регистрации** (`REGISTRATION_SHEET_URL`) и **программа** (`SCHEDULE_SHEET_URL`) — не путать.
 
 ## Поток регистрации (цель)
 
@@ -50,7 +50,7 @@ Symfony-админка и метрики читают **только MySQL** (п
 | Галерея | `/admin/gallery` |
 | Заявки / Платежи / Пользователи | EasyAdmin CRUD |
 
-Метрики дашборда (MySQL): **без оплаты** (`NEW`), **оплачено** (`PAID`), **получено по заявкам** (`SUM(paid_amount)`), **регистраций** (все кроме `CANCELLED`). Ссылка на Sheet — подробности для команды, не источник метрик.
+Метрики дашборда (MySQL, выбранный сезон): **регистраций** (не `CANCELLED`/`REFUNDED`), **оплачено** (`PAID`), **возвратов** (заявки с `refunded_amount` из YooKassa), **разбивка по варианту участия**. Ссылки на таблицы регистраций и программы — подробности для команды, не источник метрик.
 
 ## Архив 2026 (фаза 3)
 

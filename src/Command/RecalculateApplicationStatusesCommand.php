@@ -3,9 +3,8 @@
 namespace App\Command;
 
 use App\Entity\Application;
-use App\Entity\Payment;
-use App\Enum\ApplicationStatus;
-use App\Enum\PaymentStatus;
+use App\Repository\ApplicationRepository;
+use App\Service\ApplicationBalance;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -56,14 +55,14 @@ class RecalculateApplicationStatusesCommand extends Command
             return Command::SUCCESS;
         }
 
+        /** @var ApplicationRepository $applicationRepository */
+        $applicationRepository = $this->entityManager->getRepository(Application::class);
+
         $changed = 0;
         foreach ($applications as $application) {
-            $succeededTotal = $this->sumSucceededPayments($application);
-
-            $currentPaid = max(0, $application->getPaidAmount());
-            $newPaid = max($currentPaid, $succeededTotal);
-            $total = max(0, $application->getTotalAmount());
-            $newStatus = $this->resolveStatus($newPaid, $total);
+            $totals = $applicationRepository->succeededPaymentTotals($application);
+            $newPaid = $totals['paid'];
+            $newStatus = ApplicationBalance::resolveStatus($newPaid, max(0, $application->getTotalAmount()), $totals['refunded']);
 
             $isChanged = $newPaid !== $application->getPaidAmount() || $newStatus !== $application->getStatus();
             if (!$isChanged) {
@@ -89,33 +88,5 @@ class RecalculateApplicationStatusesCommand extends Command
         $io->success(sprintf('Done: updated=%d, scanned=%d', $changed, count($applications)));
 
         return Command::SUCCESS;
-    }
-
-    private function resolveStatus(int $paidAmount, int $totalAmount): ApplicationStatus
-    {
-        if ($paidAmount >= $totalAmount && $totalAmount > 0) {
-            return ApplicationStatus::Paid;
-        }
-
-        if ($paidAmount > 0) {
-            return ApplicationStatus::PartiallyPaid;
-        }
-
-        return ApplicationStatus::New;
-    }
-
-    private function sumSucceededPayments(Application $application): int
-    {
-        $total = $this->entityManager->createQueryBuilder()
-            ->select('COALESCE(SUM(p.amount), 0)')
-            ->from(Payment::class, 'p')
-            ->where('p.application = :application')
-            ->andWhere('p.status = :status')
-            ->setParameter('application', $application)
-            ->setParameter('status', PaymentStatus::Succeeded)
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return max(0, (int) $total);
     }
 }

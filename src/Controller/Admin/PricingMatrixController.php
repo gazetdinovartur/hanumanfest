@@ -3,11 +3,13 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Application;
+use App\Entity\FestivalSeason;
 use App\Entity\ParticipationOption;
 use App\Entity\ParticipationPrice;
 use App\Entity\PricingPeriod;
 use App\Entity\Product;
 use App\Repository\ProductRepository;
+use App\Service\Admin\AdminSeasonContext;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,6 +26,7 @@ final class PricingMatrixController extends AbstractController
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly ProductRepository $productRepository,
+        private readonly AdminSeasonContext $seasonContext,
     ) {
     }
 
@@ -40,7 +43,8 @@ final class PricingMatrixController extends AbstractController
                 throw $this->createAccessDeniedException('Invalid CSRF token.');
             }
 
-            $errors = $this->saveMatrix($request, $product);
+            $season = $this->requireSelectedSeason();
+            $errors = $this->saveMatrix($request, $product, $season);
             if ($errors === []) {
                 $this->em->flush();
                 $this->addFlash('success', 'Лист периодов и цен сохранён.');
@@ -72,7 +76,7 @@ final class PricingMatrixController extends AbstractController
     private function renderMatrix(Product $product, array $options, ?Request $request): Response
     {
         $periods = $this->em->getRepository(PricingPeriod::class)->findBy(
-            ['product' => $product],
+            ['product' => $product, 'season' => $this->requireSelectedSeason()],
             ['startAt' => 'ASC'],
         );
         $priceMap = $this->buildPriceMap($periods);
@@ -204,7 +208,7 @@ final class PricingMatrixController extends AbstractController
     /**
      * @return list<string>
      */
-    private function saveMatrix(Request $request, Product $product): array
+    private function saveMatrix(Request $request, Product $product, FestivalSeason $season): array
     {
         $errors = [];
         $submittedPeriods = $request->request->all('periods');
@@ -274,7 +278,7 @@ final class PricingMatrixController extends AbstractController
         }
 
         $existingPeriods = [];
-        foreach ($this->em->getRepository(PricingPeriod::class)->findBy(['product' => $product]) as $period) {
+        foreach ($this->em->getRepository(PricingPeriod::class)->findBy(['product' => $product, 'season' => $season]) as $period) {
             $existingPeriods[(string) $period->getId()] = $period;
         }
 
@@ -326,6 +330,7 @@ final class PricingMatrixController extends AbstractController
             if (str_starts_with($key, 'new_')) {
                 $period = new PricingPeriod();
                 $period->setProduct($product);
+                $period->setSeason($season);
             } elseif (isset($existingPeriods[$key])) {
                 $period = $existingPeriods[$key];
             } else {
@@ -387,6 +392,16 @@ final class PricingMatrixController extends AbstractController
         }
 
         return $errors;
+    }
+
+    private function requireSelectedSeason(): FestivalSeason
+    {
+        $season = $this->seasonContext->getSelectedSeason();
+        if (!$season) {
+            throw $this->createNotFoundException('Сезон не выбран. Сначала выполните app:seed:hanuman-fest.');
+        }
+
+        return $season;
     }
 
     private function countApplicationsForOption(Product $product, int $optionId): int

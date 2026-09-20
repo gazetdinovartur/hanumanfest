@@ -34,6 +34,9 @@ class Payment
     #[ORM\Column]
     private int $amount = 0;
 
+    #[ORM\Column]
+    private int $refundedAmount = 0;
+
     #[ORM\Column(enumType: PaymentStatus::class)]
     private PaymentStatus $status = PaymentStatus::Pending;
 
@@ -89,6 +92,18 @@ class Payment
     public function setAmount(int $amount): static
     {
         $this->amount = $amount;
+
+        return $this;
+    }
+
+    public function getRefundedAmount(): int
+    {
+        return $this->refundedAmount;
+    }
+
+    public function setRefundedAmount(int $refundedAmount): static
+    {
+        $this->refundedAmount = max(0, $refundedAmount);
 
         return $this;
     }

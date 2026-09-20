@@ -30,7 +30,7 @@ class GoogleSheetsClient
     private function send(array $data): void
     {
         if ($this->registrations->webhookUrl() === '') {
-            $this->logger?->warning('Google Sheets webhook URL is not configured, export skipped');
+            $this->logger?->warning('REGISTRATION_SHEET_URL is not an Apps Script webhook, export skipped');
 
             return;
         }

@@ -7,111 +7,65 @@
     <header class="admin-dashboard__hero">
         <div class="admin-dashboard__hero-copy">
             <p class="admin-dashboard__eyebrow">Панель управления</p>
-            <h2 class="admin-dashboard__title">Хануман Фест</h2>
-            <p class="admin-dashboard__lead">Контент сайта, заявки участников, цены и программа — в одном месте.</p>
-            {% if registrationsSpreadsheetUrl %}
-                <p class="admin-dashboard__sheet-link">
-                    <a href="{{ registrationsSpreadsheetUrl }}" target="_blank" rel="noopener noreferrer">
-                        Подробности в таблице регистраций →
-                    </a>
-                </p>
-            {% endif %}
+            <h2 class="admin-dashboard__title">{{ season ? season.name : 'Хануман Фест' }}</h2>
+            <p class="admin-dashboard__lead">Метрики выбранного сезона. Год переключается вкладками вверху.</p>
         </div>
         <div class="admin-dashboard__stats">
             <div class="admin-dashboard__stat">
-                <span class="admin-dashboard__stat-value">{{ unpaidApplications }}</span>
-                <span class="admin-dashboard__stat-label">без оплаты</span>
+                <span class="admin-dashboard__stat-value">{{ registrationsTotal }}</span>
+                <span class="admin-dashboard__stat-label">регистраций</span>
             </div>
             <div class="admin-dashboard__stat">
                 <span class="admin-dashboard__stat-value">{{ paidApplications }}</span>
                 <span class="admin-dashboard__stat-label">оплачено</span>
             </div>
             <div class="admin-dashboard__stat">
-                <span class="admin-dashboard__stat-value">{{ receivedSum|number_format(0, ',', ' ') }}</span>
-                <span class="admin-dashboard__stat-label">получено по заявкам, ₽</span>
-            </div>
-            <div class="admin-dashboard__stat">
-                <span class="admin-dashboard__stat-value">{{ registrationsTotal }}</span>
-                <span class="admin-dashboard__stat-label">регистраций</span>
+                <span class="admin-dashboard__stat-value">{{ refundsCount }}</span>
+                <span class="admin-dashboard__stat-label">возвратов</span>
             </div>
         </div>
     </header>
 
-    <section class="admin-dashboard__section" aria-labelledby="admin-dashboard-primary">
-        <h3 id="admin-dashboard-primary" class="admin-dashboard__section-title">Частые действия</h3>
-        <div class="admin-dashboard__grid">
-            <a class="admin-dash-card admin-dash-card--accent" href="{{ ea_url().setController('App\\Admin\\ApplicationCrudController').setAction('index') }}">
-                <span class="admin-dash-card__body">
-                    <span class="admin-dash-card__title">Заявки</span>
-                    <span class="admin-dash-card__desc">Регистрации и статусы оплаты</span>
-                </span>
-                {% if unpaidApplications > 0 %}
-                    <span class="admin-dash-card__badge">{{ unpaidApplications }}</span>
+    <section class="admin-dashboard__section" aria-labelledby="admin-dashboard-options">
+        <h3 id="admin-dashboard-options" class="admin-dashboard__section-title">По варианту участия</h3>
+        {% if byOption is empty %}
+            <p class="admin-dashboard__empty">В этом сезоне пока нет заявок.</p>
+        {% else %}
+            <ul class="admin-dashboard__options">
+                {% for row in byOption %}
+                    <li>
+                        <span class="admin-dashboard__option-label">{{ row.label }}</span>
+                        <span class="admin-dashboard__option-count">{{ row.count }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </section>
+
+    {% if registrationsSpreadsheetUrl or scheduleSpreadsheetUrl %}
+        <section class="admin-dashboard__section" aria-labelledby="admin-dashboard-sheets">
+            <h3 id="admin-dashboard-sheets" class="admin-dashboard__section-title">Таблицы</h3>
+            <div class="admin-dashboard__links">
+                {% if registrationsSpreadsheetUrl %}
+                    <a class="admin-dash-card" href="{{ registrationsSpreadsheetUrl }}" target="_blank" rel="noopener noreferrer">
+                        <span class="admin-dash-card__body">
+                            <span class="admin-dash-card__title">Регистрации</span>
+                            <span class="admin-dash-card__desc">Новый лист заявок и оплат</span>
+                        </span>
+                        <span class="admin-dash-card__arrow" aria-hidden="true">→</span>
+                    </a>
                 {% endif %}
-                <span class="admin-dash-card__arrow" aria-hidden="true">→</span>
-            </a>
-            <a class="admin-dash-card" href="{{ path('admin_gallery') }}">
-                <span class="admin-dash-card__body">
-                    <span class="admin-dash-card__title">Галерея «Как это было»</span>
-                    <span class="admin-dash-card__desc">Карусель фото на главной</span>
-                </span>
-                <span class="admin-dash-card__arrow" aria-hidden="true">→</span>
-            </a>
-            <a class="admin-dash-card" href="{{ path('admin_pricing_matrix') }}">
-                <span class="admin-dash-card__body">
-                    <span class="admin-dash-card__title">Периоды и цены</span>
-                    <span class="admin-dash-card__desc">Все тарифы на одном листе</span>
-                </span>
-                <span class="admin-dash-card__arrow" aria-hidden="true">→</span>
-            </a>
-            <a class="admin-dash-card" href="{{ ea_url().setController('App\\Admin\\HomeHeroCrudController').setAction('index') }}">
-                <span class="admin-dash-card__body">
-                    <span class="admin-dash-card__title">Главный экран</span>
-                    <span class="admin-dash-card__desc">Hero, фон, тексты, CTA</span>
-                </span>
-                <span class="admin-dash-card__arrow" aria-hidden="true">→</span>
-            </a>
-        </div>
-    </section>
-
-    <section class="admin-dashboard__section" aria-labelledby="admin-dashboard-content">
-        <h3 id="admin-dashboard-content" class="admin-dashboard__section-title">Контент сайта</h3>
-        <div class="admin-dashboard__grid">
-            <a class="admin-dash-card admin-dash-card--compact" href="{{ ea_url().setController('App\\Admin\\GuestPersonCrudController').setAction('index') }}">
-                <span class="admin-dash-card__title">Специальные гости</span>
-                <span class="admin-dash-card__desc">Гости фестиваля</span>
-            </a>
-            <a class="admin-dash-card admin-dash-card--compact" href="{{ ea_url().setController('App\\Admin\\MusicianPersonCrudController').setAction('index') }}">
-                <span class="admin-dash-card__title">Музыканты</span>
-                <span class="admin-dash-card__desc">Музыкальная программа</span>
-            </a>
-            <a class="admin-dash-card admin-dash-card--compact" href="{{ ea_url().setController('App\\Admin\\MasterPersonCrudController').setAction('index') }}">
-                <span class="admin-dash-card__title">Мастера и практики</span>
-                <span class="admin-dash-card__desc">Мастер-классы и практики</span>
-            </a>
-            <a class="admin-dash-card admin-dash-card--compact" href="{{ ea_url().setController('App\\Admin\\SiteSettingsCrudController').setAction('index') }}">
-                <span class="admin-dash-card__title">Настройки</span>
-                <span class="admin-dash-card__desc">Логотип, контакты, футер</span>
-            </a>
-            <a class="admin-dash-card admin-dash-card--compact" href="{{ ea_url().setController('App\\Admin\\FaqItemCrudController').setAction('index') }}">
-                <span class="admin-dash-card__title">FAQ</span>
-                <span class="admin-dash-card__desc">Вопросы и ответы</span>
-            </a>
-            <a class="admin-dash-card admin-dash-card--compact" href="/" target="_blank" rel="noopener">
-                <span class="admin-dash-card__title">Открыть сайт</span>
-                <span class="admin-dash-card__desc">Публичная главная</span>
-            </a>
-        </div>
-    </section>
-
-    <section class="admin-dashboard__section" aria-labelledby="admin-dashboard-more">
-        <h3 id="admin-dashboard-more" class="admin-dashboard__section-title">Ещё</h3>
-        <div class="admin-dashboard__grid admin-dashboard__grid">
-            <a class="admin-dash-chip" href="{{ ea_url().setController('App\\Admin\\InfoBlockCrudController').setAction('index') }}">Инфоблоки</a>
-            <a class="admin-dash-chip" href="{{ ea_url().setController('App\\Admin\\ReviewCrudController').setAction('index') }}">Отзывы</a>
-            <a class="admin-dash-chip" href="{{ ea_url().setController('App\\Admin\\ScheduleEventCrudController').setAction('index') }}">Программа</a>
-            <a class="admin-dash-chip" href="{{ ea_url().setController('App\\Admin\\PaymentCrudController').setAction('index') }}">Платежи</a>
-        </div>
-    </section>
+                {% if scheduleSpreadsheetUrl %}
+                    <a class="admin-dash-card" href="{{ scheduleSpreadsheetUrl }}" target="_blank" rel="noopener noreferrer">
+                        <span class="admin-dash-card__body">
+                            <span class="admin-dash-card__title">Программа</span>
+                            <span class="admin-dash-card__desc">Лист расписания</span>
+                        </span>
+                        <span class="admin-dash-card__arrow" aria-hidden="true">→</span>
+                    </a>
+                {% endif %}
+            </div>
+        </section>
+    {% endif %}
 </div>
 {% endblock %}

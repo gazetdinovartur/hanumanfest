@@ -3,17 +3,20 @@
 namespace App\Service\Admin;
 
 use App\Entity\Application;
+use App\Entity\FestivalSeason;
+use App\Entity\Payment;
 use App\Enum\ApplicationStatus;
+use App\Enum\PaymentStatus;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Метрики дашборда — только MySQL (не Google Sheet).
+ * Метрики дашборда — только MySQL, только выбранный сезон.
  *
  * Семантика:
- * - unpaidApplications = заявки NEW (ещё без оплаты)
+ * - registrationsTotal = все заявки кроме CANCELLED и REFUNDED
  * - paidApplications = заявки PAID
- * - receivedSum = SUM(paid_amount) по активным заявкам (не CANCELLED)
- * - registrationsTotal = все заявки кроме CANCELLED
+ * - refundsCount = заявки, по которым есть возврат в YooKassa
+ * - byOption = разбивка активных заявок по варианту участия
  */
 final class AdminDashboardStatsService
 {
@@ -24,46 +27,100 @@ final class AdminDashboardStatsService
 
     /**
      * @return array{
-     *     unpaidApplications: int,
+     *     registrationsTotal: int,
      *     paidApplications: int,
-     *     receivedSum: int,
-     *     registrationsTotal: int
+     *     refundsCount: int,
+     *     byOption: list<array{label: string, count: int}>
      * }
      */
-    public function getRegistrationStats(): array
+    public function getRegistrationStats(?FestivalSeason $season): array
     {
+        if ($season === null) {
+            return [
+                'registrationsTotal' => 0,
+                'paidApplications' => 0,
+                'refundsCount' => 0,
+                'byOption' => [],
+            ];
+        }
+
         return [
-            'unpaidApplications' => $this->countApplications(ApplicationStatus::New),
-            'paidApplications' => $this->countApplications(ApplicationStatus::Paid),
-            'receivedSum' => $this->sumReceivedOnApplications(),
-            'registrationsTotal' => $this->countActiveRegistrations(),
+            'registrationsTotal' => $this->countActiveRegistrations($season),
+            'paidApplications' => $this->countApplications($season, ApplicationStatus::Paid),
+            'refundsCount' => $this->countRefunds($season),
+            'byOption' => $this->countByOption($season),
         ];
     }
 
-    private function countApplications(ApplicationStatus $status): int
+    private function countApplications(FestivalSeason $season, ApplicationStatus $status): int
     {
-        return (int) $this->em->getRepository(Application::class)->count(['status' => $status]);
+        return (int) $this->em->getRepository(Application::class)->count([
+            'season' => $season,
+            'status' => $status,
+        ]);
     }
 
-    private function countActiveRegistrations(): int
+    private function countActiveRegistrations(FestivalSeason $season): int
     {
         return (int) $this->em->createQueryBuilder()
             ->select('COUNT(a.id)')
             ->from(Application::class, 'a')
-            ->andWhere('a.status != :cancelled')
-            ->setParameter('cancelled', ApplicationStatus::Cancelled)
+            ->andWhere('a.season = :season')
+            ->andWhere('a.status NOT IN (:inactive)')
+            ->setParameter('season', $season)
+            ->setParameter('inactive', [ApplicationStatus::Cancelled, ApplicationStatus::Refunded])
             ->getQuery()
             ->getSingleScalarResult();
     }
 
-    private function sumReceivedOnApplications(): int
+    private function countRefunds(FestivalSeason $season): int
     {
         return (int) $this->em->createQueryBuilder()
-            ->select('COALESCE(SUM(a.paidAmount), 0)')
-            ->from(Application::class, 'a')
-            ->andWhere('a.status != :cancelled')
-            ->setParameter('cancelled', ApplicationStatus::Cancelled)
+            ->select('COUNT(DISTINCT a.id)')
+            ->from(Payment::class, 'p')
+            ->innerJoin('p.application', 'a')
+            ->andWhere('a.season = :season')
+            ->andWhere('p.status = :succeeded')
+            ->andWhere('p.refundedAmount > 0')
+            ->setParameter('season', $season)
+            ->setParameter('succeeded', PaymentStatus::Succeeded)
             ->getQuery()
             ->getSingleScalarResult();
+    }
+
+    /**
+     * @return list<array{label: string, count: int}>
+     */
+    private function countByOption(FestivalSeason $season): array
+    {
+        /** @var list<Application> $applications */
+        $applications = $this->em->createQueryBuilder()
+            ->select('a')
+            ->from(Application::class, 'a')
+            ->andWhere('a.season = :season')
+            ->andWhere('a.status NOT IN (:inactive)')
+            ->setParameter('season', $season)
+            ->setParameter('inactive', [ApplicationStatus::Cancelled, ApplicationStatus::Refunded])
+            ->getQuery()
+            ->getResult();
+
+        $counts = [];
+        foreach ($applications as $application) {
+            $payload = $application->getPayload();
+            $code = trim((string) ($payload['participationOptionCode'] ?? ''));
+            $label = trim((string) ($payload['participationOptionName'] ?? ''));
+            if ($label === '') {
+                $label = $code !== '' ? $code : 'Не указан';
+            }
+            $key = $code !== '' ? $code : $label;
+            if (!isset($counts[$key])) {
+                $counts[$key] = ['label' => $label, 'count' => 0];
+            }
+            ++$counts[$key]['count'];
+        }
+
+        usort($counts, static fn (array $a, array $b): int => $b['count'] <=> $a['count'] ?: strcmp($a['label'], $b['label']));
+
+        return array_values($counts);
     }
 }

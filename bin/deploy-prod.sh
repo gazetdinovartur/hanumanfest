@@ -51,6 +51,13 @@ fi
 echo "Running migrations..."
 php bin/console doctrine:migrations:migrate --no-interaction --env=prod
 
+if [[ "${1:-}" == "--with-seeds" ]]; then
+    echo "Running content seeds..."
+    php bin/console app:seed:hanuman-fest --no-interaction --env=prod
+    php bin/console app:seed:site-content --if-empty --no-interaction --env=prod
+    php bin/console app:seed:site-pages --no-interaction --env=prod
+fi
+
 echo "Rebuilding prod cache..."
 rm -rf var/cache/prod
 php bin/console cache:clear --no-warmup --env=prod
@@ -61,3 +68,5 @@ php bin/console assets:install "${WEB_ROOT}" --no-interaction --env=prod
 
 echo "Done. Smoke test:"
 php bin/console about --env=prod | grep -E "Environment|Log directory" || true
+echo "Optional: bin/deploy-prod.sh --with-seeds  # pricing + CMS pages"
+echo "Cron: see DEPLOY_TIMEWEB.md and CUTOVER.md"

@@ -86,5 +86,25 @@ final class GoogleSheetsExportServiceTest extends TestCase
         self::assertSame('export@test.example', $captured['email']);
         self::assertSame('3600.00', $captured['totalAmount']);
         self::assertSame('С другом Иваном', $captured['notes']);
+        self::assertSame(
+            [
+                'action',
+                'applicationUuid',
+                'name',
+                'email',
+                'phone',
+                'productName',
+                'participationOptionName',
+                'pricingPeriodName',
+                'adultsCount',
+                'childrenCount',
+                'totalAmount',
+                'payNowAmount',
+                'transferIncluded',
+                'paymentFactor',
+                'notes',
+            ],
+            array_keys($captured),
+        );
     }
 }

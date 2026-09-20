@@ -3,13 +3,12 @@
 namespace App\Infrastructure\GoogleSheets;
 
 /**
- * Одна настройка GOOGLE_SHEETS_WEBHOOK_URL (Apps Script) + таблица «Регистрации»
- * из legacy/google-apps-script/Code.by-columns.gs.
+ * Один env REGISTRATION_SHEET_URL: ссылка на таблицу или Apps Script webhook.
  */
 final class GoogleSheetsRegistrationsReference
 {
-    /** @see legacy/google-apps-script/Code.by-columns.gs */
-    private const DEFAULT_SPREADSHEET_ID = '1r2LoY04p4pCoknF7s14VkGBnTz-IxHaIkG8Un3W1bA0';
+    /** Лист регистраций по умолчанию. */
+    private const DEFAULT_SPREADSHEET_ID = '1H5bzA14-b7vjZBjo6lz7ZyIlGcoZc26fWVs0aL31uV0';
 
     private const DEFAULT_SHEET_NAME = 'Регистрации';
 
@@ -23,12 +22,9 @@ final class GoogleSheetsRegistrationsReference
         return $this->isAppsScriptWebhook($this->configuredUrl) ? trim($this->configuredUrl) : '';
     }
 
-    public function spreadsheetViewUrl(): ?string
+    public function spreadsheetViewUrl(): string
     {
-        $spreadsheetId = $this->resolveSpreadsheetId();
-        if ($spreadsheetId === '') {
-            return null;
-        }
+        $spreadsheetId = $this->resolveSpreadsheetId() ?: self::DEFAULT_SPREADSHEET_ID;
 
         return sprintf('https://docs.google.com/spreadsheets/d/%s/edit', $spreadsheetId);
     }
@@ -54,7 +50,7 @@ final class GoogleSheetsRegistrationsReference
 
     private function resolveSpreadsheetId(): string
     {
-        if ($id = $this->extractSpreadsheetId($this->configuredUrl)) {
+        if ($id = GoogleSpreadsheetUrl::idFrom($this->configuredUrl)) {
             return $id;
         }
 
@@ -68,14 +64,5 @@ final class GoogleSheetsRegistrationsReference
     private function isAppsScriptWebhook(string $url): bool
     {
         return str_contains($url, 'script.google.com') && str_contains($url, '/macros/s/');
-    }
-
-    private function extractSpreadsheetId(string $url): ?string
-    {
-        if (preg_match('~docs\.google\.com/spreadsheets/d/([a-zA-Z0-9-_]+)~', $url, $matches)) {
-            return $matches[1];
-        }
-
-        return null;
     }
 }

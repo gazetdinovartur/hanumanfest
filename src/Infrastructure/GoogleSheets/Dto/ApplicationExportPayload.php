@@ -13,17 +13,22 @@ readonly class ApplicationExportPayload
         public string $productName,
         public string $participationOptionName,
         public string $pricingPeriodName,
-        public string $totalAmount,
-        public string $payNowAmount,
         public string $adultsCount,
         public string $childrenCount,
+        public string $totalAmount,
+        public string $payNowAmount,
         public string $transferIncluded,
         public string $paymentFactor,
         public string $notes = '',
     ) {
     }
 
-    /** @return array<string, string> */
+    /**
+     * Порядок ключей: после взрослых → дети → итоговая стоимость → оплата → остальное.
+     * GAS v2 пишет в колонки по заголовкам; порядок важен для читаемости и совместимости.
+     *
+     * @return array<string, string>
+     */
     public function toArray(): array
     {
         return [
@@ -35,10 +40,10 @@ readonly class ApplicationExportPayload
             'productName' => $this->productName,
             'participationOptionName' => $this->participationOptionName,
             'pricingPeriodName' => $this->pricingPeriodName,
-            'totalAmount' => $this->totalAmount,
-            'payNowAmount' => $this->payNowAmount,
             'adultsCount' => $this->adultsCount,
             'childrenCount' => $this->childrenCount,
+            'totalAmount' => $this->totalAmount,
+            'payNowAmount' => $this->payNowAmount,
             'transferIncluded' => $this->transferIncluded,
             'paymentFactor' => $this->paymentFactor,
             'notes' => $this->notes,

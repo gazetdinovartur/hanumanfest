@@ -115,13 +115,17 @@ class PaymentService
      */
     public function handleYookassaWebhook(array $webhookPayload): void
     {
-        if (!isset($webhookPayload['object']['id'])) {
+        if (!isset($webhookPayload['object']) || !\is_array($webhookPayload['object'])) {
             throw new BadRequestHttpException('Bad request');
         }
 
-        $paymentId = (string) $webhookPayload['object']['id'];
+        $paymentId = $this->resolveYookassaPaymentId($webhookPayload);
+        if ($paymentId === '') {
+            throw new BadRequestHttpException('Bad request');
+        }
+
         $verified = $this->yookassaClient->verifyPayment($paymentId);
-        $status = (string) $verified['status'];
+        $status = (string) ($verified['status'] ?? '');
 
         $payment = $this->paymentRepository->findOneByProviderPaymentId(
             PaymentProvider::Yookassa,
@@ -141,6 +145,8 @@ class PaymentService
             $payment->setStatus(PaymentStatus::Cancelled);
             $this->entityManager->flush();
         }
+
+        $this->syncRefundedAmount($payment, $verified);
     }
 
     /**
@@ -223,8 +229,7 @@ class PaymentService
         $paymentLink = null;
 
         if ($application) {
-            $application->setPaidAmount($application->getPaidAmount() + $payment->getAmount());
-            $this->updateApplicationStatus($application);
+            $this->refreshApplicationFromPayments($application);
 
             if (
                 $application->getStatus() === ApplicationStatus::PartiallyPaid
@@ -245,12 +250,66 @@ class PaymentService
         }
     }
 
-    private function updateApplicationStatus(Application $application): void
+    /**
+     * @param array<string, mixed> $webhookPayload
+     */
+    private function resolveYookassaPaymentId(array $webhookPayload): string
     {
-        if ($application->getPaidAmount() >= $application->getTotalAmount()) {
-            $application->setStatus(ApplicationStatus::Paid);
-        } elseif ($application->getPaidAmount() > 0) {
-            $application->setStatus(ApplicationStatus::PartiallyPaid);
+        $event = (string) ($webhookPayload['event'] ?? '');
+        $object = $webhookPayload['object'];
+        if (str_contains($event, 'refund')) {
+            return trim((string) ($object['payment_id'] ?? ''));
         }
+
+        return trim((string) ($object['id'] ?? ''));
+    }
+
+    /**
+     * @param array<string, mixed> $verified
+     */
+    public function syncRefundedAmount(Payment $payment, array $verified): void
+    {
+        $refunded = $this->parseYookassaRub($verified['refunded_amount'] ?? 0);
+        if ($refunded === $payment->getRefundedAmount()) {
+            return;
+        }
+
+        $payment->setRefundedAmount($refunded);
+        $application = $payment->getApplication();
+        if ($application) {
+            $this->refreshApplicationFromPayments($application);
+        }
+
+        $this->entityManager->flush();
+    }
+
+    public function syncRefundsFromYookassa(Payment $payment): bool
+    {
+        $providerPaymentId = $payment->getProviderPaymentId();
+        if ($providerPaymentId === null || $providerPaymentId === '') {
+            return false;
+        }
+
+        $verified = $this->yookassaClient->verifyPayment($providerPaymentId);
+        $before = $payment->getRefundedAmount();
+        $this->syncRefundedAmount($payment, $verified);
+
+        return $payment->getRefundedAmount() !== $before;
+    }
+
+    private function refreshApplicationFromPayments(Application $application): void
+    {
+        $this->entityManager->flush();
+        $totals = $this->applicationRepository->succeededPaymentTotals($application);
+        ApplicationBalance::applyToApplication($application, $totals['paid'], $totals['refunded']);
+    }
+
+    private function parseYookassaRub(mixed $value): int
+    {
+        if (\is_array($value) && isset($value['value'])) {
+            $value = $value['value'];
+        }
+
+        return (int) round((float) $value);
     }
 }

@@ -32,7 +32,27 @@ final class GoogleSheetsRegistrationsReferenceTest extends TestCase
     {
         $reference = new GoogleSheetsRegistrationsReference('https://script.google.com/macros/s/test/exec');
         self::assertSame(
-            'https://docs.google.com/spreadsheets/d/1r2LoY04p4pCoknF7s14VkGBnTz-IxHaIkG8Un3W1bA0/edit',
+            'https://docs.google.com/spreadsheets/d/1H5bzA14-b7vjZBjo6lz7ZyIlGcoZc26fWVs0aL31uV0/edit',
+            $reference->spreadsheetViewUrl(),
+        );
+    }
+
+    public function testSpreadsheetViewUrlFromSheetUrl(): void
+    {
+        $reference = new GoogleSheetsRegistrationsReference(
+            'https://docs.google.com/spreadsheets/d/1H5bzA14-b7vjZBjo6lz7ZyIlGcoZc26fWVs0aL31uV0/edit?gid=0#gid=0',
+        );
+        self::assertSame(
+            'https://docs.google.com/spreadsheets/d/1H5bzA14-b7vjZBjo6lz7ZyIlGcoZc26fWVs0aL31uV0/edit',
+            $reference->spreadsheetViewUrl(),
+        );
+    }
+
+    public function testSpreadsheetViewUrlFallsBackToDefaultSheet(): void
+    {
+        $reference = new GoogleSheetsRegistrationsReference('');
+        self::assertSame(
+            'https://docs.google.com/spreadsheets/d/1H5bzA14-b7vjZBjo6lz7ZyIlGcoZc26fWVs0aL31uV0/edit',
             $reference->spreadsheetViewUrl(),
         );
     }
@@ -41,7 +61,7 @@ final class GoogleSheetsRegistrationsReferenceTest extends TestCase
     {
         $reference = new GoogleSheetsRegistrationsReference('https://script.google.com/macros/s/test/exec');
         self::assertSame(
-            'https://docs.google.com/spreadsheets/d/1r2LoY04p4pCoknF7s14VkGBnTz-IxHaIkG8Un3W1bA0/gviz/tq?tqx=out:csv&sheet=%D0%A0%D0%B5%D0%B3%D0%B8%D1%81%D1%82%D1%80%D0%B0%D1%86%D0%B8%D0%B8',
+            'https://docs.google.com/spreadsheets/d/1H5bzA14-b7vjZBjo6lz7ZyIlGcoZc26fWVs0aL31uV0/gviz/tq?tqx=out:csv&sheet=%D0%A0%D0%B5%D0%B3%D0%B8%D1%81%D1%82%D1%80%D0%B0%D1%86%D0%B8%D0%B8',
             $reference->csvExportUrl(),
         );
     }

@@ -180,6 +180,7 @@ final class PaymentApiTest extends WebTestCase
         $application->setUser($user);
         $application->setProduct($product);
         $application->setPricingPeriod($period);
+        $application->setSeason($period?->getSeason());
         $application->setStatus(ApplicationStatus::PartiallyPaid);
         $application->setTotalAmount(3600);
         $application->setPaidAmount(1800);

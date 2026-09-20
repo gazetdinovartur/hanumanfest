@@ -80,7 +80,7 @@ class YookassaClient
     }
 
     /**
-     * @return array{status: string, paid?: bool}
+     * @return array<string, mixed>
      */
     public function verifyPayment(string $paymentId): array
     {
@@ -90,7 +90,7 @@ class YookassaClient
         ]);
 
         if ($response->getStatusCode() !== Response::HTTP_OK) {
-            throw new \RuntimeException('YooKassa payment verification failed');
+            throw new \RuntimeException('YooKassa payment verification failed' . $response->getContent());
         }
 
         $body = $response->toArray();

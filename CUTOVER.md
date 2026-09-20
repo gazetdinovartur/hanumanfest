@@ -33,7 +33,7 @@
 
 ## Google Sheets (опционально)
 
-- `GOOGLE_SHEETS_WEBHOOK_URL` — зеркало заявок/оплат
+- `REGISTRATION_SHEET_URL` — зеркало заявок/оплат (таблица или Apps Script)
 - Пустой URL = экспорт пропускается, MySQL — источник правды
 
 ## Legacy import

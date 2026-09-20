@@ -8,7 +8,7 @@ php bin/console app:seed:hanuman-fest
 
 ## 2) Import live applications/payments from CSV
 
-По умолчанию `--sheet-source` берётся из `GOOGLE_SHEETS_WEBHOOK_URL`: если это Apps Script webhook, команда скачивает CSV листа «Регистрации» той же таблицы, что в `legacy/google-apps-script/Code.by-columns.gs`.
+По умолчанию `--sheet-source` берётся из `REGISTRATION_SHEET_URL`: если это ссылка на таблицу или Apps Script webhook, команда скачивает CSV листа «Регистрации».
 
 Dry run:
 

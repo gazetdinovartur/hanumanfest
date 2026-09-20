@@ -1,0 +1,28 @@
+<form class="hf-admin-season" method="post" action="{{ path('admin_season_switch') }}">
+    <input type="hidden" name="_season_token" value="{{ csrf_token('admin_season') }}">
+    <input type="hidden" name="redirect" value="{{ app.request.uri }}">
+    <div class="hf-admin-season__tabs" role="tablist" aria-label="Сезон">
+        {% for season in admin_seasons %}
+            {% set selected = admin_selected_season and admin_selected_season.id == season.id %}
+            <button
+                type="submit"
+                class="hf-admin-season__tab{{ selected ? ' is-selected' : '' }}"
+                name="season_id"
+                value="{{ season.id }}"
+                role="tab"
+                aria-selected="{{ selected ? 'true' : 'false' }}"
+                title="{{ season.name }}{{ season.current ? ' — заявки с сайта' : '' }}"
+            >
+                {{ season.year }}
+                {% if season.current %}
+                    <span class="hf-admin-season__live">сайт</span>
+                {% endif %}
+            </button>
+        {% endfor %}
+    </div>
+    <a
+        class="hf-admin-season__manage"
+        href="{{ ea_url().setController('App\\Admin\\FestivalSeasonCrudController').setAction('index') }}"
+        title="Управление сезонами"
+    >Сезоны</a>
+</form>

@@ -12,7 +12,7 @@ parameters:
     app.admin_password: '%env(ADMIN_PASSWORD)%'
     env(YOOKASSA_SHOP_ID): ''
     env(YOOKASSA_SECRET_KEY): ''
-    env(GOOGLE_SHEETS_WEBHOOK_URL): ''
+    env(REGISTRATION_SHEET_URL): ''
     env(APP_URL): '%env(DEFAULT_URI)%'
     env(FRONTEND_URL): '%env(APP_URL)%'
     env(MAILER_FROM): 'noreply@example.com'
@@ -40,7 +40,11 @@ services:
 
     App\Infrastructure\GoogleSheets\GoogleSheetsRegistrationsReference:
         arguments:
-            $configuredUrl: '%env(GOOGLE_SHEETS_WEBHOOK_URL)%'
+            $configuredUrl: '%env(REGISTRATION_SHEET_URL)%'
+
+    App\Admin\DashboardController:
+        arguments:
+            $scheduleSheetUrl: '%env(SCHEDULE_SHEET_URL)%'
 
     App\Infrastructure\GoogleSheets\GoogleSheetsClient:
         arguments:
@@ -59,6 +63,13 @@ services:
     App\Command\ImportScheduleCommand:
         arguments:
             $defaultSourceUrl: '%env(SCHEDULE_SHEET_URL)%'
+
+    App\EventListener\ApiRateLimitListener:
+        arguments:
+            $environment: '%kernel.environment%'
+            $apiPublicLimiter: '@limiter.api_public'
+            $apiWriteLimiter: '@limiter.api_write'
+            $apiWebhookLimiter: '@limiter.api_webhook'
 
     App\Service\Content\SiteContentDefaults:
         arguments:

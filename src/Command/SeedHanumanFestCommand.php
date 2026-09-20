@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Entity\FestivalSeason;
 use App\Entity\ParticipationOption;
 use App\Entity\ParticipationPrice;
 use App\Entity\PricingPeriod;
@@ -97,6 +98,10 @@ class SeedHanumanFestCommand extends Command
             ],
         ];
 
+        $season2026 = $this->ensureSeason(2026, 'Хануман Фест 2026', false);
+        $this->ensureSeason(2027, 'Хануман Фест 2027', true);
+        $this->entityManager->flush();
+
         $existingOptions = $this->entityManager->getRepository(ParticipationOption::class)->findBy(['product' => $product]);
         $options = [];
         foreach ($existingOptions as $existingOption) {
@@ -112,7 +117,10 @@ class SeedHanumanFestCommand extends Command
             $options[$code] = $option;
         }
 
-        $existingPeriods = $this->entityManager->getRepository(PricingPeriod::class)->findBy(['product' => $product]);
+        $existingPeriods = $this->entityManager->getRepository(PricingPeriod::class)->findBy([
+            'product' => $product,
+            'season' => $season2026,
+        ]);
         $periodsByName = [];
         foreach ($existingPeriods as $existingPeriod) {
             $periodsByName[$existingPeriod->getName()] = $existingPeriod;
@@ -121,6 +129,7 @@ class SeedHanumanFestCommand extends Command
         foreach ($periods as [$name, $start, $end]) {
             $period = $periodsByName[$name] ?? new PricingPeriod();
             $period->setProduct($product);
+            $period->setSeason($season2026);
             $period->setName($name);
             $period->setStartAt(new \DateTimeImmutable($start));
             $period->setEndAt(new \DateTimeImmutable($end));
@@ -144,5 +153,17 @@ class SeedHanumanFestCommand extends Command
         $io->success('Hanuman Fest: периоды, варианты участия и цены обновлены.');
 
         return Command::SUCCESS;
+    }
+
+    private function ensureSeason(int $year, string $name, bool $isCurrent): FestivalSeason
+    {
+        $season = $this->entityManager->getRepository(FestivalSeason::class)->findOneBy(['year' => $year])
+            ?? new FestivalSeason();
+        $season->setYear($year);
+        $season->setName($name);
+        $season->setIsCurrent($isCurrent);
+        $this->entityManager->persist($season);
+
+        return $season;
     }
 }

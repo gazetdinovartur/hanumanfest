@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Entity\Application;
+use App\Entity\FestivalSeason;
 use App\Entity\ParticipationOption;
 use App\Entity\ParticipationPrice;
 use App\Entity\Payment;
@@ -55,9 +56,10 @@ class ImportLegacyOrdersCommand extends Command
     {
         $this
             ->addOption('source', null, InputOption::VALUE_OPTIONAL, 'Single CSV source (generic mode)')
-            ->addOption('sheet-source', null, InputOption::VALUE_OPTIONAL, 'Google Sheet CSV export path/URL (по умолчанию — из GOOGLE_SHEETS_WEBHOOK_URL)')
+            ->addOption('sheet-source', null, InputOption::VALUE_OPTIONAL, 'Google Sheet CSV export path/URL (по умолчанию — из REGISTRATION_SHEET_URL)')
             ->addOption('forminator-source', null, InputOption::VALUE_OPTIONAL, 'Forminator CSV export path/URL')
             ->addOption('product-slug', null, InputOption::VALUE_OPTIONAL, 'Product slug for imported rows', 'hanuman-fest')
+            ->addOption('season-year', null, InputOption::VALUE_OPTIONAL, 'Festival season year for imported rows', '2026')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Validate and preview import without writing to DB');
     }
 
@@ -93,11 +95,19 @@ class ImportLegacyOrdersCommand extends Command
         }
 
         $productSlug = (string) $input->getOption('product-slug');
+        $seasonYear = (int) $input->getOption('season-year');
         $dryRun = (bool) $input->getOption('dry-run');
 
         $product = $this->entityManager->getRepository(Product::class)->findOneBy(['slug' => $productSlug]);
         if (!$product) {
             $io->error(sprintf('Product "%s" not found.', $productSlug));
+
+            return Command::FAILURE;
+        }
+
+        $season = $this->entityManager->getRepository(FestivalSeason::class)->findOneBy(['year' => $seasonYear]);
+        if (!$season) {
+            $io->error(sprintf('Festival season %d not found. Run app:seed:hanuman-fest first.', $seasonYear));
 
             return Command::FAILURE;
         }
@@ -116,7 +126,7 @@ class ImportLegacyOrdersCommand extends Command
         $periodsByName = [];
         /** @var list<PricingPeriod> $periods */
         $periods = $this->entityManager->getRepository(PricingPeriod::class)->findBy(
-            ['product' => $product],
+            ['product' => $product, 'season' => $season],
             ['startAt' => 'ASC']
         );
         foreach ($periods as $period) {
@@ -189,7 +199,7 @@ class ImportLegacyOrdersCommand extends Command
                 continue;
             }
 
-            $period = $this->resolvePricingPeriod($record, $periodsByName, $periods, $product, $option);
+            $period = $this->resolvePricingPeriod($record, $periodsByName, $periods, $product, $option, $season);
             if (!$period) {
                 $io->warning(sprintf('Row key %s skipped: cannot resolve pricing period.', (string) $rowKey));
                 ++$skipped;
@@ -198,7 +208,7 @@ class ImportLegacyOrdersCommand extends Command
 
             $normalizedPhone = PhoneNormalizer::toE164($phone) ?? $phone;
             $user = $this->findOrCreateUser($name !== '' ? $name : $email, $email, $normalizedPhone);
-            $application = $this->findOrCreateApplication($legacyUuid, $email, $user, $product);
+            $application = $this->findOrCreateApplication($legacyUuid, $email, $user, $product, $season);
             $isNewApp = null === $application->getId();
 
             $importedTotalAmount = max(0, (int) $record['totalAmount']);
@@ -211,6 +221,7 @@ class ImportLegacyOrdersCommand extends Command
 
             $application->setUser($user);
             $application->setProduct($product);
+            $application->setSeason($season);
             $application->setPricingPeriod($period);
             $application->setTotalAmount($totalAmount);
 
@@ -422,24 +433,24 @@ class ImportLegacyOrdersCommand extends Command
         return $user;
     }
 
-    private function findOrCreateApplication(string $legacyUuid, string $email, User $user, Product $product): Application
+    private function findOrCreateApplication(string $legacyUuid, string $email, User $user, Product $product, FestivalSeason $season): Application
     {
         if ($legacyUuid !== '') {
             $existing = $this->applicationRepository->findOneByUuid($legacyUuid);
             if ($existing) {
-                $cacheKey = $this->applicationCacheKey($product, $email);
+                $cacheKey = $this->applicationCacheKey($product, $season, $email);
                 $this->applicationByProductEmailCache[$cacheKey] = $existing;
 
                 return $existing;
             }
         }
 
-        $cacheKey = $this->applicationCacheKey($product, $email);
+        $cacheKey = $this->applicationCacheKey($product, $season, $email);
         if (isset($this->applicationByProductEmailCache[$cacheKey])) {
             return $this->applicationByProductEmailCache[$cacheKey];
         }
 
-        $existingByEmail = $this->applicationRepository->findActiveDuplicateByEmail($email, $product);
+        $existingByEmail = $this->applicationRepository->findActiveDuplicateByEmail($email, $product, $season);
         if ($existingByEmail) {
             $this->applicationByProductEmailCache[$cacheKey] = $existingByEmail;
 
@@ -449,6 +460,7 @@ class ImportLegacyOrdersCommand extends Command
         $application = new Application();
         $application->setUser($user);
         $application->setProduct($product);
+        $application->setSeason($season);
 
         if ($legacyUuid !== '') {
             try {
@@ -562,7 +574,8 @@ class ImportLegacyOrdersCommand extends Command
         array $periodsByName,
         array $periods,
         Product $product,
-        ParticipationOption $option
+        ParticipationOption $option,
+        FestivalSeason $season,
     ): ?PricingPeriod {
         $normalized = $this->normalizeText((string) ($record['pricingPeriodName'] ?? ''));
         if ($normalized !== '' && isset($periodsByName[$normalized])) {
@@ -586,6 +599,9 @@ class ImportLegacyOrdersCommand extends Command
             foreach ($priceRows as $priceRow) {
                 $period = $priceRow->getPricingPeriod();
                 if ($period?->getProduct()?->getId() !== $product->getId()) {
+                    continue;
+                }
+                if ($period->getSeason()?->getId() !== $season->getId()) {
                     continue;
                 }
                 if ($priceRow->getPrice() === $total) {
@@ -626,9 +642,9 @@ class ImportLegacyOrdersCommand extends Command
         return mb_strtolower(trim($email));
     }
 
-    private function applicationCacheKey(Product $product, string $email): string
+    private function applicationCacheKey(Product $product, FestivalSeason $season, string $email): string
     {
-        return sprintf('%s|%s', (string) $product->getId(), $this->normalizeEmail($email));
+        return sprintf('%s|%s|%s', (string) $product->getId(), (string) $season->getId(), $this->normalizeEmail($email));
     }
 
     private function parseMoney(string $value): int

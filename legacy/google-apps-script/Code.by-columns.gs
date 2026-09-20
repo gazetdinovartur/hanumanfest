@@ -2,12 +2,15 @@
  * Google Apps Script v2 — колонки по заголовкам.
  * Поддерживает action: application | payment
  *
- * Заголовки (регистр не важен):
+ * Заголовки (регистр не важен). Рекомендуемый порядок колонок заявки:
  * applicationUuid, name, email, phone, productName, participationOptionName,
- * pricingPeriodName, totalAmount, payNowAmount,
+ * pricingPeriodName, adultsCount, childrenCount, totalAmount, payNowAmount,
+ * transferIncluded, paymentFactor, notes,
  * payment1Amount, payment1Date, payment1Id,
  * payment2Amount, payment2Date, payment2Id,
- * paidTotal, remaining, notes
+ * paidTotal, remaining
+ *
+ * Запись в ячейки — по имени заголовка, не по индексу.
  */
 
 var SHEET_ID = '1r2LoY04p4pCoknF7s14VkGBnTz-IxHaIkG8Un3W1bA0';
@@ -52,10 +55,10 @@ function handleApplication(data) {
   setCell(sheet, row, col, 'productname', data.productName || '');
   setCell(sheet, row, col, 'participationoptionname', data.participationOptionName || '');
   setCell(sheet, row, col, 'pricingperiodname', data.pricingPeriodName || '');
-  setCell(sheet, row, col, 'totalamount', (data.totalAmount || '') + ' RUB');
-  setCell(sheet, row, col, 'paynowamount', data.payNowAmount || '');
   setCell(sheet, row, col, 'adultscount', data.adultsCount || '');
   setCell(sheet, row, col, 'childrencount', data.childrenCount || '');
+  setCell(sheet, row, col, 'totalamount', (data.totalAmount || '') + ' RUB');
+  setCell(sheet, row, col, 'paynowamount', data.payNowAmount || '');
   setCell(sheet, row, col, 'transferincluded', data.transferIncluded || '0');
   setCell(sheet, row, col, 'paymentfactor', data.paymentFactor || '1');
   setCell(sheet, row, col, 'notes', data.notes || '');

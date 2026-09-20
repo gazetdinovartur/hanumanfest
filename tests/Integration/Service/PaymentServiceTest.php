@@ -34,6 +34,7 @@ final class PaymentServiceTest extends DatabaseTestCase
         $application->setUser($user);
         $application->setProduct($product);
         $application->setPricingPeriod($period);
+        $application->setSeason($period?->getSeason());
         $application->setStatus(ApplicationStatus::New);
         $application->setTotalAmount(3600);
         $application->setPaidAmount(0);
@@ -64,6 +65,64 @@ final class PaymentServiceTest extends DatabaseTestCase
         self::assertSame(1800, $application->getPaidAmount());
         self::assertSame(ApplicationStatus::PartiallyPaid, $application->getStatus());
         self::assertCount(1, $application->getPaymentLinks());
+    }
+
+    public function testRefundWebhookReducesPaidAmount(): void
+    {
+        HanumanFestFixtures::seed($this->entityManager);
+
+        $user = new User();
+        $user->setName('Refund User');
+        $user->setEmail('refund@test.example');
+        $user->setPhone('+79160000009');
+        $this->entityManager->persist($user);
+
+        $product = $this->entityManager->getRepository(\App\Entity\Product::class)->findOneBy(['slug' => 'hanuman-fest']);
+        $period = $this->entityManager->getRepository(\App\Entity\PricingPeriod::class)->findOneBy(['product' => $product]);
+
+        $application = new Application();
+        $application->setUser($user);
+        $application->setProduct($product);
+        $application->setPricingPeriod($period);
+        $application->setSeason($period?->getSeason());
+        $application->setStatus(ApplicationStatus::Paid);
+        $application->setTotalAmount(3600);
+        $application->setPaidAmount(3600);
+        $application->setPayload([]);
+        $this->entityManager->persist($application);
+
+        $payment = new Payment();
+        $payment->setApplication($application);
+        $payment->setProvider(PaymentProvider::Yookassa);
+        $payment->setProviderPaymentId('yk-refund-live');
+        $payment->setAmount(3600);
+        $payment->setStatus(PaymentStatus::Succeeded);
+        $this->entityManager->persist($payment);
+        $this->entityManager->flush();
+
+        $yookassa = $this->createMock(YookassaClient::class);
+        $yookassa->method('verifyPayment')->willReturn([
+            'status' => 'succeeded',
+            'refunded_amount' => ['value' => '3600.00', 'currency' => 'RUB'],
+        ]);
+        static::getContainer()->set(YookassaClient::class, $yookassa);
+
+        /** @var PaymentService $paymentService */
+        $paymentService = static::getContainer()->get(PaymentService::class);
+        $paymentService->handleYookassaWebhook([
+            'event' => 'refund.succeeded',
+            'object' => [
+                'id' => 'refund-1',
+                'payment_id' => 'yk-refund-live',
+            ],
+        ]);
+
+        $this->entityManager->refresh($application);
+        $this->entityManager->refresh($payment);
+
+        self::assertSame(3600, $payment->getRefundedAmount());
+        self::assertSame(0, $application->getPaidAmount());
+        self::assertSame(ApplicationStatus::Refunded, $application->getStatus());
     }
 
     public function testGetPaymentStatusForUnknownPayment(): void

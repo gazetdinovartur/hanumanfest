@@ -42,7 +42,7 @@ APP_URL=http://localhost:8080
 FRONTEND_URL=http://localhost:8080
 CORS_ALLOW_ORIGIN=http://localhost:8080
 DEFAULT_URI=http://localhost:8080
-GOOGLE_SHEETS_WEBHOOK_URL=   # Apps Script (регистрации)
+REGISTRATION_SHEET_URL=      # лист регистраций
 SCHEDULE_SHEET_URL=          # программа (отдельный Sheet)
 ```
 

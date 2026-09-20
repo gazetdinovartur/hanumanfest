@@ -47,7 +47,12 @@ class ApplicationService
 
         $user = $this->findOrCreateUser($request->name, $email, $phone);
 
-        $duplicate = $this->applicationRepository->findActiveDuplicateByEmail($email, $pricingContext->product);
+        $duplicate = $this->applicationRepository->findActiveDuplicateByEmail(
+            $email,
+            $pricingContext->product,
+            $pricingContext->pricingPeriod->getSeason()
+                ?? throw new BadRequestHttpException('Pricing period has no season'),
+        );
         if ($duplicate) {
             throw new ConflictHttpException(sprintf(
                 'Active application already exists: %s',
@@ -61,6 +66,7 @@ class ApplicationService
         $application->setUser($user);
         $application->setProduct($pricingContext->product);
         $application->setPricingPeriod($pricingContext->pricingPeriod);
+        $application->setSeason($pricingContext->pricingPeriod->getSeason());
         $application->setStatus(ApplicationStatus::New);
         $application->setTotalAmount($pricingContext->result->totalAmount);
         $application->setPaidAmount(0);

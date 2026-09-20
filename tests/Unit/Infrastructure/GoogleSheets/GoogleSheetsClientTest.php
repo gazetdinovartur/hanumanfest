@@ -27,10 +27,10 @@ final class GoogleSheetsClientTest extends TestCase
             productName: 'Product',
             participationOptionName: 'Option',
             pricingPeriodName: 'Period',
-            totalAmount: '100.00',
-            payNowAmount: '50.00',
             adultsCount: '1',
             childrenCount: '0',
+            totalAmount: '100.00',
+            payNowAmount: '50.00',
             transferIncluded: '0',
             paymentFactor: '0.5',
         ));

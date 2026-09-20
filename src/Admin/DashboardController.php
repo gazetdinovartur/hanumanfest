@@ -2,9 +2,11 @@
 
 namespace App\Admin;
 
-use App\Service\Admin\AdminDashboardStatsService;
-use App\Service\Content\SiteContentDefaults;
 use App\Infrastructure\GoogleSheets\GoogleSheetsRegistrationsReference;
+use App\Infrastructure\GoogleSheets\GoogleSpreadsheetUrl;
+use App\Service\Admin\AdminDashboardStatsService;
+use App\Service\Admin\AdminSeasonContext;
+use App\Service\Content\SiteContentDefaults;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -18,23 +20,27 @@ class DashboardController extends AbstractDashboardController
 {
     public function __construct(
         private readonly AdminDashboardStatsService $dashboardStats,
+        private readonly AdminSeasonContext $seasonContext,
         private readonly GoogleSheetsRegistrationsReference $registrations,
         private readonly SiteContentDefaults $siteContentDefaults,
+        private readonly string $scheduleSheetUrl = '',
     ) {
     }
 
     public function index(): Response
     {
-        $bootstrapped = $this->siteContentDefaults->ensureCoreContent();
-        $stats = $this->dashboardStats->getRegistrationStats();
+        $this->siteContentDefaults->ensureCoreContent();
+        $season = $this->seasonContext->getSelectedSeason();
+        $stats = $this->dashboardStats->getRegistrationStats($season);
 
         return $this->render('admin/dashboard.html.twig', [
-            'unpaidApplications' => $stats['unpaidApplications'],
-            'paidApplications' => $stats['paidApplications'],
-            'receivedSum' => $stats['receivedSum'],
+            'season' => $season,
             'registrationsTotal' => $stats['registrationsTotal'],
+            'paidApplications' => $stats['paidApplications'],
+            'refundsCount' => $stats['refundsCount'],
+            'byOption' => $stats['byOption'],
             'registrationsSpreadsheetUrl' => $this->registrations->spreadsheetViewUrl(),
-            'cmsBootstrapped' => $bootstrapped,
+            'scheduleSpreadsheetUrl' => GoogleSpreadsheetUrl::editUrlFrom($this->scheduleSheetUrl),
         ]);
     }
 
@@ -42,7 +48,8 @@ class DashboardController extends AbstractDashboardController
     {
         return Dashboard::new()
             ->setTitle('<img src="/uploads/wp/2025/10/logo-hanuman.png" alt="" class="hf-admin-brand-logo" width="36" height="36"> Хануман Фест')
-            ->setFaviconPath('/uploads/wp/2025/10/logo-hanuman.png');
+            ->setFaviconPath('/uploads/wp/2025/10/logo-hanuman.png')
+            ->disableDarkMode();
     }
 
     public function configureCrud(): Crud

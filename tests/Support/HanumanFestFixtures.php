@@ -2,6 +2,7 @@
 
 namespace App\Tests\Support;
 
+use App\Entity\FestivalSeason;
 use App\Entity\ParticipationOption;
 use App\Entity\ParticipationPrice;
 use App\Entity\PricingPeriod;
@@ -18,8 +19,15 @@ final class HanumanFestFixtures
         $product->setIsActive(true);
         $entityManager->persist($product);
 
+        $season = new FestivalSeason();
+        $season->setYear(2026);
+        $season->setName('Хануман Фест 2026');
+        $season->setIsCurrent(true);
+        $entityManager->persist($season);
+
         $period = new PricingPeriod();
         $period->setProduct($product);
+        $period->setSeason($season);
         $period->setName('До 10 марта');
         $period->setStartAt(new \DateTimeImmutable('2026-01-01 00:00:00'));
         $period->setEndAt(new \DateTimeImmutable('2026-12-31 23:59:59'));
@@ -41,5 +49,15 @@ final class HanumanFestFixtures
         $entityManager->flush();
 
         return $product;
+    }
+
+    public static function currentSeason(EntityManagerInterface $entityManager): FestivalSeason
+    {
+        $season = $entityManager->getRepository(FestivalSeason::class)->findOneBy(['isCurrent' => true]);
+        if (!$season) {
+            throw new \RuntimeException('No current festival season in fixtures.');
+        }
+
+        return $season;
     }
 }

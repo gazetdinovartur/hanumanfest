@@ -189,6 +189,113 @@ body.ea,
     text-decoration: underline;
 }
 
+.admin-dashboard__empty {
+    margin: 0;
+    color: var(--hf-muted);
+}
+
+.admin-dashboard__options {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.45rem;
+}
+
+.admin-dashboard__options li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 0.9rem;
+    border-radius: 0.85rem;
+    background: #fff;
+    border: 1px solid rgba(48, 48, 48, 0.08);
+}
+
+.admin-dashboard__option-label {
+    line-height: 1.35;
+}
+
+.admin-dashboard__option-count {
+    font-weight: 700;
+    color: var(--hf-accent);
+}
+
+.admin-dashboard__links {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+}
+
+.content-top .hf-admin-season,
+.responsive-header .hf-admin-season {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0 0.35rem 0 0;
+    min-width: 0;
+}
+
+.hf-admin-season__tabs {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    padding: 0.15rem;
+    border-radius: 999px;
+    background: rgba(48, 48, 48, 0.06);
+    overflow-x: auto;
+    max-width: min(28rem, 52vw);
+    margin: 0 1rem;
+}
+
+.hf-admin-season__tab {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    border-radius: 999px;
+    padding: 0.28rem 0.72rem;
+    font: inherit;
+    font-size: 0.84rem;
+    font-weight: 650;
+    color: var(--hf-muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.hf-admin-season__tab:hover {
+    color: inherit;
+}
+
+.hf-admin-season__tab.is-selected {
+    background: #fff;
+    color: #303030;
+    box-shadow: 0 1px 2px rgba(48, 48, 48, 0.12);
+}
+
+.hf-admin-season__live {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--hf-accent);
+}
+
+.hf-admin-season__manage {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--hf-muted);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.hf-admin-season__manage:hover {
+    color: inherit;
+}
+
 .admin-dashboard__section {
     display: grid;
     gap: 0.85rem;

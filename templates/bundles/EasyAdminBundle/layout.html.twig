@@ -1,0 +1,8 @@
+{% extends '@!EasyAdmin/layout.html.twig' %}
+
+{% block settings_dropdown_wrapper %}
+    {% if admin_seasons|default([])|length > 0 %}
+        {{ include('admin/_season_switcher.html.twig') }}
+    {% endif %}
+    {{ parent() }}
+{% endblock %}

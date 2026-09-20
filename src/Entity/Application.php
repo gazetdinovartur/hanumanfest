@@ -38,6 +38,10 @@ class Application
     #[ORM\JoinColumn(nullable: false)]
     private ?PricingPeriod $pricingPeriod = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?FestivalSeason $season = null;
+
     #[ORM\Column(enumType: ApplicationStatus::class)]
     private ApplicationStatus $status = ApplicationStatus::New;
 
@@ -115,6 +119,18 @@ class Application
     public function setPricingPeriod(?PricingPeriod $pricingPeriod): static
     {
         $this->pricingPeriod = $pricingPeriod;
+
+        return $this;
+    }
+
+    public function getSeason(): ?FestivalSeason
+    {
+        return $this->season;
+    }
+
+    public function setSeason(?FestivalSeason $season): static
+    {
+        $this->season = $season;
 
         return $this;
     }

@@ -144,7 +144,7 @@ flowchart LR
 Переходный / параллельный контур (до cutover): WordPress + bridge на том же домене может ещё принимать боевые заявки; см. `PARALLEL_TESTING.md`.
 
 - **Источник правды после cutover:** MySQL (`Application`, `Payment`, `PaymentLink`, `PricingPeriod`, …).
-- **Sheets:** зеркало для команды; экспорт через `GOOGLE_SHEETS_WEBHOOK_URL` → Apps Script `Code.by-columns.gs`.
+- **Sheets:** зеркало для команды; экспорт через `REGISTRATION_SHEET_URL` → Apps Script `Code.by-columns.gs`.
 - **Публичная форма:** Symfony Twig + `public/assets/site/registration.js` (legacy bridge в `legacy/wordpress/` — архив / параллельный тест).
 
 ---
@@ -175,7 +175,7 @@ flowchart LR
 
 ## Google Sheets
 
-**Клиент:** `GoogleSheetsClient` → POST на `GOOGLE_SHEETS_WEBHOOK_URL`.
+**Клиент:** `GoogleSheetsClient` → POST на `REGISTRATION_SHEET_URL` (если это Apps Script webhook).
 
 **Payloads:**
 

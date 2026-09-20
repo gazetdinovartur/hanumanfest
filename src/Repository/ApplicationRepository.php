@@ -3,8 +3,11 @@
 namespace App\Repository;
 
 use App\Entity\Application;
+use App\Entity\FestivalSeason;
+use App\Entity\Payment;
 use App\Entity\Product;
 use App\Enum\ApplicationStatus;
+use App\Enum\PaymentStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Uid\Uuid;
@@ -24,19 +27,46 @@ class ApplicationRepository extends ServiceEntityRepository
         return $this->findOneBy(['uuid' => $uuid]);
     }
 
-    public function findActiveDuplicateByEmail(string $email, Product $product): ?Application
+    public function findActiveDuplicateByEmail(string $email, Product $product, FestivalSeason $season): ?Application
     {
         return $this->createQueryBuilder('a')
             ->innerJoin('a.user', 'u')
             ->andWhere('u.email = :email')
             ->andWhere('a.product = :product')
-            ->andWhere('a.status != :cancelled')
+            ->andWhere('a.season = :season')
+            ->andWhere('a.status NOT IN (:inactive)')
             ->setParameter('email', $email)
             ->setParameter('product', $product)
-            ->setParameter('cancelled', ApplicationStatus::Cancelled)
+            ->setParameter('season', $season)
+            ->setParameter('inactive', [ApplicationStatus::Cancelled, ApplicationStatus::Refunded])
             ->orderBy('a.createdAt', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    /**
+     * @return array{paid: int, refunded: int}
+     */
+    public function succeededPaymentTotals(Application $application): array
+    {
+        /** @var array{paid: mixed, refunded: mixed}|null $row */
+        $row = $this->getEntityManager()->createQueryBuilder()
+            ->select(
+                'COALESCE(SUM(p.amount - p.refundedAmount), 0) AS paid',
+                'COALESCE(SUM(p.refundedAmount), 0) AS refunded',
+            )
+            ->from(Payment::class, 'p')
+            ->andWhere('p.application = :application')
+            ->andWhere('p.status = :status')
+            ->setParameter('application', $application)
+            ->setParameter('status', PaymentStatus::Succeeded)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return [
+            'paid' => max(0, (int) ($row['paid'] ?? 0)),
+            'refunded' => max(0, (int) ($row['refunded'] ?? 0)),
+        ];
     }
 }

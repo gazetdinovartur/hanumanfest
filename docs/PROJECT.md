@@ -28,12 +28,6 @@ WordPress 2026 уходит в архив на `2026.хануманфест.рф
 
 ## Решения (ADR)
 
-### ADR-001: Один Product
-
-Принят slug `hanuman-fest`. Отдельный `hanuman-fest-2027` не создаём.
-
-Ценовые «сезоны» = `PricingPeriod` внутри одного Product.
-
 ### ADR-002: API на основном домене
 
 `https://хануманфест.рф/api/...` — без поддомена `апи.`.
@@ -56,5 +50,5 @@ WordPress 2026 уходит в архив на `2026.хануманфест.рф
 
 ### ADR-007: Google Sheets регистрации
 
-Один env `GOOGLE_SHEETS_WEBHOOK_URL` (Apps Script): экспорт заявок/оплат, ссылка на таблицу в админке, default CSV для `app:import:legacy-orders`.  
+Один env `REGISTRATION_SHEET_URL` (ссылка на таблицу или Apps Script): экспорт заявок/оплат, ссылка на таблицу в админке, default CSV для `app:import:legacy-orders`.  
 `SCHEDULE_SHEET_URL` — отдельный документ программы.

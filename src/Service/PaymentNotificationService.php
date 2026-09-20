@@ -31,7 +31,7 @@ class PaymentNotificationService
         $email = (new TemplatedEmail())
             ->from(new Address($this->fromEmail, $this->fromName))
             ->to($user->getEmail())
-            ->subject('Hanuman Fest — оплата остатка')
+            ->subject('Хануман Фест — оплата остатка')
             ->htmlTemplate('email/payment_link.html.twig')
             ->context([
                 'name' => $user->getName(),

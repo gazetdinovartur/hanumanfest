@@ -3,7 +3,10 @@
 namespace App\Tests\Functional\Api;
 
 use App\Entity\Application;
+use App\Entity\FestivalSeason;
 use App\Entity\ParticipationOption;
+use App\Entity\ParticipationPrice;
+use App\Entity\PricingPeriod;
 use App\Tests\Support\HanumanFestFixtures;
 use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\Attributes\Group;
@@ -88,6 +91,68 @@ final class ApplicationCreateApiTest extends WebTestCase
         $application = $em->getRepository(Application::class)->findOneBy([]);
         self::assertNotNull($application);
         self::assertArrayNotHasKey('tentRoommate', $application->getPayload());
+    }
+
+    public function testSameEmailCanRegisterInAnotherSeason(): void
+    {
+        $client = static::createClient();
+        $this->bootSchema($client);
+        $em = $client->getContainer()->get('doctrine')->getManager();
+        $option = $em->getRepository(ParticipationOption::class)->findOneBy(['code' => 'OWN_HOUSE_NO_FOOD']);
+        self::assertNotNull($option);
+        $body = json_encode([
+            'name' => 'Возвращение',
+            'email' => 'returning@example.com',
+            'phone' => '+79001112233',
+            'participationOptionId' => $option->getId(),
+            'adultsCount' => 1,
+            'childrenCount' => 0,
+            'transferIncluded' => false,
+            'paymentFactor' => 1,
+        ], JSON_THROW_ON_ERROR);
+
+        $client->request('POST', '/api/applications', server: ['CONTENT_TYPE' => 'application/json'], content: $body);
+        self::assertResponseStatusCodeSame(201);
+
+        $client->request('POST', '/api/applications', server: ['CONTENT_TYPE' => 'application/json'], content: $body);
+        self::assertResponseStatusCodeSame(409);
+
+        $em->clear();
+        $option = $em->getRepository(ParticipationOption::class)->findOneBy(['code' => 'OWN_HOUSE_NO_FOOD']);
+        self::assertNotNull($option);
+        $product = $option->getProduct();
+        self::assertNotNull($product);
+
+        $season2026 = $em->getRepository(FestivalSeason::class)->findOneBy(['year' => 2026]);
+        self::assertNotNull($season2026);
+        $season2026->setIsCurrent(false);
+
+        $season2027 = new FestivalSeason();
+        $season2027->setYear(2027);
+        $season2027->setName('Хануман Фест 2027');
+        $season2027->setIsCurrent(true);
+        $em->persist($season2027);
+
+        $product = $option->getProduct();
+        $period = new PricingPeriod();
+        $period->setProduct($product);
+        $period->setSeason($season2027);
+        $period->setName('До 10 марта');
+        $period->setStartAt(new \DateTimeImmutable('2026-01-01 00:00:00'));
+        $period->setEndAt(new \DateTimeImmutable('2027-12-31 23:59:59'));
+        $period->setIsActive(true);
+        $em->persist($period);
+
+        $price = new ParticipationPrice();
+        $price->setPricingPeriod($period);
+        $price->setParticipationOption($option);
+        $price->setPrice(3600);
+        $em->persist($price);
+        $em->flush();
+
+        $client->request('POST', '/api/applications', server: ['CONTENT_TYPE' => 'application/json'], content: $body);
+        self::assertResponseStatusCodeSame(201);
+        self::assertCount(2, $em->getRepository(Application::class)->findAll());
     }
 
     private function bootSchema(KernelBrowser $client): void
