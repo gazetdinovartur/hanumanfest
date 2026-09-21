@@ -4,6 +4,7 @@ namespace App\Service\Content;
 
 use App\Entity\GalleryItem;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final class GalleryUploadService
@@ -13,6 +14,8 @@ final class GalleryUploadService
 
     public function __construct(
         private readonly EntityManagerInterface $em,
+        private readonly ImageOptimizer $imageOptimizer,
+        #[Autowire('%kernel.project_dir%')]
         private readonly string $projectDir,
     ) {
     }
@@ -51,8 +54,11 @@ final class GalleryUploadService
             $name = bin2hex(random_bytes(8)).'.'.$ext;
             $file->move($dir, $name);
 
+            $publicPath = '/uploads/gallery/'.$name;
+            $this->imageOptimizer->optimizePublicPath($publicPath);
+
             $item = new GalleryItem();
-            $item->setImagePath('/uploads/gallery/'.$name);
+            $item->setImagePath($publicPath);
             $item->setSortOrder(++$maxOrder);
             $item->setPublished(true);
             $this->em->persist($item);

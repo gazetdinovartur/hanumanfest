@@ -7,7 +7,7 @@
 - [ ] Symfony задеплоен на `https://хануманфест.рф`
 - [ ] `composer test` зелёный локально
 - [ ] Миграции применены: `php bin/console doctrine:migrations:migrate --no-interaction --env=prod`
-- [ ] Seeds: `bin/deploy-prod.sh --with-seeds` или вручную (`app:seed:site-content --if-empty`) — см. `DEPLOY_TIMEWEB.md`
+- [ ] Seeds: `bin/deploy-prod.sh --with-seeds` или вручную (`app:seed:site-content --if-empty`) — см. `DEPLOY_SWEB.md`
 - [ ] Kitchen mp4: `app:seed:site-pages` копирует в `public/uploads/pages/kitchen/` из `public/uploads/wp/2026/03/` или `data/site-pages/videos/` (4 файла: IMG_8652, IMG_8223, IMG_8224, IMG_8222)
 - [ ] Prod `.env`: `YOOKASSA_*`, `MAILER_DSN`, сильный `ADMIN_PASSWORD`, `DEFAULT_URI`
 - [ ] `SCHEDULE_SHEET_URL` для cron импорта программы
@@ -46,9 +46,9 @@ php bin/console app:import:legacy-orders --env=prod
 php bin/console app:applications:recalculate-statuses --product-slug=hanuman-fest --env=prod
 ```
 
-## Cron (Timeweb)
+## Cron (Sweb)
 
-Расписание cron — один раз в `DEPLOY_TIMEWEB.md` (секция Cron).
+Расписание cron — один раз в `DEPLOY_SWEB.md` (секция Cron).
 
 ## После cutover
 

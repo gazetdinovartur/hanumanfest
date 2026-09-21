@@ -92,11 +92,13 @@ abstract class AbstractPersonCrudController extends AbstractSortableUploadCrudCo
         foreach ($this->formExtraFields() as $field) {
             yield $field;
         }
+        yield PublicImageField::new('photoPath', 'Фото', 'people')
+            ->setHelp('Портрет для карточки и модалки');
         yield TextField::new('name', 'Имя');
-        yield PublicImageField::new('photoPath', 'Фото', 'people');
         yield FormField::addFieldset('Тексты');
         yield TextareaField::new('excerpt', 'Кратко')->setNumOfRows(3);
-        yield HtmlEditorField::new('bio', 'Био', 8);
+        yield HtmlEditorField::new('bio', 'Био', 8)
+            ->setHelp('Только текст. Фото — в поле выше, не вставляйте картинки в HTML.');
         yield BooleanField::new('published', 'Опубликовано');
     }
 

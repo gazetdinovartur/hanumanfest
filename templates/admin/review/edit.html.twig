@@ -1,0 +1,89 @@
+{% extends '@EasyAdmin/crud/edit.html.twig' %}
+
+{% block body_javascript %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+    <script src="{{ asset('js/admin-review-media.js') }}" defer></script>
+{% endblock %}
+
+{% block main %}
+    {{ parent() }}
+
+    {% set review = ea.entity.instance %}
+    {% if review and review.id %}
+        <div
+            class="hf-review-media mt-4"
+            data-review-media
+            data-upload-url="{{ path('admin_review_media_upload', {id: review.id}) }}"
+            data-reorder-url="{{ path('admin_review_media_reorder', {id: review.id}) }}"
+            data-update-url="{{ path('admin_review_media_item', {id: 0})|replace({'/0': '/__ID__'}) }}"
+            data-delete-url="{{ path('admin_review_media_delete', {id: 0})|replace({'/0': '/__ID__'}) }}"
+            data-csrf="{{ reviewMediaCsrf|default('') }}"
+        >
+            <header class="hf-review-media__head">
+                <h2 class="hf-review-media__title">Медиа отзыва</h2>
+                <p class="hf-review-media__hint">
+                    Фото и видео участника — часть отзыва в модалке. Портрет автора — в поле выше.
+                    Порядок = порядок в модалке · перетаскивайте ⋮⋮
+                </p>
+            </header>
+
+            <div class="hf-gallery__alert hf-gallery__alert--error is-hidden" data-alert-error role="alert"></div>
+            <div class="hf-gallery__alert hf-gallery__alert--success is-hidden" data-alert-success role="status"></div>
+
+            <div class="hf-gallery__dropzone" data-dropzone tabindex="0" role="button" aria-label="Загрузить медиа">
+                <input
+                    type="file"
+                    class="hf-gallery__input"
+                    data-file-input
+                    accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif,video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov"
+                    multiple
+                    hidden
+                >
+                <div class="hf-gallery__dropzone-inner">
+                    <p class="hf-gallery__dropzone-title">Добавить фото или видео</p>
+                    <p class="hf-gallery__dropzone-hint">Перетащите сюда или нажмите · JPG/PNG/WEBP до 12 МБ · MP4/WebM/MOV до 80 МБ</p>
+                </div>
+                <div class="hf-gallery__loading is-hidden" data-loading>Загружаем…</div>
+            </div>
+
+            <div class="hf-gallery__batch is-hidden" data-batch>
+                <div class="hf-gallery__batch-head">
+                    <strong data-batch-count>0 файлов</strong>
+                    <button type="button" class="btn btn-secondary btn-sm" data-batch-reset>Сбросить</button>
+                    <button type="button" class="btn btn-primary btn-sm" data-batch-submit>Загрузить</button>
+                </div>
+                <ul class="hf-gallery__batch-list" data-batch-list></ul>
+            </div>
+
+            <ul class="hf-gallery__grid hf-review-media__grid" data-grid>
+                {% for item in review.media %}
+                    <li class="hf-gallery__card" data-id="{{ item.id }}" data-published="{{ item.published ? '1' : '0' }}" data-kind="{{ item.kind.value }}">
+                        <div class="hf-gallery__card-drag" data-drag-handle title="Перетащить" aria-label="Перетащить">⋮⋮</div>
+                        <div class="hf-gallery__card-image">
+                            {% if item.image %}
+                                <img src="{{ asset(image_variant(item.path, 'thumb')|default(item.path)) }}" alt="">
+                            {% else %}
+                                <video src="{{ asset(item.path) }}" muted playsinline preload="metadata"></video>
+                                <span class="hf-review-media__video-badge">Видео</span>
+                            {% endif %}
+                            {% if not item.published %}
+                                <span class="hf-gallery__badge">Скрыто</span>
+                            {% endif %}
+                        </div>
+                        <div class="hf-gallery__card-body">
+                            <label class="hf-gallery__published">
+                                <input type="checkbox" data-published {% if item.published %}checked{% endif %}>
+                                Показывать на сайте
+                            </label>
+                            <button type="button" class="hf-gallery__delete" data-delete title="Удалить">Удалить</button>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+            <p class="hf-gallery__empty{% if review.media|length %} is-hidden{% endif %}" data-empty>Медиа пока нет — загрузите фото или видео выше.</p>
+        </div>
+    {% else %}
+        <p class="text-muted mt-3">Сначала сохраните отзыв — затем можно добавить фото и видео участника.</p>
+    {% endif %}
+{% endblock %}

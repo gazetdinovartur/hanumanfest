@@ -1,68 +1,56 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // === МОДАЛЬНОЕ ОКНО МАСТЕРОВ ===
+  // === ОБЩАЯ МОДАЛКА (мастера / гости / отзывы) ===
   const modal = document.querySelector("[data-hf-master-modal]");
   const modalOverlay = document.querySelector("[data-hf-master-overlay]");
   const modalClose = document.querySelector("[data-hf-master-close]");
   const modalContent = document.querySelector("[data-hf-master-body]");
-  const masterCards = document.querySelectorAll(".master-card");
 
-  if (modal && modalOverlay && modalClose && modalContent && masterCards.length) {
-    masterCards.forEach(card => {
+  const openHfModal = (payloadRoot) => {
+    if (!modal || !modalOverlay || !modalClose || !modalContent || !payloadRoot) return;
+    const payload = payloadRoot.querySelector(".hf-modal-payload");
+    modalContent.innerHTML = payload ? payload.innerHTML : payloadRoot.innerHTML;
+    modal.classList.add("is-open");
+    modalOverlay.classList.add("is-open");
+    modalClose.classList.add("is-open");
+    document.body.style.overflow = "hidden";
+  };
+
+  const closeHfModal = () => {
+    if (!modal || !modalOverlay || !modalClose || !modalContent) return;
+    modal.classList.remove("is-open");
+    modalOverlay.classList.remove("is-open");
+    modalClose.classList.remove("is-open");
+    modalContent.innerHTML = "";
+    document.body.style.overflow = "";
+  };
+
+  if (modal && modalOverlay && modalClose && modalContent) {
+    document.querySelectorAll(".master-card").forEach((card) => {
       card.addEventListener("click", () => {
-        const modalData = card.querySelector(".master-modal-data");
-        const content = modalData?.querySelector(".master-content");
-        modalContent.innerHTML = content ? content.innerHTML : "";
-
-        modal.classList.add("is-open");
-        modalOverlay.classList.add("is-open");
-        modalClose.classList.add("is-open");
-        document.body.style.overflow = "hidden";
+        openHfModal(card.querySelector(".master-modal-data"));
       });
     });
 
-    [modalOverlay, modalClose].forEach(el => {
-      el.addEventListener("click", () => {
-        modal.classList.remove("is-open");
-        modalOverlay.classList.remove("is-open");
-        modalClose.classList.remove("is-open");
-        document.body.style.overflow = "";
-      });
-    });
-  }
-
-  // === МОДАЛЬНОЕ ОКНО ОТЗЫВОВ ===
-  const reviewButtons = document.querySelectorAll(".hf-review-readmore");
-
-  if (reviewButtons.length && modal && modalOverlay && modalClose && modalContent) {
-    reviewButtons.forEach(btn => {
+    document.querySelectorAll(".hf-review-readmore").forEach((btn) => {
       btn.addEventListener("click", () => {
-        const data = btn.closest(".hf-review-card")?.querySelector(".review-modal-data");
-        const content = data?.querySelector(".review-content");
-        modalContent.innerHTML = content ? content.innerHTML : "";
-
-        modal.classList.add("is-open");
-        modalOverlay.classList.add("is-open");
-        modalClose.classList.add("is-open");
-        document.body.style.overflow = "hidden";
+        openHfModal(btn.closest(".hf-review-card")?.querySelector(".review-modal-data"));
       });
     });
-  }
 
-    // === МОДАЛЬНОЕ ОКНО ГОСТЕЙ ===
-  const guestButtons = document.querySelectorAll(".hf-guest-readmore");
-
-  if (guestButtons.length && modal && modalOverlay && modalClose && modalContent) {
-    guestButtons.forEach(btn => {
+    document.querySelectorAll(".hf-guest-readmore").forEach((btn) => {
       btn.addEventListener("click", () => {
-        const data = btn.closest(".guest-card")?.querySelector(".guest-modal-data");
-        const content = data?.querySelector(".guest-content");
-        modalContent.innerHTML = content ? content.innerHTML : "";
-
-        modal.classList.add("is-open");
-        modalOverlay.classList.add("is-open");
-        modalClose.classList.add("is-open");
-        document.body.style.overflow = "hidden";
+        openHfModal(btn.closest(".guest-card")?.querySelector(".guest-modal-data"));
       });
+    });
+
+    [modalOverlay, modalClose].forEach((el) => {
+      el.addEventListener("click", closeHfModal);
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modal.classList.contains("is-open")) {
+        closeHfModal();
+      }
     });
   }
 

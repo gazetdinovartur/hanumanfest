@@ -1,0 +1,38 @@
+{# Structured payload for shared hf-master-modal #}
+<div class="hf-modal-payload" hidden>
+    {% if photo %}
+        <img class="hf-modal-payload__photo" src="{{ asset(image_variant(photo, 'thumb')|default(photo)) }}" alt="{{ title }}" width="96" height="96">
+    {% endif %}
+    {% if title %}
+        <h3 class="hf-modal-payload__title">{{ title }}</h3>
+    {% endif %}
+    <div class="hf-modal-payload__body">{{ body|raw }}</div>
+    {% if media is defined and media is not empty %}
+        <div class="hf-modal-payload__media">
+            {% for item in media %}
+                {% if item.published %}
+                    {% if item.image %}
+                        <a
+                            class="hf-modal-payload__media-item hf-modal-payload__media-item--image"
+                            href="{{ asset(image_variant(item.path, 'display')|default(item.path)) }}"
+                            data-hf-modal-lightbox
+                            data-hf-media-kind="image"
+                        >
+                            <img src="{{ asset(image_variant(item.path, 'thumb')|default(item.path)) }}" alt="" loading="lazy" width="160" height="160">
+                        </a>
+                    {% else %}
+                        <a
+                            class="hf-modal-payload__media-item hf-modal-payload__media-item--video"
+                            href="{{ asset(item.path) }}"
+                            data-hf-modal-lightbox
+                            data-hf-media-kind="video"
+                        >
+                            <video src="{{ asset(item.path) }}#t=0.1" muted playsinline preload="metadata" tabindex="-1"></video>
+                            <span class="hf-modal-payload__media-play" aria-hidden="true"></span>
+                        </a>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

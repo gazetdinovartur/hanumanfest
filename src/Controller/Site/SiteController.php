@@ -25,6 +25,18 @@ final class SiteController extends AbstractController
         return $this->render('site/home.html.twig', $this->siteContentService->getHomeContext());
     }
 
+    #[Route('/отзывы', name: 'site_reviews', methods: ['GET'])]
+    public function reviews(): Response
+    {
+        return $this->render('site/reviews.html.twig', $this->siteContentService->getReviewsPageContext());
+    }
+
+    #[Route('/галерея', name: 'site_gallery', methods: ['GET'])]
+    public function gallery(): Response
+    {
+        return $this->render('site/gallery.html.twig', $this->siteContentService->getGalleryPageContext());
+    }
+
     #[Route('/program', name: 'site_program', methods: ['GET'])]
     public function program(): Response
     {

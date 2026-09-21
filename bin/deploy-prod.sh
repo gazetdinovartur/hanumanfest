@@ -9,7 +9,7 @@ composer_version_ok() {
     "${COMPOSER}" --version 2>/dev/null | grep -qE 'Composer version 2\.([1-9]|[1-9][0-9])'
 }
 
-# Timeweb: entire repo lives in public_html; web root = project root (./bundles, ./index.php).
+# Sweb: entire repo may live in public_html; web root = project root (./bundles, ./index.php).
 # Local/Docker: web root = public/ subdirectory.
 if [[ -f "${ROOT}/index.php" ]] && grep -q "__DIR__.*'/vendor/autoload_runtime.php'" "${ROOT}/index.php" 2>/dev/null; then
     WEB_ROOT="."
@@ -56,7 +56,7 @@ if [[ "${1:-}" == "--with-seeds" ]]; then
     php bin/console app:seed:hanuman-fest --no-interaction --env=prod
     php bin/console app:seed:site-content --if-empty --no-interaction --env=prod
     php bin/console app:seed:site-pages --no-interaction --env=prod
-    echo "Kitchen videos expected in public/uploads/pages/kitchen/ (see DEPLOY_TIMEWEB.md)"
+    echo "Kitchen videos expected in public/uploads/pages/kitchen/ (see DEPLOY_SWEB.md)"
 fi
 
 echo "Rebuilding prod cache..."
@@ -70,4 +70,4 @@ php bin/console assets:install "${WEB_ROOT}" --no-interaction --env=prod
 echo "Done. Smoke test:"
 php bin/console about --env=prod | grep -E "Environment|Log directory" || true
 echo "Optional: bin/deploy-prod.sh --with-seeds  # pricing + CMS pages"
-echo "Cron: see DEPLOY_TIMEWEB.md and CUTOVER.md"
+echo "Cron: see DEPLOY_SWEB.md and CUTOVER.md"

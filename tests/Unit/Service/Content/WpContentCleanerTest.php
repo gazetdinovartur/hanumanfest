@@ -16,7 +16,7 @@ final class WpContentCleanerTest extends TestCase
 
     public function testCleanHtmlRemovesWpParagraphComments(): void
     {
-        $input = "<!-- wp:paragraph --><p>Текст</p><!-- /wp:paragraph -->";
+        $input = '<!-- wp:paragraph --><p>Текст</p><!-- /wp:paragraph -->';
         self::assertSame('<p>Текст</p>', $this->cleaner->cleanHtml($input));
     }
 
@@ -29,5 +29,28 @@ final class WpContentCleanerTest extends TestCase
     {
         $input = '<!-- wp:paragraph --><p>Кратко</p><!-- /wp:paragraph -->';
         self::assertSame('Кратко', $this->cleaner->cleanPlain($input));
+    }
+
+    public function testCleanHtmlRemovesFiguresImagesAndVideos(): void
+    {
+        $input = '<p>Привет</p><figure class="wp-block-image size-large"><img src="/x.jpg" class="wp-image-1" alt=""></figure><video src="/a.mp4"></video><p>Конец</p>';
+        $out = $this->cleaner->cleanHtml($input);
+        self::assertNotNull($out);
+        self::assertStringContainsString('<p>Привет</p>', $out);
+        self::assertStringContainsString('<p>Конец</p>', $out);
+        self::assertStringNotContainsString('<img', $out);
+        self::assertStringNotContainsString('<figure', $out);
+        self::assertStringNotContainsString('<video', $out);
+    }
+
+    public function testCleanHtmlKeepsListsAndLinks(): void
+    {
+        $input = '<ul><li>Один</li></ul><p><a href="https://example.com" onclick="alert(1)">Ссылка</a></p>';
+        $out = $this->cleaner->cleanHtml($input);
+        self::assertNotNull($out);
+        self::assertStringContainsString('<ul>', $out);
+        self::assertStringContainsString('<li>Один</li>', $out);
+        self::assertStringContainsString('href="https://example.com"', $out);
+        self::assertStringNotContainsString('onclick', $out);
     }
 }

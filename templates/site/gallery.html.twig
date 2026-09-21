@@ -1,0 +1,34 @@
+{% extends 'site/base.html.twig' %}
+
+{% block title %}Галерея — Хануман Фест{% endblock %}
+
+{% block body %}
+<section class="py-5" id="gallery">
+    <div class="container">
+        <h1 class="text-brand-main text-center mb-2">Как это было</h1>
+        <p class="text-center text-muted mb-5">
+            <a href="{{ path('site_home') }}#late" class="contact-link">← На главную</a>
+        </p>
+        {% if gallery is not empty %}
+            <div class="hf-gallery-archive">
+                {% for item in gallery %}
+                    <figure class="hf-gallery-archive__item">
+                        <img
+                            class="hf-gallery-archive__img"
+                            src="{{ asset(image_variant(item.imagePath, 'card')|default(item.imagePath)) }}"
+                            data-full-src="{{ asset(image_variant(item.imagePath, 'display')|default(item.imagePath)) }}"
+                            alt="{{ item.caption|default('') }}"
+                            loading="lazy"
+                        >
+                        {% if item.caption %}
+                            <figcaption class="hf-gallery-archive__caption">{{ item.caption }}</figcaption>
+                        {% endif %}
+                    </figure>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-center text-muted">Фото скоро появятся.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

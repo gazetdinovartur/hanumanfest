@@ -91,7 +91,3 @@ services:
     App\Service\Content\SiteContentDefaults:
         arguments:
             $projectDir: '%kernel.project_dir%'
-
-    App\Service\Content\GalleryUploadService:
-        arguments:
-            $projectDir: '%kernel.project_dir%'

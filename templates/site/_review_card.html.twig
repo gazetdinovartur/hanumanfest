@@ -1,0 +1,25 @@
+<div class="hf-review-card fade-in">
+    <div class="hf-review-inner text-center text-white">
+        {% if review.photoPath %}
+            <img
+                class="hf-review-avatar mx-auto mb-3"
+                src="{{ asset(image_variant(review.photoPath, 'thumb')|default(review.photoPath)) }}"
+                alt="{{ review.authorName }}"
+                loading="lazy"
+                width="90"
+                height="90"
+            >
+        {% endif %}
+        <h5 class="hf-review-name mb-2">{{ review.authorName }}</h5>
+        <p class="hf-review-excerpt mb-3">{{ review.body|striptags|slice(0, 160) }}{% if review.body|striptags|length > 160 %}…{% endif %}</p>
+        <button class="hf-review-readmore btn btn-outline-light btn-sm" type="button">Читать полностью</button>
+        <div class="review-modal-data" style="display:none;">
+            {% include 'site/_modal_payload.html.twig' with {
+                photo: review.photoPath,
+                title: review.authorName,
+                body: review.body,
+                media: review.publishedMedia
+            } %}
+        </div>
+    </div>
+</div>

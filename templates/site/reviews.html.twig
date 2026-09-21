@@ -1,0 +1,25 @@
+{% extends 'site/base.html.twig' %}
+
+{% block title %}Отзывы участников — Хануман Фест{% endblock %}
+
+{% block body %}
+<section class="py-5">
+    <div class="container">
+        <h1 class="text-brand-main text-center mb-2">Отзывы участников</h1>
+        <p class="text-center text-muted mb-5">
+            <a href="{{ path('site_home') }}#reviews" class="contact-link">← На главную</a>
+        </p>
+        {% if reviews is not empty %}
+            <div class="hf-reviews-archive">
+                {% for review in reviews %}
+                    {% include 'site/_review_card.html.twig' with { review: review } %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-center text-muted">Отзывы скоро появятся.</p>
+        {% endif %}
+    </div>
+</section>
+
+{% include 'site/_shared_modal.html.twig' %}
+{% endblock %}

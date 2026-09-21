@@ -12,6 +12,7 @@ final class UploadFileRemover
     public function __construct(
         #[Autowire('%app.uploads_directory%')]
         private readonly string $uploadsDirectory,
+        private readonly ImageVariantResolver $variantResolver,
     ) {
     }
 
@@ -44,6 +45,12 @@ final class UploadFileRemover
         $absolute = rtrim($this->uploadsDirectory, '/').'/'.$relative;
         if (is_file($absolute)) {
             @unlink($absolute);
+        }
+
+        foreach ($this->variantResolver->sidecarAbsolutePaths('/'.$path) as $sidecar) {
+            if ($sidecar !== $absolute && is_file($sidecar)) {
+                @unlink($sidecar);
+            }
         }
     }
 }

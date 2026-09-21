@@ -101,6 +101,22 @@ final class SitePagesTest extends WebTestCase
         self::assertResponseStatusCodeSame(404);
     }
 
+    public function testReviewsAndGalleryArchivePagesAreOk(): void
+    {
+        $client = static::createClient();
+        $this->bootSchema($client);
+        $this->seedFooterSettings($client);
+        $router = $client->getContainer()->get('router');
+
+        $client->request('GET', $router->generate('site_reviews'));
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1', 'Отзывы участников');
+
+        $client->request('GET', $router->generate('site_gallery'));
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1', 'Как это было');
+    }
+
     public function testProgramPageIsOk(): void
     {
         $client = static::createClient();

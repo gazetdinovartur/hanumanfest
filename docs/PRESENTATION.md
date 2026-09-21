@@ -208,11 +208,11 @@ flowchart LR
 
 ## Деплой и диагностика
 
-- Хостинг: Timeweb, PHP 8.5, MySQL 8.0, document root `public/`.
+- Хостинг: Sweb, PHP 8.5 (+ GD/WebP), MySQL 8.0, document root `public/`.
 - `bash bin/deploy-prod.sh` — composer `--no-dev`, migrations, cache reset, `assets:install`, удаление `.env.local.php`.
 - Monolog → `var/log/prod.log`.
 - Smoke: `GET /api/health`, `GET /api/product`.
-- Подробности: `DEPLOY_TIMEWEB.md`, `PARALLEL_TESTING.md`.
+- Подробности: `DEPLOY_SWEB.md`, `PARALLEL_TESTING.md`.
 
 ---
 

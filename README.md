@@ -96,7 +96,7 @@ composer test
 
 ## Деплой
 
-[`DEPLOY_TIMEWEB.md`](DEPLOY_TIMEWEB.md) — обновить webhook YooKassa на `https://хануманфест.рф/api/webhooks/yookassa`.
+[`DEPLOY_SWEB.md`](DEPLOY_SWEB.md) — обновить webhook YooKassa на `https://хануманфест.рф/api/webhooks/yookassa`.
 
 ---
 

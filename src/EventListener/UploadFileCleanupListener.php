@@ -7,6 +7,7 @@ use App\Entity\HomeHero;
 use App\Entity\InfoBlock;
 use App\Entity\Person;
 use App\Entity\Review;
+use App\Entity\ReviewMedia;
 use App\Entity\SitePage;
 use App\Entity\SiteSettings;
 use App\Service\Content\UploadFileRemover;
@@ -32,6 +33,7 @@ final class UploadFileCleanupListener
             $entity instanceof GalleryItem => $this->uploadFileRemover->deletePublicPath($entity->getImagePath()),
             $entity instanceof Person => $this->uploadFileRemover->deletePublicPath($entity->getPhotoPath()),
             $entity instanceof Review => $this->uploadFileRemover->deletePublicPath($entity->getPhotoPath()),
+            $entity instanceof ReviewMedia => $this->uploadFileRemover->deletePublicPath($entity->getPath()),
             $entity instanceof InfoBlock => $this->uploadFileRemover->deletePublicPath($entity->getImagePath()),
             $entity instanceof HomeHero => $this->removeHomeHeroFiles($entity),
             $entity instanceof SitePage => $this->removeSitePageFiles($entity),
@@ -48,6 +50,7 @@ final class UploadFileCleanupListener
             $entity instanceof GalleryItem => $this->deleteChangedPath($args, 'imagePath'),
             $entity instanceof Person => $this->deleteChangedPath($args, 'photoPath'),
             $entity instanceof Review => $this->deleteChangedPath($args, 'photoPath'),
+            $entity instanceof ReviewMedia => $this->deleteChangedPath($args, 'path'),
             $entity instanceof InfoBlock => $this->deleteChangedPath($args, 'imagePath'),
             $entity instanceof HomeHero => $this->updateHomeHeroFiles($args),
             $entity instanceof SitePage => $this->updateSitePageFiles($args),

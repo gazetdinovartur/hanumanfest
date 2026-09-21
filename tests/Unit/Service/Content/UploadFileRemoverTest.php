@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Service\Content;
 
+use App\Service\Content\ImageVariantResolver;
 use App\Service\Content\UploadFileRemover;
 use PHPUnit\Framework\TestCase;
 
@@ -25,9 +26,24 @@ final class UploadFileRemoverTest extends TestCase
         $file = $this->uploadsDir.'/gallery/photo.jpg';
         file_put_contents($file, 'x');
 
-        (new UploadFileRemover($this->uploadsDir))->deletePublicPath('/uploads/gallery/photo.jpg');
+        $resolver = new ImageVariantResolver($this->uploadsDir, dirname($this->uploadsDir));
+        (new UploadFileRemover($this->uploadsDir, $resolver))->deletePublicPath('/uploads/gallery/photo.jpg');
 
         self::assertFileDoesNotExist($file);
+    }
+
+    public function testDeletePublicPathAlsoRemovesSidecars(): void
+    {
+        $file = $this->uploadsDir.'/gallery/photo.jpg';
+        $card = $this->uploadsDir.'/gallery/photo-card.webp';
+        file_put_contents($file, 'x');
+        file_put_contents($card, 'y');
+
+        $resolver = new ImageVariantResolver($this->uploadsDir, dirname($this->uploadsDir));
+        (new UploadFileRemover($this->uploadsDir, $resolver))->deletePublicPath('/uploads/gallery/photo.jpg');
+
+        self::assertFileDoesNotExist($file);
+        self::assertFileDoesNotExist($card);
     }
 
     public function testDeletePublicPathKeepsLegacyWpMedia(): void
@@ -36,7 +52,8 @@ final class UploadFileRemoverTest extends TestCase
         $file = $this->uploadsDir.'/wp/2025/10/logo-hanuman.png';
         file_put_contents($file, 'logo');
 
-        (new UploadFileRemover($this->uploadsDir))->deletePublicPath('/uploads/wp/2025/10/logo-hanuman.png');
+        $resolver = new ImageVariantResolver($this->uploadsDir, dirname($this->uploadsDir));
+        (new UploadFileRemover($this->uploadsDir, $resolver))->deletePublicPath('/uploads/wp/2025/10/logo-hanuman.png');
 
         self::assertFileExists($file);
     }
@@ -46,7 +63,8 @@ final class UploadFileRemoverTest extends TestCase
         $file = $this->uploadsDir.'/gallery/photo.jpg';
         file_put_contents($file, 'x');
 
-        (new UploadFileRemover($this->uploadsDir))->deletePublicPath('https://example.com/uploads/gallery/photo.jpg');
+        $resolver = new ImageVariantResolver($this->uploadsDir, dirname($this->uploadsDir));
+        (new UploadFileRemover($this->uploadsDir, $resolver))->deletePublicPath('https://example.com/uploads/gallery/photo.jpg');
 
         self::assertFileExists($file);
     }

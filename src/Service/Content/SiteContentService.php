@@ -3,7 +3,6 @@
 namespace App\Service\Content;
 
 use App\Entity\FaqItem;
-use App\Entity\GalleryItem;
 use App\Entity\HomeHero;
 use App\Entity\HomeHighlight;
 use App\Entity\InfoBlock;
@@ -11,11 +10,12 @@ use App\Entity\ParticipationOption;
 use App\Entity\ParticipationPrice;
 use App\Entity\Person;
 use App\Entity\PricingPeriod;
-use App\Entity\Review;
 use App\Entity\SiteSettings;
 use App\Enum\HomeHighlightColumn;
 use App\Enum\PersonKind;
+use App\Repository\GalleryItemRepository;
 use App\Repository\ProductRepository;
+use App\Repository\ReviewRepository;
 use App\Service\RegistrationTestMode;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -25,6 +25,8 @@ final class SiteContentService
         private readonly EntityManagerInterface $em,
         private readonly ProductRepository $productRepository,
         private readonly RegistrationTestMode $registrationTestMode,
+        private readonly ReviewRepository $reviewRepository,
+        private readonly GalleryItemRepository $galleryItemRepository,
     ) {
     }
 
@@ -32,6 +34,8 @@ final class SiteContentService
     {
         $hero = $this->em->getRepository(HomeHero::class)->findOneBy([], ['id' => 'ASC']);
         $settings = $this->em->getRepository(SiteSettings::class)->findOneBy([], ['id' => 'ASC']);
+        $reviewsTotal = $this->reviewRepository->countPublished();
+        $galleryTotal = $this->galleryItemRepository->countPublished();
 
         return [
             'hero' => $hero,
@@ -41,11 +45,31 @@ final class SiteContentService
             'guests' => $this->people(PersonKind::Guest),
             'musicians' => $this->people(PersonKind::Musician),
             'masters' => $this->people(PersonKind::Master),
-            'gallery' => $this->em->getRepository(GalleryItem::class)->findBy(['published' => true], ['sortOrder' => 'ASC']),
+            'gallery' => $this->galleryItemRepository->findPublishedOrdered(GalleryItemRepository::HOME_LIMIT),
+            'galleryTotal' => $galleryTotal,
+            'galleryHasMore' => $galleryTotal > GalleryItemRepository::HOME_LIMIT,
             'faqs' => $this->em->getRepository(FaqItem::class)->findBy(['published' => true], ['sortOrder' => 'ASC']),
             'infoBlocks' => $this->em->getRepository(InfoBlock::class)->findBy(['published' => true], ['sortOrder' => 'ASC']),
-            'reviews' => $this->em->getRepository(Review::class)->findBy(['published' => true], ['sortOrder' => 'ASC']),
+            'reviews' => $this->reviewRepository->findPublishedForHome(ReviewRepository::HOME_LIMIT),
+            'reviewsTotal' => $reviewsTotal,
+            'reviewsHasMore' => $reviewsTotal > ReviewRepository::HOME_LIMIT,
             'pricingSections' => $this->pricingSections(),
+        ];
+    }
+
+    public function getReviewsPageContext(): array
+    {
+        return [
+            'reviews' => $this->reviewRepository->findAllPublished(),
+            'settings' => $this->em->getRepository(SiteSettings::class)->findOneBy([], ['id' => 'ASC']),
+        ];
+    }
+
+    public function getGalleryPageContext(): array
+    {
+        return [
+            'gallery' => $this->galleryItemRepository->findPublishedOrdered(),
+            'settings' => $this->em->getRepository(SiteSettings::class)->findOneBy([], ['id' => 'ASC']),
         ];
     }
 

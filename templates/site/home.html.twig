@@ -8,7 +8,7 @@
 
 {% block body %}
 <section class="hero d-flex flex-column justify-content-center align-items-center text-center text-white" id="hero"
-    {% if hero and hero.imagePath %}style="background-image: url('{{ asset(hero.imagePath) }}'); background-size: cover; background-position: center;"{% endif %}>
+    {% if hero and hero.imagePath %}style="background-image: url('{{ asset(image_variant(hero.imagePath, 'display')|default(hero.imagePath)) }}'); background-size: cover; background-position: center;"{% endif %}>
     <div class="hero-overlay"></div>
     <div class="hero-content container">
         {% if hero and hero.eventDates %}
@@ -80,7 +80,7 @@
                     <h3 class="guest-title text-brand-accent">{{ person.name }}</h3>
                     <div class="guest-image">
                         {% if person.photoPath %}
-                            <img src="{{ asset(person.photoPath) }}" alt="{{ person.name }}">
+                            <img src="{{ asset(image_variant(person.photoPath, 'card')|default(person.photoPath)) }}" alt="{{ person.name }}" loading="lazy">
                         {% endif %}
                         <div class="guest-overlay">
                             <p>{{ person.excerpt }}</p>
@@ -89,7 +89,12 @@
                         </div>
                     </div>
                     <div class="guest-modal-data" style="display:none;">
-                        <div class="guest-content">{{ person.bio|raw }}</div>
+                        {% include 'site/_modal_payload.html.twig' with {
+                            photo: person.photoPath,
+                            title: person.name,
+                            body: person.bio,
+                            media: null
+                        } %}
                     </div>
                 </div>
             {% else %}
@@ -108,7 +113,7 @@
                     <h3 class="guest-title text-brand-accent">{{ person.name }}</h3>
                     <div class="guest-image">
                         {% if person.photoPath %}
-                            <img src="{{ asset(person.photoPath) }}" alt="{{ person.name }}">
+                            <img src="{{ asset(image_variant(person.photoPath, 'card')|default(person.photoPath)) }}" alt="{{ person.name }}" loading="lazy">
                         {% endif %}
                         <div class="guest-overlay">
                             <p>{{ person.excerpt }}</p>
@@ -117,7 +122,12 @@
                         </div>
                     </div>
                     <div class="guest-modal-data" style="display:none;">
-                        <div class="guest-content">{{ person.bio|raw }}</div>
+                        {% include 'site/_modal_payload.html.twig' with {
+                            photo: person.photoPath,
+                            title: person.name,
+                            body: person.bio,
+                            media: null
+                        } %}
                     </div>
                 </div>
             {% else %}
@@ -135,24 +145,23 @@
                 <div class="master-card" data-master-id="{{ person.id }}">
                     <div class="master-thumb">
                         {% if person.photoPath %}
-                            <img src="{{ asset(person.photoPath) }}" alt="{{ person.name }}">
+                            <img src="{{ asset(image_variant(person.photoPath, 'card')|default(person.photoPath)) }}" alt="{{ person.name }}" loading="lazy">
                         {% endif %}
                     </div>
                     <h3 class="master-name text-brand-accent">{{ person.name }}</h3>
                     <div class="master-modal-data" style="display:none;">
-                        <div class="master-content">{{ person.bio|raw }}</div>
+                        {% include 'site/_modal_payload.html.twig' with {
+                            photo: person.photoPath,
+                            title: person.name,
+                            body: person.bio,
+                            media: null
+                        } %}
                     </div>
                 </div>
             {% endfor %}
         </div>
     </div>
-    <div class="hf-master-modal-overlay" data-hf-master-overlay></div>
-    <button class="hf-master-modal-close" data-hf-master-close aria-label="Закрыть">&times;</button>
-    <div class="hf-master-modal" data-hf-master-modal>
-        <div class="hf-master-modal__inner">
-            <div class="hf-master-modal__body" data-hf-master-body></div>
-        </div>
-    </div>
+    {% include 'site/_shared_modal.html.twig' %}
 </section>
 
 <section class="schedule-section py-5 bg-light" id="program">
@@ -183,7 +192,12 @@
             <div class="hf-gallery-track">
                 {% for item in gallery %}
                     <div class="hf-gallery-item">
-                        <img src="{{ asset(item.imagePath) }}" alt="{{ item.caption|default('') }}">
+                        <img
+                            src="{{ asset(image_variant(item.imagePath, 'card')|default(item.imagePath)) }}"
+                            data-full-src="{{ asset(image_variant(item.imagePath, 'display')|default(item.imagePath)) }}"
+                            alt="{{ item.caption|default('') }}"
+                            loading="lazy"
+                        >
                     </div>
                 {% endfor %}
             </div>
@@ -193,6 +207,11 @@
                 </svg>
             </button>
         </div>
+        {% if galleryHasMore|default(false) %}
+            <p class="text-center mt-4 mb-0">
+                <a href="{{ path('site_gallery') }}" class="contact-link fw-semibold">Вся галерея →</a>
+            </p>
+        {% endif %}
     {% endif %}
 </section>
 
@@ -204,7 +223,7 @@
         <section class="info-block row g-0 {{ reverse }}">
             <h2 class="text-brand-main mt-5 text-brand-main--info text-center{% if not hasImage %} text-brand-xs{% endif %}">{{ block.title }}</h2>
             {% if hasImage %}
-                <div class="col-md-6 info-image" style="background-image: url('{{ asset(block.imagePath) }}');"></div>
+                <div class="col-md-6 info-image" style="background-image: url('{{ asset(image_variant(block.imagePath, 'display')|default(block.imagePath)) }}');"></div>
                 <div class="col-md-6 info-text fade-in">
             {% else %}
                 <div class="col-12 info-text fade-in text-black">
@@ -279,7 +298,7 @@
     </div>
 </section>
 
-<section class="reviews-section hf-reviews-carousel py-5">
+<section class="reviews-section hf-reviews-carousel py-5" id="reviews">
     <h2 class="text-brand-main text-center mb-5">Отзывы участников</h2>
     {% if reviews is not empty %}
         <button class="hf-gallery-arrow hf-gallery-arrow--reviews hf-gallery-prev" aria-label="Предыдущее" type="button">
@@ -290,19 +309,7 @@
         <div class="container">
             <div class="hf-gallery-track">
                 {% for review in reviews %}
-                    <div class="hf-review-card fade-in">
-                        <div class="hf-review-inner text-center text-white">
-                            {% if review.photoPath %}
-                                <div class="hf-review-avatar mx-auto mb-3" style="background-image:url('{{ asset(review.photoPath) }}')"></div>
-                            {% endif %}
-                            <h5 class="hf-review-name mb-2">{{ review.authorName }}</h5>
-                            <p class="hf-review-excerpt mb-3">{{ review.body|striptags|slice(0, 160) }}{% if review.body|striptags|length > 160 %}…{% endif %}</p>
-                            <button class="hf-review-readmore btn btn-outline-light btn-sm" type="button">Читать полностью</button>
-                            <div class="review-modal-data" style="display:none;">
-                                <div class="review-content">{{ review.body|raw }}</div>
-                            </div>
-                        </div>
-                    </div>
+                    {% include 'site/_review_card.html.twig' with { review: review } %}
                 {% endfor %}
             </div>
         </div>
@@ -311,6 +318,11 @@
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
         </button>
+        {% if reviewsHasMore|default(false) %}
+            <p class="text-center mt-4 mb-0">
+                <a href="{{ path('site_reviews') }}" class="contact-link fw-semibold">Все отзывы →</a>
+            </p>
+        {% endif %}
     {% endif %}
 </section>
 

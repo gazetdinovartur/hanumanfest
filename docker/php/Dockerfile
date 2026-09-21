@@ -3,9 +3,15 @@ FROM php:8.5-fpm-alpine
 RUN apk add --no-cache \
     icu-dev \
     mariadb-dev \
+    freetype-dev \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    libwebp-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install \
     intl \
-    pdo_mysql
+    pdo_mysql \
+    gd
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
