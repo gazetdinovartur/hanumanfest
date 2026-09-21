@@ -49,7 +49,7 @@ class ApplicationService
             ),
         );
 
-        $isTest = $this->registrationTestMode->isEnabled();
+        $isTest = $this->registrationTestMode->isTestOption($pricingContext->participationOption);
         $duplicate = $this->applicationRepository->findActiveDuplicateByEmail(
             $email,
             $pricingContext->product,

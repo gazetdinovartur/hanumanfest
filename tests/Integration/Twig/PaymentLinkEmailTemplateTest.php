@@ -23,7 +23,7 @@ final class PaymentLinkEmailTemplateTest extends KernelTestCase
                 ['label' => 'Вариант участия', 'value' => 'Палатка'],
             ],
             'contacts' => [
-                ['href' => 'mailto:hanumanfest@gmail.com', 'label' => 'hanumanfest@gmail.com'],
+                ['href' => 'mailto:hanuman-yoga@bk.ru', 'label' => 'hanuman-yoga@bk.ru'],
                 ['href' => 'https://t.me/Hanuman_ekb', 'label' => 'Telegram'],
             ],
             'paidAmount' => 1800,
@@ -37,7 +37,7 @@ final class PaymentLinkEmailTemplateTest extends KernelTestCase
         self::assertStringContainsString('Здравствуйте, Анна', $html);
         self::assertStringContainsString('Вы зарегистрировались и внесли предоплату за участие в Хануман Фест!', $html);
         self::assertStringContainsString('Палатка', $html);
-        self::assertStringContainsString('hanumanfest@gmail.com', $html);
+        self::assertStringContainsString('hanuman-yoga@bk.ru', $html);
         self::assertStringContainsString('Если есть вопросы, напишите нам', $html);
         self::assertStringContainsString('Оплатить остаток', $html);
         self::assertTrue(strpos($html, 'Если есть вопросы') < strpos($html, 'Оплатить остаток'));

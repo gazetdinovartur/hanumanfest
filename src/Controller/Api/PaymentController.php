@@ -5,7 +5,6 @@ namespace App\Controller\Api;
 use App\DTO\CreatePaymentRequest;
 use App\Service\PaymentLinkService;
 use App\Service\PaymentService;
-use App\Service\RegistrationTestMode;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,7 +18,6 @@ class PaymentController extends AbstractController
     public function __construct(
         private readonly PaymentLinkService $paymentLinkService,
         private readonly PaymentService $paymentService,
-        private readonly RegistrationTestMode $registrationTestMode,
     ) {
     }
 
@@ -53,10 +51,8 @@ class PaymentController extends AbstractController
     public function lookup(Request $request): JsonResponse
     {
         $email = (string) ($request->toArray()['email'] ?? '');
-        $result = $this->paymentLinkService->lookupPartialPayment(
-            $email,
-            $this->registrationTestMode->isEnabled(),
-        );
+        $result = $this->paymentLinkService->lookupPartialPayment($email, false)
+            ?? $this->paymentLinkService->lookupPartialPayment($email, true);
 
         return $this->json($result ?? ['found' => false]);
     }

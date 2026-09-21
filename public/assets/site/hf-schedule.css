@@ -130,6 +130,7 @@
   font-weight: 600;
 }
 
+/* Тип «еда» из импорта — акцент слева. Не путать с --now («сейчас»). */
 .hf-schedule__event--meal {
   border-left: 4px solid var(--brand-accent);
 }
@@ -142,6 +143,7 @@
   opacity: 0.85;
 }
 
+/* Текущий слот по часам устройства: startsAt ≤ now < endsAt */
 .hf-schedule__event--now {
   border-color: var(--brand-main);
   box-shadow: 0 0 0 2px rgba(246, 84, 20, 0.2);

@@ -8,10 +8,11 @@
 - [ ] `composer test` зелёный локально
 - [ ] Миграции применены: `php bin/console doctrine:migrations:migrate --no-interaction --env=prod`
 - [ ] Seeds: `bin/deploy-prod.sh --with-seeds` или вручную (`app:seed:site-content --if-empty`) — см. `DEPLOY_TIMEWEB.md`
-- [ ] Kitchen mp4 в `public/uploads/wp/2026/03/` (4 файла)
+- [ ] Kitchen mp4: `app:seed:site-pages` копирует в `public/uploads/pages/kitchen/` из `public/uploads/wp/2026/03/` или `data/site-pages/videos/` (4 файла: IMG_8652, IMG_8223, IMG_8224, IMG_8222)
 - [ ] Prod `.env`: `YOOKASSA_*`, `MAILER_DSN`, сильный `ADMIN_PASSWORD`, `DEFAULT_URI`
 - [ ] `SCHEDULE_SHEET_URL` для cron импорта программы
 - [ ] Smoke: `/`, `/registration`, `/api/health`, `/api/product`, `/admin/login`
+- [ ] JivoSite чат на сайте (виджет как на WP: `code.jivo.ru/widget/qNhdVN9jC1`)
 
 ## YooKassa
 

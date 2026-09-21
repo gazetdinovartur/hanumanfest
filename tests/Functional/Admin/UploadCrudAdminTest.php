@@ -35,6 +35,10 @@ final class UploadCrudAdminTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('form.ea-edit-form');
+        $html = (string) $client->getResponse()->getContent();
+        self::assertStringContainsString('Контент', $html);
+        self::assertStringNotContainsString('>Шапка<', $html);
+        self::assertStringNotContainsString('Фон hero', $html);
     }
 
     public function testSiteSettingsEditFormLoadsWithLegacyLogoPath(): void
@@ -55,8 +59,16 @@ final class UploadCrudAdminTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('form.ea-edit-form');
         self::assertSelectorExists('input[name$="[siteName]"]');
+        self::assertSelectorExists('input[name$="[phone]"]');
+        self::assertSelectorExists('input[name$="[email]"]');
         self::assertSelectorNotExists('input[name$="[tagline]"]');
-        self::assertStringNotContainsString('Слоган', (string) $client->getResponse()->getContent());
+        self::assertSelectorNotExists('textarea[name$="[contactsHtml]"]');
+        $html = (string) $client->getResponse()->getContent();
+        self::assertStringNotContainsString('Слоган', $html);
+        self::assertStringNotContainsString('Логотип в шапке', $html);
+        self::assertStringNotContainsString('Email уведомлений', $html);
+        self::assertLessThan(strpos($html, 'Блоки на главной'), strpos($html, 'Бренд'));
+        self::assertLessThan(strpos($html, 'Контакты'), strpos($html, 'Блоки на главной'));
     }
 
     public function testPersonEditFormLoadsWithPhotoField(): void

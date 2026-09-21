@@ -681,3 +681,7 @@ table.datagrid {
         gap: 0.15rem;
     }
 }
+
+.hf-kitchen-videos:not(.is-visible) {
+    display: none;
+}

@@ -8,6 +8,7 @@ use App\Entity\ParticipationPrice;
 use App\Entity\PricingPeriod;
 use App\Entity\Product;
 use App\Entity\SiteSettings;
+use App\Service\RegistrationTestMode;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class HanumanFestFixtures
@@ -52,12 +53,40 @@ final class HanumanFestFixtures
         return $product;
     }
 
-    public static function enableRegistrationTestMode(EntityManagerInterface $entityManager): void
+    public static function enableRegistrationTestMode(EntityManagerInterface $entityManager): ParticipationOption
     {
         $settings = $entityManager->getRepository(SiteSettings::class)->findOneBy([]) ?? new SiteSettings();
         $settings->setRegistrationTestMode(true);
         $entityManager->persist($settings);
+
+        $product = $entityManager->getRepository(Product::class)->findOneBy(['slug' => 'hanuman-fest']);
+        if (!$product) {
+            throw new \RuntimeException('Product hanuman-fest missing — seed first.');
+        }
+
+        $option = $entityManager->getRepository(ParticipationOption::class)->findOneBy([
+            'product' => $product,
+            'code' => RegistrationTestMode::OPTION_CODE,
+        ]) ?? new ParticipationOption();
+        $option->setProduct($product);
+        $option->setCode(RegistrationTestMode::OPTION_CODE);
+        $option->setName(RegistrationTestMode::OPTION_NAME);
+        $entityManager->persist($option);
+
+        foreach ($entityManager->getRepository(PricingPeriod::class)->findBy(['product' => $product]) as $period) {
+            $price = $entityManager->getRepository(ParticipationPrice::class)->findOneBy([
+                'pricingPeriod' => $period,
+                'participationOption' => $option,
+            ]) ?? new ParticipationPrice();
+            $price->setPricingPeriod($period);
+            $price->setParticipationOption($option);
+            $price->setPrice(RegistrationTestMode::BASE_PRICE);
+            $entityManager->persist($price);
+        }
+
         $entityManager->flush();
+
+        return $option;
     }
 
     public static function currentSeason(EntityManagerInterface $entityManager): FestivalSeason

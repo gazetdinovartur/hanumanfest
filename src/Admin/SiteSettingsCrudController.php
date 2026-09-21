@@ -81,25 +81,23 @@ class SiteSettingsCrudController extends AbstractUploadCrudController
         yield IdField::new('id')->hideOnForm();
         yield FormField::addFieldset('Бренд');
         yield TextField::new('siteName', 'Название');
-        yield FormField::addFieldset('Логотип в шапке');
         yield PublicImageField::new('logoPath', 'Логотип', 'site')
             ->setHelp('Круглый логотип в шапке сайта. Пустой путь при открытии настроек подставится автоматически.');
         yield PublicImageField::new('footerBackgroundPath', 'Фон футера', 'site');
-        yield FormField::addFieldset('Контакты');
-        yield TextareaField::new('companyInfo', 'Реквизиты')
-            ->setNumOfRows(4);
-        yield TextareaField::new('contactsHtml', 'Контакты')
-            ->setHelp('Как в WP: по строке телефон, email и URL соцсетей (vk/facebook/instagram/t.me). Иконки в футере берутся из этих ссылок.')
-            ->setNumOfRows(8);
-        yield UrlField::new('vkUrl', 'VK (доп.)')
-            ->setHelp('Не обязательно: футер читает соцсети из поля «Контакты».');
-        yield UrlField::new('telegramUrl', 'Telegram (доп.)')
-            ->setHelp('Не обязательно: футер читает соцсети из поля «Контакты».');
-        yield EmailField::new('notificationEmail', 'Email уведомлений');
         yield FormField::addFieldset('Блоки на главной');
         yield HtmlEditorField::new('discountsHtml', 'Скидки', 6);
         yield HtmlEditorField::new('tentNoteHtml', 'Примечание о палатках', 4);
         yield HtmlEditorField::new('cooperationCtaHtml', 'Призыв к сотрудничеству', 4);
+        yield FormField::addFieldset('Контакты');
+        yield TextareaField::new('companyInfo', 'Реквизиты')
+            ->setNumOfRows(4);
+        yield TextField::new('phone', 'Телефон');
+        yield TextField::new('phone2', 'Телефон 2');
+        yield EmailField::new('email', 'Email');
+        yield UrlField::new('vkUrl', 'ВКонтакте');
+        yield UrlField::new('telegramUrl', 'Telegram');
+        yield UrlField::new('facebookUrl', 'Facebook');
+        yield UrlField::new('instagramUrl', 'Instagram');
     }
 
     private function redirectToSettingsEdit(): RedirectResponse

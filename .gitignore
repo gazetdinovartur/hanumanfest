@@ -43,4 +43,6 @@
 
 /public/uploads/
 !/public/uploads/.gitkeep
+/data/site-pages/videos/*
+!/data/site-pages/videos/.gitkeep
 /hanumanfest-25fdb1a45141.json

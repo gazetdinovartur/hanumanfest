@@ -53,8 +53,9 @@
       return;
     }
 
+    const todayKey = localDateKey();
     const state = {
-      dayDate: parseParam('day') || days[0].date,
+      dayDate: parseParam('day') || (days.some((day) => day.date === todayKey) ? todayKey : days[0].date),
       venueSlug: parseParam('venue') || '',
     };
 
@@ -63,7 +64,7 @@
     }
 
     const allVenues = collectVenues(days);
-    let nowPlayingId = findNowPlayingId(days);
+    let nowPlayingIds = findNowPlayingIds(days);
 
     root.innerHTML = '';
     root.classList.add('hf-schedule--ready');
@@ -163,7 +164,7 @@
       );
 
       events.forEach((event) => {
-        list.appendChild(renderEventCard(event, event.id === nowPlayingId));
+        list.appendChild(renderEventCard(event, nowPlayingIds.has(event.id)));
       });
     }
 
@@ -172,12 +173,12 @@
     window.addEventListener('resize', rerenderEvents);
 
     setInterval(() => {
-      const nextNowPlayingId = findNowPlayingId(days);
-      if (nextNowPlayingId !== nowPlayingId) {
-        nowPlayingId = nextNowPlayingId;
+      const nextNowPlayingIds = findNowPlayingIds(days);
+      if (!sameIdSet(nowPlayingIds, nextNowPlayingIds)) {
+        nowPlayingIds = nextNowPlayingIds;
         rerenderEvents();
       }
-    }, 60000);
+    }, 30000);
   }
 
   function createVenueChip(label, slug, active, onClick) {
@@ -193,12 +194,14 @@
   function renderEventCard(event, isNow) {
     const card = document.createElement('article');
     card.className = 'hf-schedule__event';
+    // --meal / --service: тип события из импорта (не «текущее»).
     if (event.type === 'meal') {
       card.classList.add('hf-schedule__event--meal');
     }
     if (event.type === 'service') {
       card.classList.add('hf-schedule__event--service');
     }
+    // --now: идёт прямо сейчас по часам устройства посетителя.
     if (isNow) {
       card.classList.add('hf-schedule__event--now');
     }
@@ -253,20 +256,51 @@
     return events;
   }
 
-  function findNowPlayingId(days) {
+  /**
+   * События, идущие сейчас: startsAt <= local now < endsAt.
+   * Сравнение по абсолютному времени (ISO с оффсетом), часы — локальные устройства.
+   * На параллельных площадках помечаются все совпадающие слоты.
+   */
+  function findNowPlayingIds(days) {
     const now = Date.now();
-    for (const day of days) {
-      for (const venue of day.venues || []) {
-        for (const event of venue.events || []) {
-          const start = new Date(event.startsAt).getTime();
-          const end = new Date(event.endsAt).getTime();
-          if (now >= start && now < end) {
-            return event.id;
+    const ids = new Set();
+
+    days.forEach((day) => {
+      (day.venues || []).forEach((venue) => {
+        (venue.events || []).forEach((event) => {
+          const start = Date.parse(event.startsAt);
+          const end = Date.parse(event.endsAt);
+          if (Number.isNaN(start) || Number.isNaN(end)) {
+            return;
           }
-        }
+          if (now >= start && now < end) {
+            ids.add(event.id);
+          }
+        });
+      });
+    });
+
+    return ids;
+  }
+
+  function sameIdSet(a, b) {
+    if (a.size !== b.size) {
+      return false;
+    }
+    for (const id of a) {
+      if (!b.has(id)) {
+        return false;
       }
     }
-    return null;
+    return true;
+  }
+
+  /** YYYY-MM-DD по локальному календарю устройства. */
+  function localDateKey(date = new Date()) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
 
   function parseParam(name) {

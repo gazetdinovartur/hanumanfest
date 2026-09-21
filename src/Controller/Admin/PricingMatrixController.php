@@ -10,6 +10,7 @@ use App\Entity\PricingPeriod;
 use App\Entity\Product;
 use App\Repository\ProductRepository;
 use App\Service\Admin\AdminSeasonContext;
+use App\Service\RegistrationTestMode;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,6 +29,7 @@ final class PricingMatrixController extends AbstractController
         private readonly EntityManagerInterface $em,
         private readonly ProductRepository $productRepository,
         private readonly AdminSeasonContext $seasonContext,
+        private readonly RegistrationTestMode $registrationTestMode,
     ) {
     }
 
@@ -61,6 +63,14 @@ final class PricingMatrixController extends AbstractController
         $options = $this->sortOptionsByFestivalOrder(
             $this->em->getRepository(ParticipationOption::class)->findBy(['product' => $product])
         );
+        if ($this->registrationTestMode->isEnabled()) {
+            $this->registrationTestMode->ensureTestOption($product);
+            $this->em->flush();
+            $options = $this->sortOptionsByFestivalOrder(
+                $this->em->getRepository(ParticipationOption::class)->findBy(['product' => $product])
+            );
+        }
+        $options = $this->registrationTestMode->filterForPricingMatrix($options);
 
         return $this->renderMatrix($product, $options, $request->isMethod('POST') ? $request : null);
     }
@@ -262,6 +272,10 @@ final class PricingMatrixController extends AbstractController
                 continue;
             }
             $option = $existingOptions[$deleteId];
+            if ($this->registrationTestMode->isTestOption($option)) {
+                $errors[] = 'Нельзя удалить «Тестовая регистрация» — выключите тестовый режим в Навигации.';
+                continue;
+            }
             $apps = $this->countApplicationsForOption($product, (int) $deleteId);
             if ($apps > 0) {
                 $errors[] = sprintf(
@@ -304,6 +318,10 @@ final class PricingMatrixController extends AbstractController
             }
 
             $option->setName($name);
+            if ($this->registrationTestMode->isTestOption($option)) {
+                $option->setCode(RegistrationTestMode::OPTION_CODE);
+                $option->setName(RegistrationTestMode::OPTION_NAME);
+            }
             $this->em->persist($option);
             $workingOptions[$key] = $option;
         }
@@ -498,6 +516,7 @@ final class PricingMatrixController extends AbstractController
             'OUR_TENT_FOOD' => 40,
             'ONE_DAY' => 50,
             'ONE_DAY_FOOD' => 60,
+            RegistrationTestMode::OPTION_CODE => 1000,
         ];
 
         usort($options, static function (ParticipationOption $left, ParticipationOption $right) use ($orderMap): int {

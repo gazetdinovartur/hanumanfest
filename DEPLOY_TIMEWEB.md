@@ -84,5 +84,5 @@ curl -I https://хануманфест.рф/registration
 ## Notes
 
 - Поддомен `апи.хануманфест.рф` больше не используется.
-- Kitchen mp4: `public/uploads/wp/2026/03/IMG_*.mp4` (не в git, залить вручную).
+- Kitchen-видео при первом деплое: положить 4 файла `IMG_8652.mp4`, `IMG_8223.mp4`, `IMG_8224.mp4`, `IMG_8222.mp4` в `public/uploads/wp/2026/03/` или `data/site-pages/videos/`, затем `app:seed:site-pages` (входит в `bin/deploy-prod.sh --with-seeds`) — копирует в `public/uploads/pages/kitchen/` и прописывает пути в админке.
 - Архив 2026 на `2026.хануманфест.рф` — отдельная фаза.

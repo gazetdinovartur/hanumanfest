@@ -6,6 +6,7 @@ use App\Entity\ParticipationOption;
 use App\Entity\ParticipationPrice;
 use App\Entity\PricingPeriod;
 use App\Repository\ProductRepository;
+use App\Service\RegistrationTestMode;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -16,6 +17,7 @@ class ProductController extends AbstractController
 {
     public function __construct(
         private readonly ProductRepository $productRepository,
+        private readonly RegistrationTestMode $registrationTestMode,
     ) {
     }
 
@@ -28,9 +30,11 @@ class ProductController extends AbstractController
         }
 
         $em = $this->productRepository->getEntityManager();
-        $options = $em->getRepository(ParticipationOption::class)->findBy(
-            ['product' => $product],
-            ['name' => 'ASC'],
+        $options = $this->registrationTestMode->filterForPublicApi(
+            $em->getRepository(ParticipationOption::class)->findBy(
+                ['product' => $product],
+                ['name' => 'ASC'],
+            ),
         );
 
         $periods = $em->getRepository(PricingPeriod::class)->findBy(

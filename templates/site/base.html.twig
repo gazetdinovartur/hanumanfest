@@ -16,6 +16,7 @@
     <link href="{{ asset('assets/site/hf-lightbox.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/site/style.css') }}" rel="stylesheet">
     {% block stylesheets %}{% endblock %}
+    <script src="https://code.jivo.ru/widget/qNhdVN9jC1" async></script>
 </head>
 <body{% if app.request.attributes.get('_route') == 'site_home' %} class="is-home"{% endif %}>
 <header id="header">
@@ -69,7 +70,6 @@
 {% block body %}{% endblock %}
 
 {% set footerBg = settings is defined and settings and settings.footerBackgroundPath ? asset(settings.footerBackgroundPath) : null %}
-{% set footerContactsRaw = settings is defined and settings ? settings.contactsHtml : null %}
 <footer class="site-footer"{% if footerBg %} style="background-image: url('{{ footerBg }}');"{% endif %}>
     <div class="footer-overlay"></div>
     <div class="footer-container">
@@ -82,12 +82,12 @@
                 </ul>
             </nav>
             <div class="footer-contacts" id="contacts">
-                {% for link in footer_contact_links(footerContactsRaw) %}
+                {% for link in footer_contact_links(settings|default(null)) %}
                     <a href="{{ link.href }}">{{ link.label }}</a>
                 {% endfor %}
             </div>
             <div class="footer-socials">
-                {% for social in footer_social_links(footerContactsRaw) %}
+                {% for social in footer_social_links(settings|default(null)) %}
                     <a href="{{ social.url }}" class="footer-social footer-{{ social.name }}" target="_blank" rel="noopener">
                         <img src="{{ asset('assets/site/icons/' ~ social.name ~ '.svg') }}" alt="{{ social.name|upper }}">
                     </a>

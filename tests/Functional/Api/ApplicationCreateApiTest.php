@@ -7,6 +7,7 @@ use App\Entity\FestivalSeason;
 use App\Entity\ParticipationOption;
 use App\Entity\ParticipationPrice;
 use App\Entity\PricingPeriod;
+use App\Service\RegistrationTestMode;
 use App\Tests\Support\HanumanFestFixtures;
 use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\Attributes\Group;
@@ -302,12 +303,14 @@ final class ApplicationCreateApiTest extends WebTestCase
         self::assertSame($live->getTotalAmount(), $live->getRemainingAmount());
 
         HanumanFestFixtures::enableRegistrationTestMode($em);
+        $testOption = $em->getRepository(ParticipationOption::class)->findOneBy(['code' => RegistrationTestMode::OPTION_CODE]);
+        self::assertNotNull($testOption);
 
         $testBody = json_encode([
             'name' => 'Тестовая Анкета',
             'email' => 'form-test@example.com',
             'phone' => '+79001112244',
-            'participationOptionId' => $option->getId(),
+            'participationOptionId' => $testOption->getId(),
             'adultsCount' => 2,
             'childrenCount' => 1,
             'transferIncluded' => true,
@@ -318,8 +321,9 @@ final class ApplicationCreateApiTest extends WebTestCase
         $client->request('POST', '/api/applications', server: ['CONTENT_TYPE' => 'application/json'], content: $testBody);
         self::assertResponseStatusCodeSame(201);
         $testResponse = json_decode($client->getResponse()->getContent(), true);
-        self::assertSame(2, $testResponse['totalAmount']);
-        self::assertSame(1, $testResponse['payNowAmount']);
+        // 2*2*0.98 + 600*2 + 2*0.5 + 600 = 1804.92 → total 1805; half from raw = 902
+        self::assertSame(1805, $testResponse['totalAmount']);
+        self::assertSame(902, $testResponse['payNowAmount']);
 
         $em->clear();
         $test = $em->getRepository(Application::class)->findOneBy(['isTest' => true]);
@@ -333,19 +337,19 @@ final class ApplicationCreateApiTest extends WebTestCase
         self::assertSame(1, $testPayload['childrenCount']);
         self::assertTrue($testPayload['transferIncluded']);
         self::assertEquals(0.5, $testPayload['paymentFactor']);
-        self::assertSame(1, $testPayload['payNowAmount']);
-        self::assertSame('С братом Иваном', $testPayload['tentRoommate']);
-        self::assertSame(2, $test->getTotalAmount());
-        self::assertSame(1, $test->getAmountDueNow());
-        self::assertSame(2, $test->getRemainingAmount());
+        self::assertSame(902, $testPayload['payNowAmount']);
+        self::assertArrayNotHasKey('tentRoommate', $testPayload);
+        self::assertSame(1805, $test->getTotalAmount());
+        self::assertSame(902, $test->getAmountDueNow());
+        self::assertSame(1805, $test->getRemainingAmount());
 
         $client->request('POST', '/api/applications', server: ['CONTENT_TYPE' => 'application/json'], content: $testBody);
         self::assertResponseStatusCodeSame(409);
         $conflict = json_decode($client->getResponse()->getContent(), true);
-        self::assertSame(1, $conflict['amountDueNow']);
-        self::assertSame(2, $conflict['remainingAmount']);
-        self::assertSame(2, $conflict['totalAmount']);
-        self::assertStringContainsString('К оплате сейчас 1', $conflict['error']);
+        self::assertSame(902, $conflict['amountDueNow']);
+        self::assertSame(1805, $conflict['remainingAmount']);
+        self::assertSame(1805, $conflict['totalAmount']);
+        self::assertStringContainsString('К оплате сейчас 902', $conflict['error']);
     }
 
     public function testCancelUnpaidApplicationAllowsReregister(): void

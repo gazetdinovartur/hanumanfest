@@ -26,6 +26,12 @@ final class AdminRegistrationTestModeController extends AbstractController
 
         $enabled = $request->request->getBoolean('enabled');
         $this->registrationTestMode->setEnabled($enabled);
+        $this->addFlash(
+            'success',
+            $enabled
+                ? 'Тестовый режим включён: в форме и матрице цен появился вариант «Тестовая регистрация».'
+                : 'Тестовый режим выключен: тестовый вариант скрыт с сайта и из матрицы цен.',
+        );
 
         return $this->redirectToRoute('admin');
     }

@@ -28,8 +28,14 @@ class SiteSettings
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $companyInfo = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $contactsHtml = null;
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $phone = null;
+
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $phone2 = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $email = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $vkUrl = null;
@@ -38,7 +44,10 @@ class SiteSettings
     private ?string $telegramUrl = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $notificationEmail = null;
+    private ?string $facebookUrl = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $instagramUrl = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $discountsHtml = null;
@@ -63,14 +72,20 @@ class SiteSettings
     public function setFooterBackgroundPath(?string $v): static { $this->footerBackgroundPath = $v; return $this; }
     public function getCompanyInfo(): ?string { return $this->companyInfo; }
     public function setCompanyInfo(?string $v): static { $this->companyInfo = $v; return $this; }
-    public function getContactsHtml(): ?string { return $this->contactsHtml; }
-    public function setContactsHtml(?string $v): static { $this->contactsHtml = $v; return $this; }
+    public function getPhone(): ?string { return $this->phone; }
+    public function setPhone(?string $v): static { $this->phone = $v; return $this; }
+    public function getPhone2(): ?string { return $this->phone2; }
+    public function setPhone2(?string $v): static { $this->phone2 = $v; return $this; }
+    public function getEmail(): ?string { return $this->email; }
+    public function setEmail(?string $v): static { $this->email = $v; return $this; }
     public function getVkUrl(): ?string { return $this->vkUrl; }
     public function setVkUrl(?string $v): static { $this->vkUrl = $v; return $this; }
     public function getTelegramUrl(): ?string { return $this->telegramUrl; }
     public function setTelegramUrl(?string $v): static { $this->telegramUrl = $v; return $this; }
-    public function getNotificationEmail(): ?string { return $this->notificationEmail; }
-    public function setNotificationEmail(?string $v): static { $this->notificationEmail = $v; return $this; }
+    public function getFacebookUrl(): ?string { return $this->facebookUrl; }
+    public function setFacebookUrl(?string $v): static { $this->facebookUrl = $v; return $this; }
+    public function getInstagramUrl(): ?string { return $this->instagramUrl; }
+    public function setInstagramUrl(?string $v): static { $this->instagramUrl = $v; return $this; }
     public function getDiscountsHtml(): ?string { return $this->discountsHtml; }
     public function setDiscountsHtml(?string $v): static { $this->discountsHtml = $v; return $this; }
     public function getTentNoteHtml(): ?string { return $this->tentNoteHtml; }

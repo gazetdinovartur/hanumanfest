@@ -144,10 +144,13 @@ final class SiteContentDefaults
             $settings->setFooterBackgroundPath($defaultFooterBg);
         }
         $settings->setCompanyInfo((string) ($defaults['company_info'] ?? ''));
-        $settings->setContactsHtml((string) ($defaults['contacts_html'] ?? ''));
+        $settings->setPhone(isset($defaults['phone']) ? (string) $defaults['phone'] : null);
+        $settings->setPhone2(isset($defaults['phone2']) ? (string) $defaults['phone2'] : null);
+        $settings->setEmail(isset($defaults['email']) ? (string) $defaults['email'] : 'hanuman-yoga@bk.ru');
         $settings->setVkUrl(isset($defaults['vk_url']) ? (string) $defaults['vk_url'] : null);
         $settings->setTelegramUrl(isset($defaults['telegram_url']) ? (string) $defaults['telegram_url'] : null);
-        $settings->setNotificationEmail(isset($defaults['notification_email']) ? (string) $defaults['notification_email'] : null);
+        $settings->setFacebookUrl(isset($defaults['facebook_url']) ? (string) $defaults['facebook_url'] : null);
+        $settings->setInstagramUrl(isset($defaults['instagram_url']) ? (string) $defaults['instagram_url'] : null);
         $settings->setDiscountsHtml((string) ($defaults['discounts_html'] ?? ''));
         $settings->setTentNoteHtml((string) ($defaults['tent_note_html'] ?? ''));
         $settings->setCooperationCtaHtml((string) ($defaults['cooperation_cta_html'] ?? ''));

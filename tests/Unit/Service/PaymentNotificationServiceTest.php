@@ -54,7 +54,8 @@ final class PaymentNotificationServiceTest extends TestCase
             ->willReturn('https://хануманфест.рф/pay/test-token-abc');
 
         $settings = new SiteSettings();
-        $settings->setContactsHtml("hanumanfest@gmail.com\nhttps://t.me/Hanuman_ekb");
+        $settings->setEmail('hanuman-yoga@bk.ru');
+        $settings->setTelegramUrl('https://t.me/Hanuman_ekb');
         $settingsRepository = $this->createMock(\Doctrine\ORM\EntityRepository::class);
         $settingsRepository->method('findOneBy')->willReturn($settings);
         $entityManager = $this->createMock(EntityManagerInterface::class);

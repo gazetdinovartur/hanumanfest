@@ -2,36 +2,32 @@
 
 namespace App\Service\Content;
 
-/**
- * Parses footer contacts the same way as the WP theme footer.php.
- */
+use App\Entity\SiteSettings;
+
 final class FooterContactsParser
 {
-    /** @var array<string, string> */
-    private const SOCIAL_DOMAINS = [
-        'vk.com' => 'vk',
-        'facebook.com' => 'fb',
-        'instagram.com' => 'inst',
-        't.me' => 'tg',
-        'wa.me' => 'wa',
-    ];
-
     /**
      * @return list<array{href: string, label: string}>
      */
-    public function contactLinks(?string $raw): array
+    public function contactLinks(?SiteSettings $settings): array
     {
+        if (!$settings instanceof SiteSettings) {
+            return [];
+        }
+
         $out = [];
-        foreach ($this->lines($raw) as $item) {
-            if (false !== filter_var($item, FILTER_VALIDATE_EMAIL)) {
-                $out[] = ['href' => 'mailto:'.$item, 'label' => $item];
+        foreach ([$settings->getPhone(), $settings->getPhone2()] as $item) {
+            $item = trim((string) $item);
+            if ($item === '' || 1 !== preg_match('/\+?\d[\d\(\)\-\s]+$/u', $item)) {
                 continue;
             }
+            $tel = preg_replace('/\D+/', '', $item) ?? '';
+            $out[] = ['href' => 'tel:'.$tel, 'label' => $item];
+        }
 
-            if (1 === preg_match('/\+?\d[\d\(\)\-\s]+$/u', $item)) {
-                $tel = preg_replace('/\D+/', '', $item) ?? '';
-                $out[] = ['href' => 'tel:'.$tel, 'label' => $item];
-            }
+        $email = trim((string) $settings->getEmail());
+        if ($email !== '' && false !== filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $out[] = ['href' => 'mailto:'.$email, 'label' => $email];
         }
 
         return $out;
@@ -40,16 +36,24 @@ final class FooterContactsParser
     /**
      * @return list<array{url: string, name: string}>
      */
-    public function socialLinks(?string $raw): array
+    public function socialLinks(?SiteSettings $settings): array
     {
+        if (!$settings instanceof SiteSettings) {
+            return [];
+        }
+
         $out = [];
-        foreach ($this->lines($raw) as $item) {
-            foreach (self::SOCIAL_DOMAINS as $domain => $name) {
-                if (str_contains($item, $domain)) {
-                    $out[] = ['url' => $item, 'name' => $name];
-                    break;
-                }
+        foreach ([
+            ['url' => $settings->getVkUrl(), 'name' => 'vk'],
+            ['url' => $settings->getFacebookUrl(), 'name' => 'fb'],
+            ['url' => $settings->getInstagramUrl(), 'name' => 'inst'],
+            ['url' => $settings->getTelegramUrl(), 'name' => 'tg'],
+        ] as $social) {
+            $url = trim((string) $social['url']);
+            if ($url === '') {
+                continue;
             }
+            $out[] = ['url' => $url, 'name' => $social['name']];
         }
 
         return $out;
@@ -60,10 +64,10 @@ final class FooterContactsParser
      *
      * @return list<array{href: string, label: string}>
      */
-    public function feedbackContacts(?string $raw): array
+    public function feedbackContacts(?SiteSettings $settings): array
     {
-        $items = $this->contactLinks($raw);
-        foreach ($this->socialLinks($raw) as $social) {
+        $items = $this->contactLinks($settings);
+        foreach ($this->socialLinks($settings) as $social) {
             $label = match ($social['name']) {
                 'tg' => 'Telegram',
                 'vk' => 'ВКонтакте',
@@ -76,19 +80,5 @@ final class FooterContactsParser
         }
 
         return $items;
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function lines(?string $raw): array
-    {
-        if (null === $raw || '' === trim($raw)) {
-            return [];
-        }
-
-        $parts = preg_split('/\r\n|\r|\n/', trim($raw)) ?: [];
-
-        return array_values(array_filter(array_map(trim(...), $parts), static fn (string $line): bool => '' !== $line));
     }
 }

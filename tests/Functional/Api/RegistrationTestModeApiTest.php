@@ -3,9 +3,11 @@
 namespace App\Tests\Functional\Api;
 
 use App\Entity\Application;
+use App\Entity\ParticipationOption;
 use App\Enum\ApplicationStatus;
 use App\Infrastructure\Yookassa\Dto\CreatePaymentResult;
 use App\Infrastructure\Yookassa\YookassaClient;
+use App\Service\RegistrationTestMode;
 use App\Tests\Support\HanumanFestFixtures;
 use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\Attributes\Group;
@@ -15,19 +17,19 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 #[Group('functional')]
 final class RegistrationTestModeApiTest extends WebTestCase
 {
-    public function testCalculateAndCreateUseTwoRublesAndDoNotBlockRealDuplicate(): void
+    public function testTestOptionUsesFormulaAndDoesNotForceAllPrices(): void
     {
         $client = static::createClient();
         $em = $this->bootSchema($client);
-        $optionId = $em->getRepository(\App\Entity\ParticipationOption::class)->findOneBy([])?->getId();
-        self::assertNotNull($optionId);
+        $liveOptionId = $em->getRepository(ParticipationOption::class)->findOneBy(['code' => 'OWN_HOUSE_NO_FOOD'])?->getId();
+        self::assertNotNull($liveOptionId);
 
         $client->request(
             'POST',
             '/api/calculate',
             server: ['CONTENT_TYPE' => 'application/json'],
             content: json_encode([
-                'participationOptionId' => $optionId,
+                'participationOptionId' => $liveOptionId,
                 'adultsCount' => 1,
                 'paymentFactor' => 1,
             ], JSON_THROW_ON_ERROR),
@@ -36,14 +38,23 @@ final class RegistrationTestModeApiTest extends WebTestCase
         $off = json_decode($client->getResponse()->getContent(), true);
         self::assertSame(3600, $off['totalAmount']);
 
-        HanumanFestFixtures::enableRegistrationTestMode($em);
+        $testOption = HanumanFestFixtures::enableRegistrationTestMode($em);
+        $testOptionId = $testOption->getId();
+        self::assertNotNull($testOptionId);
+
+        $client->request('GET', '/api/product');
+        self::assertResponseIsSuccessful();
+        $product = json_decode($client->getResponse()->getContent(), true);
+        $codes = array_column($product['participationOptions'], 'code');
+        self::assertContains(RegistrationTestMode::OPTION_CODE, $codes);
+        self::assertContains('OWN_HOUSE_NO_FOOD', $codes);
 
         $client->request(
             'POST',
             '/api/calculate',
             server: ['CONTENT_TYPE' => 'application/json'],
             content: json_encode([
-                'participationOptionId' => $optionId,
+                'participationOptionId' => $liveOptionId,
                 'adultsCount' => 3,
                 'childrenCount' => 2,
                 'transferIncluded' => true,
@@ -51,15 +62,33 @@ final class RegistrationTestModeApiTest extends WebTestCase
             ], JSON_THROW_ON_ERROR),
         );
         self::assertResponseIsSuccessful();
-        $on = json_decode($client->getResponse()->getContent(), true);
-        self::assertSame(2, $on['totalAmount']);
-        self::assertSame(2, $on['payNowAmount']);
+        $liveWhileTestMode = json_decode($client->getResponse()->getContent(), true);
+        self::assertSame(17076, $liveWhileTestMode['totalAmount']);
+
+        $client->request(
+            'POST',
+            '/api/calculate',
+            server: ['CONTENT_TYPE' => 'application/json'],
+            content: json_encode([
+                'participationOptionId' => $testOptionId,
+                'adultsCount' => 2,
+                'childrenCount' => 1,
+                'transferIncluded' => true,
+                'paymentFactor' => 1,
+            ], JSON_THROW_ON_ERROR),
+        );
+        self::assertResponseIsSuccessful();
+        $testCalc = json_decode($client->getResponse()->getContent(), true);
+        // 2*2*0.98 + 600*2 + 2*0.5 + 600 = 1805
+        self::assertSame(1805, $testCalc['totalAmount']);
+        self::assertSame(1805, $testCalc['payNowAmount']);
+        self::assertSame(RegistrationTestMode::OPTION_NAME, $testCalc['participationOptionName']);
 
         $body = json_encode([
             'name' => 'Тест Режим',
             'email' => 'test-mode@example.com',
             'phone' => '+79001112233',
-            'participationOptionId' => $optionId,
+            'participationOptionId' => $testOptionId,
             'adultsCount' => 1,
             'childrenCount' => 0,
             'transferIncluded' => false,
@@ -80,7 +109,22 @@ final class RegistrationTestModeApiTest extends WebTestCase
         $em->getRepository(\App\Entity\SiteSettings::class)->findOneBy([])?->setRegistrationTestMode(false);
         $em->flush();
 
-        $client->request('POST', '/api/applications', server: ['CONTENT_TYPE' => 'application/json'], content: $body);
+        $client->request('GET', '/api/product');
+        $codesOff = array_column(json_decode($client->getResponse()->getContent(), true)['participationOptions'], 'code');
+        self::assertNotContains(RegistrationTestMode::OPTION_CODE, $codesOff);
+
+        $liveBody = json_encode([
+            'name' => 'Тест Режим',
+            'email' => 'test-mode@example.com',
+            'phone' => '+79001112233',
+            'participationOptionId' => $liveOptionId,
+            'adultsCount' => 1,
+            'childrenCount' => 0,
+            'transferIncluded' => false,
+            'paymentFactor' => 1,
+        ], JSON_THROW_ON_ERROR);
+
+        $client->request('POST', '/api/applications', server: ['CONTENT_TYPE' => 'application/json'], content: $liveBody);
         self::assertResponseStatusCodeSame(201);
         $applications = $em->getRepository(Application::class)->findAll();
         self::assertCount(2, $applications);
@@ -95,8 +139,8 @@ final class RegistrationTestModeApiTest extends WebTestCase
         $client = static::createClient();
         $client->disableReboot();
         $em = $this->bootSchema($client);
-        HanumanFestFixtures::enableRegistrationTestMode($em);
-        $optionId = $em->getRepository(\App\Entity\ParticipationOption::class)->findOneBy([])?->getId();
+        $testOption = HanumanFestFixtures::enableRegistrationTestMode($em);
+        $optionId = $testOption->getId();
         self::assertNotNull($optionId);
 
         $charged = [];

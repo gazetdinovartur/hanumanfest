@@ -30,9 +30,9 @@
         <div class="admin-dashboard__test-mode-copy">
             <h3 id="admin-dashboard-test-mode" class="admin-dashboard__section-title">Тестовый режим регистрации</h3>
             {% if registrationTestMode %}
-                <p class="admin-dashboard__test-mode-warn">Сейчас все посетители видят 2 ₽: предоплата 1+1 или полная оплата 2 ₽. Боевые цены выключены.</p>
+                <p class="admin-dashboard__test-mode-warn">Включён: в форме регистрации доступен вариант «Тестовая регистрация» (2&nbsp;₽). Обычные варианты и цены работают как обычно. Заявки по тестовому варианту не попадают в метрики и боевой лист.</p>
             {% else %}
-                <p>Включает живой прогон формы и YooKassa за 2 ₽. Тестовые заявки не попадают в метрики и боевой лист.</p>
+                <p>Добавляет в форму вариант «Тестовая регистрация» за 2&nbsp;₽ для проверки YooKassa. Боевые цены не отключаются.</p>
             {% endif %}
         </div>
         <form method="post" action="{{ path('admin_registration_test_mode') }}">
@@ -42,22 +42,6 @@
                 {{ registrationTestMode ? 'Выключить' : 'Включить' }}
             </button>
         </form>
-    </section>
-
-    <section class="admin-dashboard__section" aria-labelledby="admin-dashboard-options">
-        <h3 id="admin-dashboard-options" class="admin-dashboard__section-title">По варианту участия</h3>
-        {% if byOption is empty %}
-            <p class="admin-dashboard__empty">В этом сезоне пока нет заявок.</p>
-        {% else %}
-            <ul class="admin-dashboard__options">
-                {% for row in byOption %}
-                    <li>
-                        <span class="admin-dashboard__option-label">{{ row.label }}</span>
-                        <span class="admin-dashboard__option-count">{{ row.count }}</span>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endif %}
     </section>
 
     {% if registrationsSpreadsheetUrl or testRegistrationsSpreadsheetUrl or scheduleSpreadsheetUrl %}

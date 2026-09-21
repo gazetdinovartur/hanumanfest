@@ -56,6 +56,7 @@ if [[ "${1:-}" == "--with-seeds" ]]; then
     php bin/console app:seed:hanuman-fest --no-interaction --env=prod
     php bin/console app:seed:site-content --if-empty --no-interaction --env=prod
     php bin/console app:seed:site-pages --no-interaction --env=prod
+    echo "Kitchen videos expected in public/uploads/pages/kitchen/ (see DEPLOY_TIMEWEB.md)"
 fi
 
 echo "Rebuilding prod cache..."

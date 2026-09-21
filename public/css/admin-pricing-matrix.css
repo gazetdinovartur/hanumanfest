@@ -9,31 +9,7 @@
   color: var(--hf-ink);
 }
 
-.hf-price__layout {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-}
-
-.hf-price__settings {
-  flex: 0 0 13.75rem;
-  padding: .9rem 1rem 1.05rem;
-  border: 1px solid var(--hf-line);
-  border-radius: var(--hf-radius);
-  background: #fff;
-}
-
-.hf-price__settings-title {
-  margin: 0 0 .75rem;
-  font-size: .72rem;
-  font-weight: 700;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  color: var(--hf-muted);
-}
-
 .hf-price__sheet-wrap {
-  flex: 1 1 auto;
   overflow-x: auto;
   overflow-y: visible;
   min-width: 0;
@@ -45,15 +21,13 @@
   -webkit-overflow-scrolling: touch;
 }
 
-@media (max-width: 720px) {
-  .hf-price__layout {
-    flex-direction: column;
-  }
-
-  .hf-price__settings {
-    flex: 1 1 auto;
-    width: 100%;
-  }
+.hf-price__settings {
+  margin-top: 1rem;
+  max-width: 16rem;
+  padding: .9rem 1rem 1.05rem;
+  border: 1px solid var(--hf-line);
+  border-radius: var(--hf-radius);
+  background: #fff;
 }
 
 .hf-price__sheet {
@@ -270,12 +244,27 @@
   color: var(--hf-muted);
 }
 
-.hf-price__bar {
+/* Кнопка «Сохранить» в шапке страницы (page_actions), всегда на виду */
+body:has(.hf-price) .content-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
   display: flex;
-  justify-content: flex-end;
-  margin-top: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 1rem;
+  padding: .65rem 0;
+  background: var(--body-bg, #f8fafc);
+  box-shadow: 0 1px 0 var(--hf-line, rgba(28, 25, 23, 0.1));
+}
+
+body:has(.hf-price) .content-header .page-actions {
+  margin-left: auto;
+  flex: 0 0 auto;
 }
 
 .hf-price__save {
   font-weight: 600;
+  white-space: nowrap;
 }

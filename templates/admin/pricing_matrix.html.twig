@@ -2,6 +2,12 @@
 
 {% block content_title %}Периоды и цены{% endblock %}
 
+{% block page_actions %}
+    <button type="submit" class="btn btn-primary hf-price__save" form="hf-pricing-form">
+        Сохранить
+    </button>
+{% endblock %}
+
 {% block head_stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('css/admin-pricing-matrix.css') }}">
@@ -24,16 +30,7 @@
         <input type="hidden" name="_token" value="{{ csrf_token('pricing_matrix') }}">
         <div data-hf-delete-bin hidden></div>
 
-        <div class="hf-price__layout">
-            <aside class="hf-price__settings">
-                <h2 class="hf-price__settings-title">Настройки</h2>
-                <label class="hf-price__field">
-                    <span>Трансфер, ₽/чел</span>
-                    <input type="number" min="0" step="1" inputmode="numeric" name="transferPrice" value="{{ transferPrice }}" required>
-                </label>
-            </aside>
-
-            <div class="hf-price__sheet-wrap">
+        <div class="hf-price__sheet-wrap">
             <table class="hf-price__sheet">
                 <thead>
                 <tr data-hf-head-row>
@@ -119,12 +116,12 @@
                 </tbody>
             </table>
         </div>
-        </div>
 
-        <div class="hf-price__bar">
-            <button type="submit" class="btn btn-primary hf-price__save">
-                Сохранить
-            </button>
+        <div class="hf-price__settings">
+            <label class="hf-price__field">
+                <span>Трансфер, ₽/чел</span>
+                <input type="number" min="0" step="1" inputmode="numeric" name="transferPrice" value="{{ transferPrice }}" required>
+            </label>
         </div>
     </form>
 </div>

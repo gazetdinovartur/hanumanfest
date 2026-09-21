@@ -29,9 +29,17 @@ final class PricingMatrixTest extends WebTestCase
         self::assertSelectorExists('input[name^="options["][name$="[name]"]');
         self::assertSelectorExists('script[src*="admin-pricing-matrix.js"]');
         self::assertSelectorExists('.hf-price__settings input[name="transferPrice"]');
-        self::assertSelectorTextContains('.hf-price__settings-title', 'Настройки');
         self::assertSelectorTextContains('.hf-price__settings', 'Трансфер, ₽/чел');
+        self::assertSelectorNotExists('.hf-price__settings-title');
         self::assertSelectorNotExists('input[name*="[transferPrice]"]');
+        self::assertSelectorExists('.page-actions button.hf-price__save[form="hf-pricing-form"]');
+        self::assertSelectorNotExists('.hf-price__bar');
+        $html = (string) $client->getResponse()->getContent();
+        self::assertLessThan(
+            strpos($html, 'name="transferPrice"'),
+            strpos($html, 'data-hf-body'),
+            'Трансфер должен быть под матрицей периодов',
+        );
     }
 
     public function testPricingMatrixShowsSeededOptionName(): void

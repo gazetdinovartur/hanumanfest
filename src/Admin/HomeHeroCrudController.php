@@ -78,15 +78,13 @@ class HomeHeroCrudController extends AbstractUploadCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->hideOnForm();
-        yield FormField::addFieldset('Шапка');
+        yield FormField::addFieldset('Контент');
         yield TextField::new('eventDates', 'Даты');
         yield TextField::new('titleMain', 'Подзаголовок сверху');
         yield TextField::new('headline', 'Заголовок');
         yield TextField::new('titleSecondary', 'Подзаголовок снизу');
-        yield FormField::addFieldset('Фон hero');
         yield PublicImageField::new('imagePath', 'Картинка фона', 'hero')
             ->setHelp('Фоновое изображение первого экрана (как на хануманфест.рф).');
-        yield FormField::addFieldset('Контент');
         yield HtmlEditorField::new('aboutHtml', 'Блок «О фестивале»', 8);
         yield FormField::addFieldset('Промо-видео');
         yield PublicVideoField::new('promoVideoLeft', 'Видео слева', 'hero/video');

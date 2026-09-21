@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\Entity\SitePage;
 use App\Enum\SitePageTemplate;
+use App\Service\Content\KitchenPageVideos;
 use App\Service\Content\WpContentCleaner;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -18,6 +19,7 @@ class SeedSitePagesCommand extends Command
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly WpContentCleaner $wpContentCleaner,
+        private readonly KitchenPageVideos $kitchenPageVideos,
     ) {
         parent::__construct();
     }
@@ -83,10 +85,14 @@ class SeedSitePagesCommand extends Command
                 ->setSortOrder($def['sort'])
                 ->setPublished(true);
             if ($def['template'] === SitePageTemplate::Kitchen) {
-                $page->setKitchenVideo1('/uploads/wp/2026/03/IMG_8652.mp4')
-                    ->setKitchenVideo2('/uploads/wp/2026/03/IMG_8223.mp4')
-                    ->setKitchenVideo3('/uploads/wp/2026/03/IMG_8224.mp4')
-                    ->setKitchenVideo4('/uploads/wp/2026/03/IMG_8222.mp4');
+                $missing = $this->kitchenPageVideos->copyIntoUploads();
+                foreach ($missing as $file) {
+                    $io->warning(sprintf(
+                        'Нет видео кухни %s. Перед деплоем положите файл в public/uploads/wp/2026/03/ или data/site-pages/videos/.',
+                        $file,
+                    ));
+                }
+                $this->kitchenPageVideos->applyTo($page);
             }
             $this->em->persist($page);
         }

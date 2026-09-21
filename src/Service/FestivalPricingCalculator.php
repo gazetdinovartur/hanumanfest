@@ -76,9 +76,8 @@ class FestivalPricingCalculator
         $payNowAmount = (int) round($totalBeforePaymentFactor * $paymentFactor);
         $discountAmount = (int) round(($basePrice * $adultsCount) - ($basePrice * $adultsCount * $adultsDiscountMultiplier));
 
-        if ($this->registrationTestMode->isEnabled()) {
-            $totalAmount = 2;
-            $payNowAmount = (int) round(2 * $paymentFactor);
+        if (!$this->registrationTestMode->isEnabled() && $this->registrationTestMode->isTestOption($participationOption)) {
+            throw new NotFoundHttpException('Тестовый вариант участия сейчас недоступен.');
         }
 
         $result = new PricingResult(

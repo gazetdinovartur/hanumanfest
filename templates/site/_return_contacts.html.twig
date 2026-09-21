@@ -1,5 +1,4 @@
-{% set footerContactsRaw = settings is defined and settings ? settings.contactsHtml : null %}
-{% set feedbackContacts = footer_feedback_contacts(footerContactsRaw) %}
+{% set feedbackContacts = footer_feedback_contacts(settings|default(null)) %}
 {% if feedbackContacts %}
     {% set directContacts = [] %}
     {% set socialContacts = [] %}

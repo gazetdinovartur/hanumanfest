@@ -78,13 +78,28 @@ class SitePageCrudController extends AbstractUploadCrudController
                 'Обычная' => SitePageTemplate::Default,
                 'Кухня / питание (с видео)' => SitePageTemplate::Kitchen,
             ])
-            ->renderAsNativeWidget();
+            ->renderAsNativeWidget()
+            ->setFormTypeOption(
+                'choice_value',
+                static function (mixed $value): string {
+                    return $value instanceof SitePageTemplate ? $value->value : (string) $value;
+                },
+            )
+            ->setFormTypeOption('attr', ['data-hf-page-template' => '1']);
         yield HtmlEditorField::new('contentHtml', 'Содержимое', 18);
-        yield FormField::addFieldset('Видео (шаблон «Кухня»)')->onlyOnForms();
+        $videoFieldset = FormField::addFieldset('Видео')
+            ->addCssClass('hf-kitchen-videos')
+            ->onlyOnForms();
+        $page = $this->getContext()?->getEntity()?->getInstance();
+        if ($page instanceof SitePage && $page->getTemplate() === SitePageTemplate::Kitchen) {
+            $videoFieldset->addCssClass('is-visible');
+        }
+        yield $videoFieldset;
         yield PublicVideoField::new('kitchenVideo1', 'Видео 1', 'pages/kitchen')->onlyOnForms();
         yield PublicVideoField::new('kitchenVideo2', 'Видео 2', 'pages/kitchen')->onlyOnForms();
         yield PublicVideoField::new('kitchenVideo3', 'Видео 3', 'pages/kitchen')->onlyOnForms();
         yield PublicVideoField::new('kitchenVideo4', 'Видео 4', 'pages/kitchen')->onlyOnForms();
+        yield FormField::addFieldset('Публикация');
         yield IntegerField::new('sortOrder', 'Порядок в футере');
         yield BooleanField::new('showInFooter', 'Показывать в меню футера');
         yield BooleanField::new('published', 'Опубликовано');

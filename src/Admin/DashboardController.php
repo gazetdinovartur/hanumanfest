@@ -47,7 +47,6 @@ class DashboardController extends AbstractDashboardController
             'registrationsTotal' => $stats['registrationsTotal'],
             'paidApplications' => $stats['paidApplications'],
             'refundsCount' => $stats['refundsCount'],
-            'byOption' => $stats['byOption'],
             'registrationsSpreadsheetUrl' => $this->registrations->spreadsheetViewUrl(),
             'testRegistrationsSpreadsheetUrl' => $testSheetUrl !== '' ? $testSheetUrl : null,
             'scheduleSpreadsheetUrl' => GoogleSpreadsheetUrl::editUrlFrom($this->scheduleSheetUrl),
@@ -73,7 +72,8 @@ class DashboardController extends AbstractDashboardController
     {
         return Assets::new()
             ->addCssFile('css/admin-custom.css')
-            ->addJsFile('js/admin-html-editor.js');
+            ->addJsFile('js/admin-html-editor.js')
+            ->addJsFile('js/admin-site-page.js');
     }
 
     public function configureMenuItems(): iterable

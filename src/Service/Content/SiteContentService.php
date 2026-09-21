@@ -16,6 +16,7 @@ use App\Entity\SiteSettings;
 use App\Enum\HomeHighlightColumn;
 use App\Enum\PersonKind;
 use App\Repository\ProductRepository;
+use App\Service\RegistrationTestMode;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class SiteContentService
@@ -23,6 +24,7 @@ final class SiteContentService
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly ProductRepository $productRepository,
+        private readonly RegistrationTestMode $registrationTestMode,
     ) {
     }
 
@@ -67,8 +69,10 @@ final class SiteContentService
             return [];
         }
 
-        $options = $this->sortOptionsByFestivalOrder(
-            $this->em->getRepository(ParticipationOption::class)->findBy(['product' => $product])
+        $options = $this->registrationTestMode->filterForSitePricing(
+            $this->sortOptionsByFestivalOrder(
+                $this->em->getRepository(ParticipationOption::class)->findBy(['product' => $product])
+            )
         );
         if ($options === []) {
             return [];

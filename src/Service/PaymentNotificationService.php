@@ -44,7 +44,7 @@ class PaymentNotificationService
             ->context([
                 'name' => $user->getName(),
                 'details' => $this->registrationDetails($application),
-                'contacts' => $this->contactsParser->feedbackContacts($settings?->getContactsHtml()),
+                'contacts' => $this->contactsParser->feedbackContacts($settings),
                 'paidAmount' => $application->getPaidAmount(),
                 'remainingAmount' => $application->getRemainingAmount(),
                 'totalAmount' => $application->getTotalAmount(),

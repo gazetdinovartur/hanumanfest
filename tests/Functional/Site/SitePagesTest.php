@@ -40,7 +40,7 @@ final class SitePagesTest extends WebTestCase
         self::assertStringContainsString('Публичная оферта', $html);
         self::assertStringContainsString('Политика конфиденциальности', $html);
         self::assertStringContainsString('tel:73433858370', $html);
-        self::assertStringContainsString('mailto:hanumanfest@gmail.com', $html);
+        self::assertStringContainsString('mailto:hanuman-yoga@bk.ru', $html);
         self::assertStringContainsString('https://vk.com/hanumanyoga', $html);
         self::assertStringContainsString('https://www.facebook.com/hanumanyoga.ru/', $html);
         self::assertStringContainsString('https://www.instagram.com/hanuman_yoga.ru/', $html);
@@ -58,6 +58,7 @@ final class SitePagesTest extends WebTestCase
         self::assertStringContainsString('href="/#about"', $html);
         self::assertStringContainsString('class="is-home"', $html);
         self::assertStringContainsString('Море йоги, музыки и творчества', $html);
+        self::assertStringContainsString('code.jivo.ru/widget/qNhdVN9jC1', $html);
     }
 
     public function testCmsPagesAreOk(): void
@@ -70,6 +71,8 @@ final class SitePagesTest extends WebTestCase
         $client->request('GET', $router->generate('site_page', ['slug' => 'политика-возвратов']));
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'Политика возвратов');
+        self::assertSelectorNotExists('section.promo-grid');
+        self::assertStringNotContainsString('IMG_8652.mp4', (string) $client->getResponse()->getContent());
 
         $client->request('GET', $router->generate('site_page', ['slug' => 'публичная-оферта']));
         self::assertResponseIsSuccessful();
@@ -202,8 +205,8 @@ final class SitePagesTest extends WebTestCase
     {
         $client = static::createClient();
         $em = $this->bootSchema($client);
-        HanumanFestFixtures::enableRegistrationTestMode($em);
-        $optionId = $em->getRepository(\App\Entity\ParticipationOption::class)->findOneBy([])?->getId();
+        $testOption = HanumanFestFixtures::enableRegistrationTestMode($em);
+        $optionId = $testOption->getId();
         self::assertNotNull($optionId);
 
         $client->request(
@@ -281,9 +284,13 @@ final class SitePagesTest extends WebTestCase
         $settings = (new SiteSettings())
             ->setSiteName('Хануман Фест')
             ->setCompanyInfo("ИП Сараев Антон Валерьевич\n\nОГРНИП 304662518300032\nИНН 662504951300")
-            ->setContactsHtml("+7 (343) 385-83-70\n+7 922 211 61 18\nhanumanfest@gmail.com\nhttps://vk.com/hanumanyoga\nhttps://www.facebook.com/hanumanyoga.ru/\nhttps://www.instagram.com/hanuman_yoga.ru/\nhttps://t.me/Hanuman_ekb")
+            ->setPhone('+7 (343) 385-83-70')
+            ->setPhone2('+7 922 211 61 18')
+            ->setEmail('hanuman-yoga@bk.ru')
             ->setVkUrl('https://vk.com/hanumanyoga')
-            ->setTelegramUrl('https://t.me/Hanuman_ekb');
+            ->setTelegramUrl('https://t.me/Hanuman_ekb')
+            ->setFacebookUrl('https://www.facebook.com/hanumanyoga.ru/')
+            ->setInstagramUrl('https://www.instagram.com/hanuman_yoga.ru/');
         $em->persist($settings);
         $em->flush();
     }
