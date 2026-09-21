@@ -138,7 +138,9 @@ final class SitePagesTest extends WebTestCase
         self::assertSelectorExists('[data-uae-return-pay]');
         $html = (string) $client->getResponse()->getContent();
         self::assertStringContainsString('Вы зарегистрировались и внесли предоплату за участие в Хануман Фест!', $html);
-        self::assertStringContainsString('Если есть вопрос, напишите нам', $html);
+        self::assertStringContainsString('Если есть вопросы, напишите нам', $html);
+        self::assertSelectorExists('.hf-return-contacts');
+        self::assertSelectorExists('.hf-return-contacts__link');
         self::assertStringContainsString('Ссылка на оплату остатка', $html);
     }
 

@@ -28,6 +28,10 @@ final class PricingMatrixTest extends WebTestCase
         self::assertSelectorTextContains('h1', 'Периоды и цены');
         self::assertSelectorExists('input[name^="options["][name$="[name]"]');
         self::assertSelectorExists('script[src*="admin-pricing-matrix.js"]');
+        self::assertSelectorExists('.hf-price__settings input[name="transferPrice"]');
+        self::assertSelectorTextContains('.hf-price__settings-title', 'Настройки');
+        self::assertSelectorTextContains('.hf-price__settings', 'Трансфер, ₽/чел');
+        self::assertSelectorNotExists('input[name*="[transferPrice]"]');
     }
 
     public function testPricingMatrixShowsSeededOptionName(): void
@@ -63,6 +67,7 @@ final class PricingMatrixTest extends WebTestCase
 
         $client->request('POST', '/admin/pricing', [
             '_token' => $token,
+            'transferPrice' => '600',
             'periods' => [
                 $periodKey => [
                     'name' => $period->getName(),
@@ -91,6 +96,54 @@ final class PricingMatrixTest extends WebTestCase
         $saved = $em->getRepository(ParticipationOption::class)->findOneBy(['name' => 'В нашей палатке, с питанием']);
         self::assertNotNull($saved);
         self::assertSame(7400, $this->findPrice($em, $period->getId(), $saved->getId()));
+    }
+
+    public function testPricingMatrixSavesTransferPrice(): void
+    {
+        $client = $this->adminClient();
+        /** @var EntityManagerInterface $em */
+        $em = $client->getContainer()->get('doctrine')->getManager();
+
+        $client->request('GET', '/admin/pricing');
+        self::assertResponseIsSuccessful();
+
+        $crawler = $client->getCrawler();
+        $token = $crawler->filter('#hf-pricing-form input[name="_token"]')->attr('value');
+        $period = $em->getRepository(PricingPeriod::class)->findOneBy([]);
+        $option = $em->getRepository(ParticipationOption::class)->findOneBy([]);
+        self::assertNotEmpty($token);
+        self::assertNotNull($period);
+        self::assertNotNull($option);
+
+        $periodKey = (string) $period->getId();
+        $optionKey = (string) $option->getId();
+
+        $client->request('POST', '/admin/pricing', [
+            '_token' => $token,
+            'transferPrice' => '750',
+            'periods' => [
+                $periodKey => [
+                    'name' => $period->getName(),
+                    'startAt' => $period->getStartAt()->format('Y-m-d\TH:i'),
+                    'endAt' => $period->getEndAt()->format('Y-m-d\TH:i'),
+                    'isActive' => '1',
+                ],
+            ],
+            'options' => [
+                $optionKey => ['name' => $option->getName()],
+            ],
+            'prices' => [
+                $periodKey => [
+                    $optionKey => '3600',
+                ],
+            ],
+        ]);
+
+        self::assertResponseRedirects('/admin/pricing');
+        $em->clear();
+        $saved = $em->getRepository(Product::class)->find($period->getProduct()?->getId());
+        self::assertNotNull($saved);
+        self::assertSame(750, $saved->getTransferPrice());
     }
 
     public function testPricingMatrixColumnsAreSortedByStartThenEnd(): void

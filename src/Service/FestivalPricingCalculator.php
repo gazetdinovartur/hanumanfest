@@ -56,7 +56,7 @@ class FestivalPricingCalculator
         $basePrice = $participationPrice->getPrice();
         $adultsCount = max(1, $request->adultsCount);
         $childrenCount = max(0, $request->childrenCount);
-        $transferPrice = $request->transferIncluded ? 600 : 0;
+        $transferPrice = $request->transferIncluded ? $product->getTransferPrice() : 0;
 
         // Legacy formula parity (Forminator calculation-1):
         // (select-1 * number-1 * (1 - ((number-1 * max(number-1-1,0) / max(number-1-1,1))/100)))

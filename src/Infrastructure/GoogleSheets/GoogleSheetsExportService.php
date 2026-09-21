@@ -37,10 +37,7 @@ class GoogleSheetsExportService
     {
         $user = $application->getUser();
         $payload = $application->getPayload();
-        $payNowAmount = (int) ($payload['payNowAmount'] ?? $application->getTotalAmount());
         $payments = $this->succeededPayments($application, $extraPayment);
-        $first = $payments[0] ?? null;
-        $second = $payments[1] ?? null;
 
         return new RegistrationSheetRow(
             name: $user?->getName() ?? '',
@@ -49,17 +46,10 @@ class GoogleSheetsExportService
             adultsCount: (string) ($payload['adultsCount'] ?? 1),
             childrenCount: (string) ($payload['childrenCount'] ?? 0),
             totalAmount: $this->money($application->getTotalAmount()),
-            payNowAmount: $this->money($payNowAmount),
             participationOptionName: (string) ($payload['participationOptionName'] ?? ''),
-            transferIncluded: !empty($payload['transferIncluded']) ? '1' : '0',
-            paymentFactor: (string) ($payload['paymentFactor'] ?? '1'),
+            transferIncluded: !empty($payload['transferIncluded']) ? 'да' : 'нет',
             notes: trim((string) ($payload['tentRoommate'] ?? '')),
-            payment1Amount: $first ? $this->money($first->getAmount()) : '',
-            payment1Date: $this->paidAt($first),
-            payment1Id: $first?->getProviderPaymentId() ?? '',
-            payment2Amount: $second ? $this->money($second->getAmount()) : '',
-            payment2Date: $this->paidAt($second),
-            payment2Id: $second?->getProviderPaymentId() ?? '',
+            payments: $this->paymentsText($payments),
             paidTotal: $this->money($application->getPaidAmount()),
             remaining: $this->money($application->getRemainingAmount()),
             pricingPeriodName: (string) ($payload['pricingPeriodName'] ?? ''),
@@ -96,6 +86,29 @@ class GoogleSheetsExportService
         });
 
         return array_values($payments);
+    }
+
+    /**
+     * @param list<Payment> $payments
+     */
+    private function paymentsText(array $payments): string
+    {
+        $lines = [];
+        foreach ($payments as $payment) {
+            $parts = [];
+            $parts[] = $this->money($payment->getAmount()).' ₽';
+            $paidAt = $this->paidAt($payment);
+            if ($paidAt !== '') {
+                $parts[] = $paidAt;
+            }
+            $id = trim((string) $payment->getProviderPaymentId());
+            if ($id !== '') {
+                $parts[] = $id;
+            }
+            $lines[] = implode(' · ', $parts);
+        }
+
+        return implode("\n", $lines);
     }
 
     private function money(int $amount): string

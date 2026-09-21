@@ -25,6 +25,7 @@ final class ProductApiTest extends WebTestCase
         self::assertArrayHasKey('code', $payload['participationOptions'][0]);
         self::assertSame('До 10 марта', $payload['activePricingPeriod']['name']);
         self::assertSame(3600, $payload['participationOptions'][0]['price']);
+        self::assertSame(600, $payload['transferPrice']);
     }
 
     public function testProductEndpointReturns404WhenMissing(): void

@@ -15,6 +15,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
@@ -156,11 +157,16 @@ final class PricingMatrixController extends AbstractController
 
         $columns = $this->sortPeriodColumns($columns);
 
+        $transferPrice = $request
+            ? (string) $request->request->get('transferPrice', (string) $product->getTransferPrice())
+            : (string) $product->getTransferPrice();
+
         return $this->render('admin/pricing_matrix.html.twig', [
             'product' => $product,
             'columns' => $columns,
             'optionRows' => $optionRows,
             'formPrices' => $formPrices,
+            'transferPrice' => $transferPrice,
             'optionNameWidthCh' => $this->computeOptionNameWidthCh($optionRows),
             'defaultStart' => (new \DateTimeImmutable('today'))->format('Y-m-d\T00:00'),
             'defaultEnd' => (new \DateTimeImmutable('today'))->modify('+30 days')->format('Y-m-d\T23:59'),
@@ -232,6 +238,14 @@ final class PricingMatrixController extends AbstractController
     private function saveMatrix(Request $request, Product $product, FestivalSeason $season): array
     {
         $errors = [];
+        $transferRaw = trim((string) $request->request->get('transferPrice', ''));
+        $transferPrice = preg_match('/^\d+$/', $transferRaw) ? (int) $transferRaw : null;
+        if ($transferPrice === null) {
+            $errors[] = 'Стоимость трансфера должна быть целым числом ≥ 0.';
+        } else {
+            $product->setTransferPrice($transferPrice);
+        }
+
         $submittedPeriods = $request->request->all('periods');
         $submittedOptions = $request->request->all('options');
         $submittedPrices = $request->request->all('prices');

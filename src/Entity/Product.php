@@ -25,6 +25,9 @@ class Product
     #[ORM\Column]
     private bool $isActive = true;
 
+    #[ORM\Column]
+    private int $transferPrice = 600;
+
     /** @var Collection<int, PricingPeriod> */
     #[ORM\OneToMany(targetEntity: PricingPeriod::class, mappedBy: 'product', orphanRemoval: true)]
     private Collection $pricingPeriods;
@@ -76,6 +79,18 @@ class Product
     public function setIsActive(bool $isActive): static
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    public function getTransferPrice(): int
+    {
+        return $this->transferPrice;
+    }
+
+    public function setTransferPrice(int $transferPrice): static
+    {
+        $this->transferPrice = max(0, $transferPrice);
 
         return $this;
     }

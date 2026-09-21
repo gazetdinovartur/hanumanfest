@@ -39,11 +39,13 @@ class SeedHanumanFestCommand extends Command
             $product->setSlug('hanuman-fest');
             $product->setName('Hanuman Fest');
             $product->setIsActive(true);
+            $product->setTransferPrice(600);
         } else {
             $product = new Product();
             $product->setName('Hanuman Fest');
             $product->setSlug('hanuman-fest');
             $product->setIsActive(true);
+            $product->setTransferPrice(600);
             $this->entityManager->persist($product);
         }
 

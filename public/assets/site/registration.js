@@ -440,6 +440,16 @@
           fields.participationOptionId.appendChild(option);
         });
 
+        const transferLabel = form.querySelector('[data-uae-transfer-label]');
+        const transferPrice = Number(product.transferPrice);
+        if (transferLabel) {
+          if (Number.isFinite(transferPrice) && transferPrice > 0) {
+            transferLabel.textContent = `Трансфер туда-обратно (+${transferPrice.toLocaleString('ru-RU')} ₽/чел)`;
+          } else {
+            transferLabel.textContent = 'Трансфер туда-обратно';
+          }
+        }
+
         updateConditionalFields();
         updateFactorHint();
         return recalculate();

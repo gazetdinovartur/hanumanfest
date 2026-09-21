@@ -7,7 +7,7 @@
 Оплачено: {{ paidAmount|number_format(0, ',', ' ') }} ₽
 Осталось: {{ remainingAmount|number_format(0, ',', ' ') }} ₽
 
-{% if contacts is defined and contacts %}Если есть вопрос, напишите нам:
+{% if contacts is defined and contacts %}Если есть вопросы, напишите нам:
 {% for contact in contacts %}{{ contact.label }}
 {{ contact.href }}
 {% endfor %}

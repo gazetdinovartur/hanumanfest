@@ -65,6 +65,7 @@ class ProductController extends AbstractController
 
         return $this->json([
             'name' => $product->getName(),
+            'transferPrice' => $product->getTransferPrice(),
             'participationOptions' => array_map(static fn (ParticipationOption $o) => [
                 'id' => $o->getId(),
                 'code' => $o->getCode(),

@@ -22,7 +22,7 @@ final class GoogleSheetsExportServiceTest extends TestCase
         $captured = null;
         $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$captured): MockResponse {
             if ($method === 'GET' && !str_contains($url, '/values/')) {
-                return new MockResponse('{"sheets":[{"properties":{"title":"Регистрации"}}]}');
+                return new MockResponse('{"sheets":[{"properties":{"sheetId":0,"title":"Регистрации"}}]}');
             }
             if ($method === 'GET') {
                 return new MockResponse('{}');
@@ -39,49 +39,47 @@ final class GoogleSheetsExportServiceTest extends TestCase
         self::assertSame(RegistrationSheetRow::HEADERS, [
             'name',
             'phone',
-            'email',
+            'participationOptionName',
             'adultsCount',
             'childrenCount',
             'paidTotal',
             'remaining',
-            'participationOptionName',
             'transferIncluded',
             'notes',
-            'applicationUuid',
-            'payment1Amount',
-            'payment1Date',
-            'payment1Id',
-            'payment2Amount',
-            'payment2Date',
-            'payment2Id',
-            'payNowAmount',
             'totalAmount',
-            'paymentFactor',
             'pricingPeriodName',
+            'payments',
+            'email',
+            'applicationUuid',
         ]);
         self::assertCount(\count(RegistrationSheetRow::HEADERS), RegistrationSheetRow::RUSSIAN_HEADERS);
         self::assertSame('ФИО', RegistrationSheetRow::RUSSIAN_HEADERS[0]);
-        self::assertSame('Осталось оплатить', RegistrationSheetRow::RUSSIAN_HEADERS[6]);
-        self::assertSame('Id заявки', RegistrationSheetRow::RUSSIAN_HEADERS[10]);
-        self::assertSame('Ценовой период', RegistrationSheetRow::RUSSIAN_HEADERS[20]);
+        self::assertSame('Вариант участия', RegistrationSheetRow::RUSSIAN_HEADERS[2]);
+        self::assertSame('Платежи', RegistrationSheetRow::RUSSIAN_HEADERS[11]);
+        self::assertSame('Почта', RegistrationSheetRow::RUSSIAN_HEADERS[12]);
+        self::assertSame('Id заявки', RegistrationSheetRow::RUSSIAN_HEADERS[13]);
         self::assertSame('Export Test', $captured[0]);
         self::assertSame('+79160000005', $captured[1]);
-        self::assertSame('export@test.example', $captured[2]);
+        self::assertSame('Option', $captured[2]);
         self::assertSame('1', $captured[3]);
         self::assertSame('0', $captured[4]);
         self::assertSame('0.00', $captured[5]);
         self::assertSame('3600.00', $captured[6]);
-        self::assertSame('Option', $captured[7]);
-        self::assertSame('0', $captured[8]);
-        self::assertSame('С другом Иваном', $captured[9]);
-        self::assertSame('1800.00', $captured[17]);
-        self::assertSame('3600.00', $captured[18]);
-        self::assertSame('0.5', $captured[19]);
-        self::assertSame('Period', $captured[20]);
+        self::assertSame('нет', $captured[7]);
+        self::assertSame('С другом Иваном', $captured[8]);
+        self::assertSame('3600.00', $captured[9]);
+        self::assertSame('Period', $captured[10]);
+        self::assertSame('', $captured[11]);
+        self::assertSame('export@test.example', $captured[12]);
         self::assertNotContains('Hanuman Fest 2026', $captured);
+        self::assertNotContains('1800.00', $captured);
+        self::assertNotContains('0.5', $captured);
+        self::assertNotContains('payNowAmount', RegistrationSheetRow::HEADERS);
+        self::assertNotContains('paymentFactor', RegistrationSheetRow::HEADERS);
+        self::assertNotContains('payment1Amount', RegistrationSheetRow::HEADERS);
     }
 
-    public function testExportPaymentFillsFirstPaymentSlot(): void
+    public function testExportPaymentFillsPaymentsColumn(): void
     {
         $application = $this->application();
         $payment = new Payment();
@@ -103,17 +101,10 @@ final class GoogleSheetsExportServiceTest extends TestCase
             adultsCount: '1',
             childrenCount: '0',
             totalAmount: '3600.00',
-            payNowAmount: '1800.00',
             participationOptionName: 'Option',
-            transferIncluded: '0',
-            paymentFactor: '0.5',
+            transferIncluded: 'нет',
             notes: 'С другом Иваном',
-            payment1Amount: '',
-            payment1Date: '',
-            payment1Id: '',
-            payment2Amount: '',
-            payment2Date: '',
-            payment2Id: '',
+            payments: '',
             paidTotal: '0.00',
             remaining: '3600.00',
             pricingPeriodName: 'Period',
@@ -121,7 +112,7 @@ final class GoogleSheetsExportServiceTest extends TestCase
         ))->valuesFor(RegistrationSheetRow::HEADERS);
         $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$updated, $uuid, $existingRow): MockResponse {
             if ($method === 'GET' && !str_contains($url, '/values/')) {
-                return new MockResponse('{"sheets":[{"properties":{"title":"Регистрации"}}]}');
+                return new MockResponse('{"sheets":[{"properties":{"sheetId":0,"title":"Регистрации"}}]}');
             }
             if ($method === 'GET') {
                 $decoded = rawurldecode($url);
@@ -156,13 +147,12 @@ final class GoogleSheetsExportServiceTest extends TestCase
 
         $this->service($httpClient)->exportSuccessfulPayment($payment);
 
-        self::assertSame('1800.00', $updated[11]);
-        self::assertSame('yk-1', $updated[13]);
+        self::assertSame("1800.00 ₽ · 01.06.2026 15:00:00 · yk-1", $updated[11]);
         self::assertSame('1800.00', $updated[5]);
         self::assertSame('1800.00', $updated[6]);
-        self::assertSame('1800.00', $updated[17]);
-        self::assertSame('3600.00', $updated[18]);
-        self::assertSame('С другом Иваном', $updated[9]);
+        self::assertSame('3600.00', $updated[9]);
+        self::assertSame('С другом Иваном', $updated[8]);
+        self::assertSame('нет', $updated[7]);
     }
 
     private function service(MockHttpClient $httpClient): GoogleSheetsExportService

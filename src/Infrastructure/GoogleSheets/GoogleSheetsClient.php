@@ -82,11 +82,16 @@ class GoogleSheetsClient
             $this->putRow($spreadsheetId, $sheetTitle, $token, 1, RegistrationSheetRow::HEADERS);
             $this->putRow($spreadsheetId, $sheetTitle, $token, 2, RegistrationSheetRow::RUSSIAN_HEADERS);
             $this->appendRow($spreadsheetId, $sheetTitle, $token, $row->valuesFor(RegistrationSheetRow::HEADERS));
+            $this->styleSheet($spreadsheetId, $sheetTitle, $token);
 
             return;
         }
-        if (\count($headerRows) === 1) {
+        if (!$this->isCanonicalHeaders($headers)) {
+            $this->migrateLayout($spreadsheetId, $sheetTitle, $token, $headers);
+            $headers = RegistrationSheetRow::HEADERS;
+        } elseif (\count($headerRows) === 1) {
             $this->putRow($spreadsheetId, $sheetTitle, $token, 2, RegistrationSheetRow::russianLabelsFor($headers));
+            $this->styleSheet($spreadsheetId, $sheetTitle, $token);
         }
 
         $existingRow = $this->findUuidRow($spreadsheetId, $sheetTitle, $token, $headers, $row->applicationUuid);
@@ -96,6 +101,7 @@ class GoogleSheetsClient
 
         if ($existingRow === null) {
             $this->appendRow($spreadsheetId, $sheetTitle, $token, $row->valuesFor($headers));
+            $this->styleSheet($spreadsheetId, $sheetTitle, $token);
 
             return;
         }
@@ -119,6 +125,7 @@ class GoogleSheetsClient
         }
 
         $this->putRow($spreadsheetId, $sheetTitle, $token, $existingRow, $merged);
+        $this->styleSheet($spreadsheetId, $sheetTitle, $token);
     }
 
     private function ensureSheet(string $spreadsheetId, string $sheetTitle, string $token): void
@@ -174,6 +181,247 @@ class GoogleSheetsClient
         }
 
         return $rows;
+    }
+
+    /**
+     * @param list<string> $headers
+     */
+    private function isCanonicalHeaders(array $headers): bool
+    {
+        $normalized = array_map($this->normalizeHeader(...), $headers);
+        while ($normalized !== [] && ($normalized[\count($normalized) - 1] ?? '') === '') {
+            array_pop($normalized);
+        }
+        $want = array_map($this->normalizeHeader(...), RegistrationSheetRow::HEADERS);
+
+        return $normalized === $want;
+    }
+
+    /**
+     * @param list<string> $oldHeaders
+     */
+    private function migrateLayout(string $spreadsheetId, string $sheetTitle, string $token, array $oldHeaders): void
+    {
+        $values = $this->getValues($spreadsheetId, $sheetTitle, $token);
+        $out = [RegistrationSheetRow::HEADERS, RegistrationSheetRow::RUSSIAN_HEADERS];
+        foreach ($values as $i => $row) {
+            if ($i === 0) {
+                continue;
+            }
+            $assoc = [];
+            foreach ($oldHeaders as $col => $header) {
+                $assoc[$header] = $row[$col] ?? '';
+            }
+            if (RegistrationSheetRow::isRussianLabelRow($assoc)) {
+                continue;
+            }
+            $assoc['payments'] = $this->paymentsFromLegacyAssoc($assoc);
+            $assoc['transferIncluded'] = $this->transferLabel($assoc['transferIncluded'] ?? '');
+            $mapped = [];
+            foreach (RegistrationSheetRow::HEADERS as $header) {
+                $mapped[] = $assoc[$header] ?? '';
+            }
+            $out[] = $mapped;
+        }
+
+        $last = $this->columnLetter(\count(RegistrationSheetRow::HEADERS));
+        $endRow = max(2, \count($out));
+        $this->httpClient->request(
+            'PUT',
+            $this->valuesUrl($spreadsheetId, $this->a1($sheetTitle, 'A1:'.$last.$endRow)).'?valueInputOption=RAW',
+            [
+                'timeout' => 12,
+                'headers' => [
+                    'Authorization' => 'Bearer '.$token,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => ['values' => $out],
+            ],
+        );
+        $this->clearExtraColumns($spreadsheetId, $sheetTitle, $token, \count($oldHeaders), $endRow);
+        $this->styleSheet($spreadsheetId, $sheetTitle, $token);
+    }
+
+    /**
+     * @param array<string, string> $assoc
+     */
+    private function paymentsFromLegacyAssoc(array $assoc): string
+    {
+        $existing = trim($assoc['payments'] ?? '');
+        if ($existing !== '') {
+            return str_replace('; ', "\n", $existing);
+        }
+        $lines = [];
+        foreach ([1, 2] as $n) {
+            $parts = [];
+            $amount = trim($assoc['payment'.$n.'Amount'] ?? '');
+            $date = trim($assoc['payment'.$n.'Date'] ?? '');
+            $id = trim($assoc['payment'.$n.'Id'] ?? '');
+            if ($amount !== '') {
+                $parts[] = str_contains($amount, '₽') ? $amount : $amount.' ₽';
+            }
+            if ($date !== '') {
+                $parts[] = $date;
+            }
+            if ($id !== '') {
+                $parts[] = $id;
+            }
+            if ($parts !== []) {
+                $lines[] = implode(' · ', $parts);
+            }
+        }
+
+        return implode("\n", $lines);
+    }
+
+    private function transferLabel(string $value): string
+    {
+        $normalized = mb_strtolower(trim($value));
+        if (\in_array($normalized, ['да', 'yes', '1', 'true'], true)) {
+            return 'да';
+        }
+        if (\in_array($normalized, ['нет', 'no', '0', 'false', ''], true)) {
+            return 'нет';
+        }
+
+        return $value;
+    }
+
+    private function clearExtraColumns(
+        string $spreadsheetId,
+        string $sheetTitle,
+        string $token,
+        int $oldColumnCount,
+        int $endRow,
+    ): void {
+        $keep = \count(RegistrationSheetRow::HEADERS);
+        if ($oldColumnCount <= $keep) {
+            return;
+        }
+        $start = $this->columnLetter($keep + 1);
+        $end = $this->columnLetter($oldColumnCount);
+        $empty = array_fill(0, $oldColumnCount - $keep, '');
+        $rows = array_fill(0, max(1, $endRow), $empty);
+        $this->httpClient->request(
+            'PUT',
+            $this->valuesUrl($spreadsheetId, $this->a1($sheetTitle, $start.'1:'.$end.$endRow)).'?valueInputOption=RAW',
+            [
+                'timeout' => 8,
+                'headers' => [
+                    'Authorization' => 'Bearer '.$token,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => ['values' => $rows],
+            ],
+        );
+    }
+
+    private function styleSheet(string $spreadsheetId, string $sheetTitle, string $token): void
+    {
+        $sheetId = $this->sheetId($spreadsheetId, $sheetTitle, $token);
+        if ($sheetId === null) {
+            return;
+        }
+        $columnCount = \count(RegistrationSheetRow::HEADERS);
+        $this->httpClient->request(
+            'POST',
+            sprintf('%s/%s:batchUpdate', self::SHEETS_API, rawurlencode($spreadsheetId)),
+            [
+                'timeout' => 8,
+                'headers' => [
+                    'Authorization' => 'Bearer '.$token,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'requests' => [
+                        [
+                            'repeatCell' => [
+                                'range' => [
+                                    'sheetId' => $sheetId,
+                                    'startRowIndex' => 0,
+                                    'endRowIndex' => 1,
+                                    'startColumnIndex' => 0,
+                                    'endColumnIndex' => $columnCount,
+                                ],
+                                'cell' => [
+                                    'userEnteredFormat' => [
+                                        'horizontalAlignment' => 'CENTER',
+                                    ],
+                                ],
+                                'fields' => 'userEnteredFormat.horizontalAlignment',
+                            ],
+                        ],
+                        [
+                            'repeatCell' => [
+                                'range' => [
+                                    'sheetId' => $sheetId,
+                                    'startRowIndex' => 1,
+                                    'endRowIndex' => 2,
+                                    'startColumnIndex' => 0,
+                                    'endColumnIndex' => $columnCount,
+                                ],
+                                'cell' => [
+                                    'userEnteredFormat' => [
+                                        'horizontalAlignment' => 'CENTER',
+                                        'textFormat' => ['bold' => true],
+                                    ],
+                                ],
+                                'fields' => 'userEnteredFormat.horizontalAlignment,userEnteredFormat.textFormat.bold',
+                            ],
+                        ],
+                        [
+                            'repeatCell' => [
+                                'range' => [
+                                    'sheetId' => $sheetId,
+                                    'startRowIndex' => 0,
+                                    'startColumnIndex' => 0,
+                                    'endColumnIndex' => $columnCount,
+                                ],
+                                'cell' => [
+                                    'userEnteredFormat' => [
+                                        'wrapStrategy' => 'CLIP',
+                                    ],
+                                ],
+                                'fields' => 'userEnteredFormat.wrapStrategy',
+                            ],
+                        ],
+                        [
+                            'updateDimensionProperties' => [
+                                'range' => [
+                                    'sheetId' => $sheetId,
+                                    'dimension' => 'ROWS',
+                                    'startIndex' => 0,
+                                ],
+                                'properties' => [
+                                    'pixelSize' => 21,
+                                ],
+                                'fields' => 'pixelSize',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        );
+    }
+
+    private function sheetId(string $spreadsheetId, string $sheetTitle, string $token): ?int
+    {
+        $response = $this->httpClient->request(
+            'GET',
+            sprintf('%s/%s?fields=sheets.properties(sheetId,title)', self::SHEETS_API, rawurlencode($spreadsheetId)),
+            ['headers' => ['Authorization' => 'Bearer '.$token], 'timeout' => 8],
+        );
+        /** @var array{sheets?: list<array{properties?: array{sheetId?: int, title?: string}}>} $data */
+        $data = $response->toArray(false);
+        foreach ($data['sheets'] ?? [] as $sheet) {
+            if (($sheet['properties']['title'] ?? '') === $sheetTitle) {
+                $id = $sheet['properties']['sheetId'] ?? null;
+
+                return \is_int($id) ? $id : (\is_numeric($id) ? (int) $id : null);
+            }
+        }
+
+        return null;
     }
 
     /**

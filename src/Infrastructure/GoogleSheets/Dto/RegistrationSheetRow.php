@@ -6,10 +6,11 @@ namespace App\Infrastructure\GoogleSheets\Dto;
  * Одна строка листа «Регистрации».
  * Строка 1 — английские ключи (по ним пишет код).
  * Строка 2 — русские подписи.
- * Дальше — заявки. Порядок колонок при создании пустого листа = HEADERS.
+ * Дальше — заявки. Порядок колонок = HEADERS.
  *
  * paidTotal — сумма успешных платежей по заявке.
  * remaining — сколько осталось доплатить (totalAmount − paidTotal).
+ * payments — все успешные платежи в одной ячейке.
  */
 readonly class RegistrationSheetRow
 {
@@ -17,79 +18,59 @@ readonly class RegistrationSheetRow
     public const HEADERS = [
         'name',
         'phone',
-        'email',
+        'participationOptionName',
         'adultsCount',
         'childrenCount',
         'paidTotal',
         'remaining',
-        'participationOptionName',
         'transferIncluded',
         'notes',
-        'applicationUuid',
-        'payment1Amount',
-        'payment1Date',
-        'payment1Id',
-        'payment2Amount',
-        'payment2Date',
-        'payment2Id',
-        'payNowAmount',
         'totalAmount',
-        'paymentFactor',
         'pricingPeriodName',
+        'payments',
+        'email',
+        'applicationUuid',
     ];
 
     /** Подписи для второй строки. Порядок совпадает с HEADERS. */
     public const RUSSIAN_HEADERS = [
         'ФИО',
         'Телефон',
-        'Почта',
+        'Вариант участия',
         'Взрослых',
         'Детей',
         'Оплачено',
         'Осталось оплатить',
-        'Вариант участия',
         'Трансфер',
         'Заметка',
-        'Id заявки',
-        'Платёж 1, сумма',
-        'Платёж 1, дата',
-        'Платёж 1, id',
-        'Платёж 2, сумма',
-        'Платёж 2, дата',
-        'Платёж 2, id',
-        'К оплате сейчас',
         'Стоимость',
-        'Доля оплаты',
         'Ценовой период',
+        'Платежи',
+        'Почта',
+        'Id заявки',
     ];
 
     /** @var list<string> */
     public const APPLICATION_FIELDS = [
         'name',
         'phone',
-        'email',
+        'participationOptionName',
         'adultsCount',
         'childrenCount',
         'totalAmount',
         'paidTotal',
-        'participationOptionName',
         'transferIncluded',
-        'paymentFactor',
         'notes',
         'remaining',
-        'payNowAmount',
         'pricingPeriodName',
+        'payments',
+        'email',
         'applicationUuid',
     ];
 
     /** @var list<string> */
     public const PAYMENT_FIELDS = [
-        'payment1Amount',
-        'payment1Date',
-        'payment1Id',
-        'payment2Amount',
-        'payment2Date',
-        'payment2Id',
+        'payments',
         'paidTotal',
         'remaining',
         'applicationUuid',
@@ -102,17 +83,10 @@ readonly class RegistrationSheetRow
         public string $adultsCount,
         public string $childrenCount,
         public string $totalAmount,
-        public string $payNowAmount,
         public string $participationOptionName,
         public string $transferIncluded,
-        public string $paymentFactor,
         public string $notes,
-        public string $payment1Amount,
-        public string $payment1Date,
-        public string $payment1Id,
-        public string $payment2Amount,
-        public string $payment2Date,
-        public string $payment2Id,
+        public string $payments,
         public string $paidTotal,
         public string $remaining,
         public string $pricingPeriodName,
@@ -132,17 +106,10 @@ readonly class RegistrationSheetRow
             'adultsCount' => $this->adultsCount,
             'childrenCount' => $this->childrenCount,
             'totalAmount' => $this->totalAmount,
-            'payNowAmount' => $this->payNowAmount,
             'participationOptionName' => $this->participationOptionName,
             'transferIncluded' => $this->transferIncluded,
-            'paymentFactor' => $this->paymentFactor,
             'notes' => $this->notes,
-            'payment1Amount' => $this->payment1Amount,
-            'payment1Date' => $this->payment1Date,
-            'payment1Id' => $this->payment1Id,
-            'payment2Amount' => $this->payment2Amount,
-            'payment2Date' => $this->payment2Date,
-            'payment2Id' => $this->payment2Id,
+            'payments' => $this->payments,
             'paidTotal' => $this->paidTotal,
             'remaining' => $this->remaining,
             'pricingPeriodName' => $this->pricingPeriodName,
@@ -191,6 +158,6 @@ readonly class RegistrationSheetRow
         $name = trim($row['name'] ?? '');
         $email = trim($row['email'] ?? '');
 
-        return $name === self::RUSSIAN_HEADERS[0] && $email === self::RUSSIAN_HEADERS[2];
+        return $name === 'ФИО' && ($email === 'Почта' || $email === '');
     }
 }

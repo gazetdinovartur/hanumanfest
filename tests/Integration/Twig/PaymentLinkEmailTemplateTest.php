@@ -38,9 +38,9 @@ final class PaymentLinkEmailTemplateTest extends KernelTestCase
         self::assertStringContainsString('Вы зарегистрировались и внесли предоплату за участие в Хануман Фест!', $html);
         self::assertStringContainsString('Палатка', $html);
         self::assertStringContainsString('hanumanfest@gmail.com', $html);
-        self::assertStringContainsString('Если есть вопрос, напишите нам', $html);
+        self::assertStringContainsString('Если есть вопросы, напишите нам', $html);
         self::assertStringContainsString('Оплатить остаток', $html);
-        self::assertTrue(strpos($html, 'Если есть вопрос') < strpos($html, 'Оплатить остаток'));
+        self::assertTrue(strpos($html, 'Если есть вопросы') < strpos($html, 'Оплатить остаток'));
         self::assertStringContainsString('#f65414', $html);
         self::assertStringContainsString('https://example.test/pay/token', $html);
         self::assertStringNotContainsString('Hanuman Fest', $html);

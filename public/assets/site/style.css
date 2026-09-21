@@ -1367,6 +1367,44 @@ color: #fff;
   white-space: nowrap;
 }
 
+.hf-return-contacts {
+  text-align: center;
+  margin: 0 0 1.75rem;
+}
+
+.hf-return-contacts__title {
+  margin: 0 0 0.85rem;
+  font-weight: 600;
+}
+
+.hf-return-contacts__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.hf-return-contacts__socials {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem 1.25rem;
+  margin: 0.85rem 0 0;
+}
+
+.hf-return-contacts__link {
+  color: var(--brand-main);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.hf-return-contacts__link:hover {
+  color: var(--brand-accent);
+}
+
 @media (max-width: 575.98px) {
   .hf-copy-link {
     flex-direction: column;

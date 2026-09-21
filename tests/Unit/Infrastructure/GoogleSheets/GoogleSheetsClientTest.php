@@ -79,6 +79,9 @@ final class GoogleSheetsClientTest extends TestCase
                 'url' => $url,
                 'body' => json_decode($options['body'] ?? '{}', true),
             ];
+            if ($method === 'GET' && !str_contains($url, '/values/')) {
+                return new MockResponse('{"sheets":[{"properties":{"sheetId":0,"title":"Регистрации"}}]}');
+            }
             if ($method === 'GET') {
                 return new MockResponse('{}');
             }
@@ -99,11 +102,22 @@ final class GoogleSheetsClientTest extends TestCase
         self::assertSame(RegistrationSheetRow::HEADERS, $requests[1]['body']['values'][0]);
         self::assertSame('PUT', $requests[2]['method']);
         self::assertSame(RegistrationSheetRow::RUSSIAN_HEADERS, $requests[2]['body']['values'][0]);
-        self::assertSame('POST', $requests[3]['method']);
-        self::assertStringContainsString(':append', $requests[3]['url']);
-        self::assertSame('Ada', $requests[3]['body']['values'][0][0]);
-        self::assertSame('uuid-1', $requests[3]['body']['values'][0][10]);
-        self::assertNotContains('Hanuman Fest', $requests[3]['body']['values'][0]);
+        $append = $this->firstRequest($requests, static fn (array $r): bool => $r['method'] === 'POST' && str_contains((string) $r['url'], ':append'));
+        self::assertNotNull($append);
+        $values = $append['body']['values'][0];
+        self::assertSame('Ada', $values[0]);
+        self::assertSame('+7900', $values[1]);
+        self::assertSame('Option', $values[2]);
+        self::assertSame('нет', $values[7]);
+        self::assertSame('a@b.c', $values[12]);
+        self::assertSame('uuid-1', $values[13]);
+        self::assertNotContains('Hanuman Fest', $values);
+        self::assertNotContains('1.00', $values);
+        self::assertNotContains('0.5', $values);
+        $style = $this->firstRequest($requests, static fn (array $r): bool => $r['method'] === 'POST' && str_contains((string) $r['url'], ':batchUpdate'));
+        self::assertNotNull($style);
+        self::assertFalse($this->batchHas($style['body'], 'autoResizeDimensions'));
+        self::assertTrue($this->batchHas($style['body'], 'repeatCell'));
     }
 
     public function testApplicationExportDoesNotOverwriteExistingUuidRow(): void
@@ -147,6 +161,9 @@ final class GoogleSheetsClientTest extends TestCase
     {
         $bodies = [];
         $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$bodies): MockResponse {
+            if ($method === 'GET' && !str_contains($url, '/values/')) {
+                return new MockResponse('{"sheets":[{"properties":{"sheetId":0,"title":"Регистрации"}}]}');
+            }
             if ($method === 'GET') {
                 return new MockResponse(json_encode([
                     'values' => [RegistrationSheetRow::HEADERS],
@@ -185,7 +202,7 @@ final class GoogleSheetsClientTest extends TestCase
                 return new MockResponse('{}');
             }
             if ($method === 'GET') {
-                return new MockResponse('{"sheets":[{"properties":{"title":"Лист1"}}]}');
+                return new MockResponse('{"sheets":[{"properties":{"sheetId":0,"title":"Лист1"}}]}');
             }
             if ($method === 'POST' && str_contains($url, 'batchUpdate')) {
                 return new MockResponse('{}');
@@ -219,6 +236,36 @@ final class GoogleSheetsClientTest extends TestCase
         return false;
     }
 
+    /**
+     * @param list<array{method: string, url: string, body: mixed}> $requests
+     * @param callable(array{method: string, url: string, body: mixed}): bool $match
+     * @return array{method: string, url: string, body: mixed}|null
+     */
+    private function firstRequest(array $requests, callable $match): ?array
+    {
+        foreach ($requests as $request) {
+            if ($match($request)) {
+                return $request;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array<string, mixed> $body
+     */
+    private function batchHas(array $body, string $key): bool
+    {
+        foreach ($body['requests'] ?? [] as $request) {
+            if (\is_array($request) && array_key_exists($key, $request)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function row(): RegistrationSheetRow
     {
         return new RegistrationSheetRow(
@@ -228,17 +275,10 @@ final class GoogleSheetsClientTest extends TestCase
             adultsCount: '1',
             childrenCount: '0',
             totalAmount: '2.00',
-            payNowAmount: '1.00',
             participationOptionName: 'Option',
-            transferIncluded: '0',
-            paymentFactor: '0.5',
+            transferIncluded: 'нет',
             notes: '',
-            payment1Amount: '',
-            payment1Date: '',
-            payment1Id: '',
-            payment2Amount: '',
-            payment2Date: '',
-            payment2Id: '',
+            payments: '',
             paidTotal: '0.00',
             remaining: '2.00',
             pricingPeriodName: 'Period',

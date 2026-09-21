@@ -67,6 +67,31 @@ final class FestivalPricingCalculatorTest extends DatabaseTestCase
         self::assertSame(144, $result->discountAmount);
     }
 
+    public function testUsesTransferPriceFromProduct(): void
+    {
+        $product = HanumanFestFixtures::seed($this->entityManager);
+        $product->setTransferPrice(800);
+        $this->entityManager->flush();
+
+        $optionId = $this->entityManager->getRepository(\App\Entity\ParticipationOption::class)
+            ->findOneBy(['product' => $product])
+            ?->getId();
+
+        /** @var FestivalPricingCalculator $calculator */
+        $calculator = static::getContainer()->get(FestivalPricingCalculator::class);
+
+        $result = $calculator->calculate(new CalculatePriceRequest(
+            participationOptionId: (int) $optionId,
+            registrationDate: new \DateTimeImmutable('2026-02-01'),
+            adultsCount: 1,
+            childrenCount: 0,
+            transferIncluded: true,
+            paymentFactor: 1.0,
+        ));
+
+        self::assertSame(4400, $result->totalAmount);
+    }
+
     public function testTestModeForcesTwoRublesWithHalfPayment(): void
     {
         $product = HanumanFestFixtures::seed($this->entityManager);
