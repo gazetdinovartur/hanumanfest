@@ -34,6 +34,11 @@
 /legacy/*.csv
 /legacy/*.tar.zip
 /legacy/*.zip
+/legacy/archive-2026/_inventory/
+/legacy/archive-2026/tools/__pycache__/
+/legacy/archive-2026/site/wp-content/uploads/
+/legacy/archive-2026/site/**/*.mp4
+/legacy/archive-2026/site/**/*.webm
 /meta
 
 # Google service account key (never commit)

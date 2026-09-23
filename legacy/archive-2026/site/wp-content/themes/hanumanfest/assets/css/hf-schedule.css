@@ -1,0 +1,201 @@
+.hf-schedule {
+  --hf-schedule-radius: 12px;
+  --hf-schedule-border: rgba(48, 48, 48, 0.12);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.hf-schedule__days {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.hf-schedule__day-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  min-width: 4.5rem;
+  padding: 0.65rem 1rem;
+  border: 2px solid var(--hf-schedule-border);
+  border-radius: var(--hf-schedule-radius);
+  background: #fff;
+  color: var(--dark-gray, #303030);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.hf-schedule__day-tab:hover {
+  border-color: var(--brand-accent);
+}
+
+.hf-schedule__day-tab.is-active {
+  border-color: var(--brand-main);
+  background: var(--brand-main);
+  color: #fff;
+}
+
+.hf-schedule__day-short {
+  font-size: 1.1rem;
+  line-height: 1.1;
+}
+
+.hf-schedule__day-date {
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.hf-schedule__venues {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.35rem;
+  margin-bottom: 1.5rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.hf-schedule__venue-chip {
+  flex: 0 0 auto;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--hf-schedule-border);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--dark-gray, #303030);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.hf-schedule__venue-chip:hover {
+  border-color: var(--brand-accent);
+}
+
+.hf-schedule__venue-chip.is-active {
+  border-color: var(--brand-accent);
+  background: var(--brand-accent);
+  color: #fff;
+}
+
+.hf-schedule__events {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.hf-schedule__event {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 0.75rem 1rem;
+  align-items: start;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--hf-schedule-border);
+  border-radius: var(--hf-schedule-radius);
+  background: #fff;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.hf-schedule__event:hover {
+  box-shadow: 0 4px 16px rgba(48, 48, 48, 0.08);
+}
+
+.hf-schedule__event-time {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--brand-main);
+  line-height: 1.35;
+}
+
+.hf-schedule__event-title {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--dark-gray, #303030);
+}
+
+.hf-schedule__event-venue {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(149, 164, 58, 0.15);
+  color: var(--brand-accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.hf-schedule__event--meal {
+  border-left: 4px solid var(--brand-accent);
+}
+
+.hf-schedule__event--meal .hf-schedule__event-title {
+  color: var(--brand-accent);
+}
+
+.hf-schedule__event--service {
+  opacity: 0.85;
+}
+
+.hf-schedule__event--now {
+  border-color: var(--brand-main);
+  box-shadow: 0 0 0 2px rgba(246, 84, 20, 0.2);
+  position: relative;
+}
+
+.hf-schedule__event--now::before {
+  content: 'Сейчас';
+  position: absolute;
+  top: -0.55rem;
+  right: 0.75rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: var(--brand-main);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.hf-schedule--full .hf-schedule__events--timeline {
+  position: relative;
+  padding-left: 1rem;
+}
+
+.hf-schedule--full .hf-schedule__events--timeline::before {
+  content: '';
+  position: absolute;
+  left: 0.35rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--brand-main), var(--brand-accent));
+  border-radius: 2px;
+}
+
+.hf-schedule--full .hf-schedule__events--timeline .hf-schedule__event {
+  margin-left: 0.5rem;
+}
+
+.hf-schedule__note {
+  max-width: 42rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 575.98px) {
+  .hf-schedule__event {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+
+  .hf-schedule__event-time {
+    font-size: 0.8rem;
+  }
+}

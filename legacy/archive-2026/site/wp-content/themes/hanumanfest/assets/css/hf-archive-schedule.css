@@ -1,0 +1,18 @@
+.hf-schedule__event.is-hidden,
+.hf-schedule__empty.is-hidden {
+  display: none;
+}
+
+.hf-schedule-page {
+  max-width: 52rem;
+}
+
+body.is-schedule-page header#header {
+  position: relative;
+  background: #fff;
+}
+
+body.is-schedule-page .page-content {
+  padding-top: 2rem;
+  max-width: 52rem;
+}

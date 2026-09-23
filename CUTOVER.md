@@ -54,4 +54,4 @@ php bin/console app:applications:recalculate-statuses --product-slug=hanuman-fes
 
 - [ ] Метрики админки совпадают с ожиданиями
 - [ ] Футер, юр. страницы, питание — из CMS
-- [ ] Фаза 3 (`2026.хануманфест.рф`) — отдельно, позже
+- [ ] Статика `legacy/archive-2026/site/` на `2026.хануманфест.рф` (+ rsync `uploads/`); WP выключить

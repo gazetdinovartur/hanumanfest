@@ -103,5 +103,5 @@ curl -s https://хануманфест.рф/api/product
 
 - Поддомен `апи.хануманфест.рф` больше не используется.
 - Kitchen-видео: файлы в `data/site-pages/videos/`, затем `app:seed:site-pages` копирует в `public/uploads/pages/kitchen/`.
-- Архив 2026 на `2026.хануманфест.рф` — отдельная фаза.
+- Архив 2026: поддомен `2026.хануманфест.рф` → document root со статикой `legacy/archive-2026/site/` (PHP не нужен; медиа `wp-content/uploads/` заливать rsync’ом). Вместе с cutover, см. `legacy/archive-2026/README.md`.
 - Очистка WP-разметки в CMS: `php bin/console app:cms:clean-wp-markup`

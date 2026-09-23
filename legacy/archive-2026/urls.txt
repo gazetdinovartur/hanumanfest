@@ -1,0 +1,18 @@
+# Публичные страницы архива 2026
+# Хост снимка: https://хануманфест.рф (punycode xn--80aap0aec3aidne.xn--p1ai)
+
+https://xn--80aap0aec3aidne.xn--p1ai/
+https://xn--80aap0aec3aidne.xn--p1ai/питание-на-хануман-фест/
+https://xn--80aap0aec3aidne.xn--p1ai/политика-конфиденциальности/
+https://xn--80aap0aec3aidne.xn--p1ai/политика-возвратов/
+https://xn--80aap0aec3aidne.xn--p1ai/публичная-оферта/
+
+# Добавлено в архиве
+/schedule/
+
+# Заметки
+Форма Forminator id=156 на главной — заменена на CTA 2027.
+API расписания https://апи.хануманфест.рф — 404; на живой главной виджета не было.
+Подробное расписание: Google Sheet 1i7rRY7WpoY-3TUyeInP2vRYXiEkIHOOV16hIigPrNFI (было clck.su/peQdI) → /schedule/.
+Публичные страницы архива: главная, /schedule/, питание, политики, оферта.
+Jivo, payment.js, Forminator, wp-json ссылки из HTML вырезаны.

@@ -6,7 +6,7 @@ alwaysApply: true
 # Hanuman Fest — production URLs
 
 - **Сайт + API + admin:** `https://хануманфест.рф` (API под `/api`, не отдельный поддомен)
-- **Архив 2026 (фаза 3):** `https://2026.хануманфест.рф`
+- **Архив 2026 (статика):** `https://2026.хануманфест.рф`
 
 Не использовать `апи.хануманфест.рф` в новых примерах, env и webhook URL.
 Product slug: `hanuman-fest` (один продукт).
