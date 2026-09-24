@@ -119,17 +119,17 @@ final class SiteContentDefaults
         $defaultLogo = (string) ($defaults['logo_path'] ?? '/uploads/wp/2025/10/logo-hanuman.png');
         $defaultFooterBg = (string) ($defaults['footer_background_path'] ?? '');
 
-        if (trim((string) ($settings->getLogoPath() ?? '')) === '') {
+        if ($wasNew && trim((string) ($settings->getLogoPath() ?? '')) === '') {
             $settings->setLogoPath($defaultLogo);
             $changed = true;
         }
-        if ($defaultFooterBg !== '' && trim((string) ($settings->getFooterBackgroundPath() ?? '')) === '') {
+        if ($wasNew && $defaultFooterBg !== '' && trim((string) ($settings->getFooterBackgroundPath() ?? '')) === '') {
             $settings->setFooterBackgroundPath($defaultFooterBg);
             $changed = true;
         }
 
-        $needsFullFill = $wasNew || trim($settings->getDiscountsHtml() ?? '') === '';
-        if (!$needsFullFill) {
+        $needsCopyFill = $wasNew || trim($settings->getDiscountsHtml() ?? '') === '';
+        if (!$needsCopyFill) {
             if ($changed) {
                 $this->em->persist($settings);
             }
@@ -137,23 +137,27 @@ final class SiteContentDefaults
             return $changed;
         }
 
-        $settings->setSiteName((string) ($defaults['site_name'] ?? 'Хануман Фест'));
-        $settings->setTagline((string) ($defaults['tagline'] ?? ''));
-        $settings->setLogoPath($defaultLogo);
-        if ($defaultFooterBg !== '') {
-            $settings->setFooterBackgroundPath($defaultFooterBg);
-        }
-        $settings->setCompanyInfo((string) ($defaults['company_info'] ?? ''));
-        $settings->setPhone(isset($defaults['phone']) ? (string) $defaults['phone'] : null);
-        $settings->setPhone2(isset($defaults['phone2']) ? (string) $defaults['phone2'] : null);
-        $settings->setEmail(isset($defaults['email']) ? (string) $defaults['email'] : 'hanuman-yoga@bk.ru');
-        $settings->setVkUrl(isset($defaults['vk_url']) ? (string) $defaults['vk_url'] : null);
-        $settings->setTelegramUrl(isset($defaults['telegram_url']) ? (string) $defaults['telegram_url'] : null);
-        $settings->setFacebookUrl(isset($defaults['facebook_url']) ? (string) $defaults['facebook_url'] : null);
-        $settings->setInstagramUrl(isset($defaults['instagram_url']) ? (string) $defaults['instagram_url'] : null);
         $settings->setDiscountsHtml((string) ($defaults['discounts_html'] ?? ''));
         $settings->setTentNoteHtml((string) ($defaults['tent_note_html'] ?? ''));
         $settings->setCooperationCtaHtml((string) ($defaults['cooperation_cta_html'] ?? ''));
+
+        if ($wasNew) {
+            $settings->setSiteName((string) ($defaults['site_name'] ?? 'Хануман Фест'));
+            $settings->setTagline((string) ($defaults['tagline'] ?? ''));
+            $settings->setLogoPath($defaultLogo);
+            if ($defaultFooterBg !== '') {
+                $settings->setFooterBackgroundPath($defaultFooterBg);
+            }
+            $settings->setCompanyInfo((string) ($defaults['company_info'] ?? ''));
+            $settings->setPhone(isset($defaults['phone']) ? (string) $defaults['phone'] : null);
+            $settings->setPhone2(isset($defaults['phone2']) ? (string) $defaults['phone2'] : null);
+            $settings->setEmail(isset($defaults['email']) ? (string) $defaults['email'] : 'hanuman-yoga@bk.ru');
+            $settings->setVkUrl(isset($defaults['vk_url']) ? (string) $defaults['vk_url'] : null);
+            $settings->setTelegramUrl(isset($defaults['telegram_url']) ? (string) $defaults['telegram_url'] : null);
+            $settings->setFacebookUrl(isset($defaults['facebook_url']) ? (string) $defaults['facebook_url'] : null);
+            $settings->setInstagramUrl(isset($defaults['instagram_url']) ? (string) $defaults['instagram_url'] : null);
+        }
+
         $this->em->persist($settings);
 
         return true;
@@ -162,44 +166,45 @@ final class SiteContentDefaults
     private function ensureHero(): bool
     {
         $defaultsHome = $this->homeDefaults();
-        $hero = $this->em->getRepository(HomeHero::class)->findOneBy([]) ?? new HomeHero();
-        $image = (string) ($hero->getImagePath() ?? '');
-        $imageMissingOrPlaceholder = $image === '' || str_contains($image, 'logo-hanuman.png');
-        $needsFill = null === $hero->getId()
-            || trim($hero->getHeadline()) === ''
-            || trim($hero->getTitleMain() ?? '') === ''
-            || trim($hero->getTitleSecondary() ?? '') === ''
-            || trim($hero->getAboutHtml() ?? '') === ''
-            || $imageMissingOrPlaceholder
-            || !$hero->getPromoVideoLeft()
-            || !$hero->getPromoVideoRight();
-
-        if (!$needsFill) {
-            return false;
+        $hero = $this->em->getRepository(HomeHero::class)->findOneBy([]);
+        $wasNew = !$hero instanceof HomeHero || null === $hero->getId();
+        if (!$hero instanceof HomeHero) {
+            $hero = new HomeHero();
         }
 
-        $this->applyHeroFromExtract([
-            'event_dates' => $hero->getEventDates() ?: (string) ($defaultsHome['event_dates'] ?? '26 - 28 ИЮНЯ'),
-            'title' => trim($hero->getHeadline()) !== '' ? $hero->getHeadline() : (string) ($defaultsHome['title'] ?? 'ХАНУМАН ФЕСТ'),
-            'title_main' => trim($hero->getTitleMain() ?? '') !== ''
-                ? $hero->getTitleMain()
-                : (string) ($defaultsHome['title_main'] ?? ''),
-            'title_secondary' => trim($hero->getTitleSecondary() ?? '') !== ''
-                ? $hero->getTitleSecondary()
-                : (string) ($defaultsHome['title_secondary'] ?? ''),
-            'content' => trim($hero->getAboutHtml() ?? '') !== ''
-                ? $hero->getAboutHtml()
-                : (string) ($defaultsHome['content'] ?? ''),
-            'title_image_rel' => $imageMissingOrPlaceholder
-                ? (string) ($defaultsHome['title_image_rel'] ?? '2025/10/2.jpg')
-                : null,
-            'promo_video_left' => $hero->getPromoVideoLeft()
-                ?: (string) ($defaultsHome['promo_video_left'] ?? ''),
-            'promo_video_right' => $hero->getPromoVideoRight()
-                ?: (string) ($defaultsHome['promo_video_right'] ?? ''),
-        ]);
+        if ($wasNew) {
+            $this->applyHeroFromExtract($this->homeDefaults());
 
-        return true;
+            return true;
+        }
+
+        $changed = false;
+        if (trim($hero->getEventDates() ?? '') === '') {
+            $hero->setEventDates((string) ($defaultsHome['event_dates'] ?? '26 - 28 ИЮНЯ'));
+            $changed = true;
+        }
+        if (trim($hero->getHeadline()) === '') {
+            $hero->setHeadline((string) ($defaultsHome['title'] ?? 'ХАНУМАН ФЕСТ'));
+            $changed = true;
+        }
+        if (trim($hero->getTitleMain() ?? '') === '') {
+            $hero->setTitleMain((string) ($defaultsHome['title_main'] ?? ''));
+            $changed = true;
+        }
+        if (trim($hero->getTitleSecondary() ?? '') === '') {
+            $hero->setTitleSecondary((string) ($defaultsHome['title_secondary'] ?? ''));
+            $changed = true;
+        }
+        if (trim($hero->getAboutHtml() ?? '') === '') {
+            $hero->setAboutHtml((string) ($defaultsHome['content'] ?? ''));
+            $changed = true;
+        }
+
+        if ($changed) {
+            $this->em->persist($hero);
+        }
+
+        return $changed;
     }
 
     private function ensureHighlights(): bool

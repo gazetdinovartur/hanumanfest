@@ -82,7 +82,7 @@ class SiteSettingsCrudController extends AbstractUploadCrudController
         yield FormField::addFieldset('Бренд');
         yield TextField::new('siteName', 'Название');
         yield PublicImageField::new('logoPath', 'Логотип', 'site')
-            ->setHelp('Круглый логотип в шапке сайта. Пустой путь при открытии настроек подставится автоматически.');
+            ->setHelp('Круглый логотип в шапке сайта.');
         yield PublicImageField::new('footerBackgroundPath', 'Фон футера', 'site');
         yield FormField::addFieldset('Блоки на главной');
         yield HtmlEditorField::new('discountsHtml', 'Скидки', 6);

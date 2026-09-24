@@ -12,9 +12,6 @@ final class ImageOptimizerTest extends TestCase
 
     protected function setUp(): void
     {
-        if (!\extension_loaded('gd') || !\function_exists('imagewebp')) {
-            self::markTestSkipped('GD+WebP required');
-        }
         $this->uploadsDir = sys_get_temp_dir().'/hf-opt-'.bin2hex(random_bytes(4));
         mkdir($this->uploadsDir.'/gallery', 0777, true);
         $this->optimizer = new ImageOptimizer($this->uploadsDir, dirname($this->uploadsDir));
@@ -27,6 +24,9 @@ final class ImageOptimizerTest extends TestCase
 
     public function testOptimizeWritesWebpVariants(): void
     {
+        if (!$this->optimizer->isAvailable()) {
+            self::markTestSkipped('GD+WebP required');
+        }
         $src = $this->uploadsDir.'/gallery/sample.jpg';
         $img = imagecreatetruecolor(400, 300);
         imagejpeg($img, $src, 90);
@@ -37,6 +37,19 @@ final class ImageOptimizerTest extends TestCase
         self::assertFileExists($this->uploadsDir.'/gallery/sample.webp');
         self::assertFileExists($this->uploadsDir.'/gallery/sample-card.webp');
         self::assertFileExists($this->uploadsDir.'/gallery/sample-thumb.webp');
+    }
+
+    public function testOptimizePublicPathSkipsWhenGdUnavailable(): void
+    {
+        if ($this->optimizer->isAvailable()) {
+            self::assertTrue($this->optimizer->isAvailable());
+
+            return;
+        }
+
+        $src = $this->uploadsDir.'/gallery/sample.jpg';
+        file_put_contents($src, 'not-an-image');
+        self::assertSame([], $this->optimizer->optimizePublicPath('/uploads/gallery/sample.jpg'));
     }
 
     private function removeTree(string $dir): void

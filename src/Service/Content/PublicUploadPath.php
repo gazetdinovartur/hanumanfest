@@ -89,4 +89,17 @@ final class PublicUploadPath
 
         return $dir.$parsed['basename'];
     }
+
+    /** EasyAdmin unlink callback: keep shared WP originals, delete CMS uploads. */
+    public static function deleteLocalFileUnlessSharedWp(\SplFileInfo $file): void
+    {
+        $path = str_replace('\\', '/', $file->getPathname());
+        if (str_contains($path, '/uploads/wp/')) {
+            return;
+        }
+
+        if (is_file($file->getPathname())) {
+            @unlink($file->getPathname());
+        }
+    }
 }

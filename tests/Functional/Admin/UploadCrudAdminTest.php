@@ -92,6 +92,150 @@ final class UploadCrudAdminTest extends WebTestCase
         self::assertSelectorExists('form.ea-edit-form');
     }
 
+    public function testHomeHeroImageCanBeDeletedAndStaysDeleted(): void
+    {
+        $client = $this->adminClient();
+        /** @var EntityManagerInterface $em */
+        $em = $client->getContainer()->get('doctrine')->getManager();
+
+        $relative = 'hero/test-del-'.bin2hex(random_bytes(3)).'.png';
+        $absolute = self::writeTinyPng($client, $relative);
+
+        $hero = (new HomeHero())
+            ->setHeadline('Тест')
+            ->setTitleMain('Верх')
+            ->setTitleSecondary('Низ')
+            ->setAboutHtml('<p>О фестивале</p>')
+            ->setImagePath('/uploads/'.$relative);
+        $em->persist($hero);
+        $em->flush();
+        $heroId = $hero->getId();
+        self::assertNotNull($heroId);
+
+        $crawler = $client->request('GET', sprintf('/admin/home-hero/%d/edit', $heroId));
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('input[name$="[imagePath][delete]"]');
+
+        $form = $crawler->filter('form.ea-edit-form')->form();
+        $form['HomeHero[imagePath][delete]']->tick();
+        $client->submit($form);
+        $this->followRedirects($client);
+
+        $em->clear();
+        $saved = $em->getRepository(HomeHero::class)->find($heroId);
+        self::assertNotNull($saved);
+        self::assertNull($saved->getImagePath());
+        self::assertFileDoesNotExist($absolute);
+    }
+
+    public function testHomeHeroImageCanBeReplacedIntoHeroDirectory(): void
+    {
+        $client = $this->adminClient();
+        /** @var EntityManagerInterface $em */
+        $em = $client->getContainer()->get('doctrine')->getManager();
+
+        $relative = 'wp/2025/10/test-old-'.bin2hex(random_bytes(3)).'.png';
+        $oldAbsolute = self::writeTinyPng($client, $relative);
+
+        $hero = (new HomeHero())
+            ->setHeadline('Тест')
+            ->setImagePath('/uploads/'.$relative);
+        $em->persist($hero);
+        $em->flush();
+        $heroId = $hero->getId();
+        self::assertNotNull($heroId);
+
+        $crawler = $client->request('GET', sprintf('/admin/home-hero/%d/edit', $heroId));
+        self::assertResponseIsSuccessful();
+
+        $upload = $this->tempUploadedPng();
+        $form = $crawler->filter('form.ea-edit-form')->form();
+        $form['HomeHero[imagePath][file]']->upload($upload);
+        $client->submit($form);
+        $this->followRedirects($client);
+
+        $em->clear();
+        $saved = $em->getRepository(HomeHero::class)->find($heroId);
+        self::assertNotNull($saved);
+        $newPath = (string) $saved->getImagePath();
+        self::assertStringStartsWith('/uploads/hero/', $newPath);
+        self::assertFileExists($this->projectDir($client).'/public'.$newPath);
+        self::assertFileExists($oldAbsolute);
+
+        @unlink($this->projectDir($client).'/public'.$newPath);
+        @unlink($oldAbsolute);
+    }
+
+    public function testSiteSettingsLogoCanBeDeletedAndStaysDeleted(): void
+    {
+        $client = $this->adminClient();
+        /** @var EntityManagerInterface $em */
+        $em = $client->getContainer()->get('doctrine')->getManager();
+
+        $relative = 'site/test-logo-'.bin2hex(random_bytes(3)).'.png';
+        $absolute = self::writeTinyPng($client, $relative);
+
+        $settings = (new SiteSettings())
+            ->setSiteName('Hanuman Fest')
+            ->setLogoPath('/uploads/'.$relative);
+        $em->persist($settings);
+        $em->flush();
+        $settingsId = $settings->getId();
+        self::assertNotNull($settingsId);
+
+        $crawler = $client->request('GET', sprintf('/admin/site-settings/%d/edit', $settingsId));
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('input[name$="[logoPath][delete]"]');
+
+        $form = $crawler->filter('form.ea-edit-form')->form();
+        $form['SiteSettings[logoPath][delete]']->tick();
+        $client->submit($form);
+        $this->followRedirects($client);
+
+        $em->clear();
+        $saved = $em->getRepository(SiteSettings::class)->find($settingsId);
+        self::assertNotNull($saved);
+        self::assertNull($saved->getLogoPath());
+        self::assertFileDoesNotExist($absolute);
+    }
+
+    private function followRedirects(KernelBrowser $client): void
+    {
+        for ($i = 0; $i < 4 && $client->getResponse()->isRedirect(); ++$i) {
+            $client->followRedirect();
+        }
+        self::assertResponseIsSuccessful();
+    }
+
+    private function projectDir(KernelBrowser $client): string
+    {
+        return $client->getContainer()->getParameter('kernel.project_dir');
+    }
+
+    private static function writeTinyPng(KernelBrowser $client, string $relativeWithinUploads): string
+    {
+        $absolute = $client->getContainer()->getParameter('kernel.project_dir').'/public/uploads/'.$relativeWithinUploads;
+        $dir = dirname($absolute);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
+        file_put_contents($absolute, base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+        ));
+
+        return $absolute;
+    }
+
+    private function tempUploadedPng(): string
+    {
+        $path = sys_get_temp_dir().'/hf-up-'.bin2hex(random_bytes(3)).'.png';
+        file_put_contents($path, base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+        ));
+
+        return $path;
+    }
+
     private function adminClient(): KernelBrowser
     {
         $client = static::createClient();

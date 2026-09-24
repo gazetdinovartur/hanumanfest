@@ -18,7 +18,6 @@ final class ReviewMediaUploadService
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly ImageOptimizer $imageOptimizer,
         #[Autowire('%kernel.project_dir%')]
         private readonly string $projectDir,
     ) {
@@ -45,8 +44,11 @@ final class ReviewMediaUploadService
         }
 
         foreach ($files as $file) {
-            if (!$file instanceof UploadedFile || !$file->isValid()) {
+            if (!$file instanceof UploadedFile) {
                 continue;
+            }
+            if (!$file->isValid()) {
+                $this->throwIfUploadRejected($file);
             }
             $mime = $file->getMimeType() ?? '';
             $isImage = in_array($mime, self::IMAGE_MIME, true);
@@ -70,10 +72,6 @@ final class ReviewMediaUploadService
                 ? '/uploads/reviews/media/'.$name
                 : '/uploads/reviews/video/'.$name;
 
-            if ($isImage) {
-                $this->imageOptimizer->optimizePublicPath($publicPath);
-            }
-
             $item = new ReviewMedia();
             $item->setKind($isImage ? ReviewMediaKind::Image : ReviewMediaKind::Video);
             $item->setPath($publicPath);
@@ -87,5 +85,15 @@ final class ReviewMediaUploadService
         $this->em->flush();
 
         return $created;
+    }
+
+    private function throwIfUploadRejected(UploadedFile $file): never
+    {
+        $error = $file->getError();
+        if (\UPLOAD_ERR_INI_SIZE === $error || \UPLOAD_ERR_FORM_SIZE === $error) {
+            throw new \InvalidArgumentException('Файл слишком большой.');
+        }
+
+        throw new \InvalidArgumentException('Не удалось принять файл.');
     }
 }

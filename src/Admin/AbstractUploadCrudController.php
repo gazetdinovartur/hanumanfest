@@ -38,34 +38,10 @@ abstract class AbstractUploadCrudController extends AbstractCrudController
     ): FormBuilderInterface {
         $entity = $entityDto->getInstance();
         $this->uploadPathNormalizer->stripForForm($entity, $this->uploadPathMap());
-        $this->applyLegacyUploadFormOptions($entityDto, $entity);
 
         return $isNew
             ? parent::createNewFormBuilder($entityDto, $formOptions, $context)
             : parent::createEditFormBuilder($entityDto, $formOptions, $context);
-    }
-
-    private function applyLegacyUploadFormOptions(EntityDto $entityDto, object $entity): void
-    {
-        $fields = $entityDto->getFields();
-        if (null === $fields) {
-            return;
-        }
-
-        foreach ($this->uploadPathMap() as $property => $subdir) {
-            unset($subdir);
-            if (!$this->uploadPathNormalizer->usesUploadsRoot($entity, $property)) {
-                continue;
-            }
-
-            $field = $fields->getByProperty($property);
-            if (null === $field) {
-                continue;
-            }
-
-            $field->setFormTypeOption('upload_dir', 'public/uploads/');
-            $field->setFormTypeOption('download_path', 'uploads/');
-        }
     }
 
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void

@@ -9,6 +9,7 @@ use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\User\InMemoryUser;
 
 #[Group('functional')]
@@ -57,6 +58,69 @@ final class GalleryAdminTest extends WebTestCase
         $reloadedSecond = $em->find(GalleryItem::class, $second->getId());
         self::assertSame(2, $reloadedFirst?->getSortOrder());
         self::assertSame(1, $reloadedSecond?->getSortOrder());
+    }
+
+    public function testGalleryUploadSucceedsWithoutRequiringGd(): void
+    {
+        $client = $this->adminClient();
+        $client->request('GET', '/admin/gallery');
+        self::assertResponseIsSuccessful();
+
+        $csrf = $client->getCrawler()->filter('.hf-gallery')->attr('data-csrf');
+        self::assertNotEmpty($csrf);
+
+        $tmp = $this->tinyJpeg();
+        $client->request(
+            'POST',
+            '/admin/gallery/upload',
+            files: ['files' => [new UploadedFile($tmp, 'sample.jpg', 'image/jpeg', null, true)]],
+            server: [
+                'HTTP_ACCEPT' => 'application/json',
+                'HTTP_X_GALLERY_TOKEN' => (string) $csrf,
+            ],
+        );
+
+        self::assertResponseIsSuccessful();
+        $payload = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertIsArray($payload);
+        self::assertTrue($payload['ok'] ?? false, (string) ($payload['error'] ?? $client->getResponse()->getContent()));
+        self::assertSame(1, $payload['count'] ?? 0);
+        self::assertStringNotContainsString('GD', (string) $client->getResponse()->getContent());
+
+        $imagePath = $payload['items'][0]['imagePath'] ?? '';
+        self::assertIsString($imagePath);
+        self::assertStringStartsWith('/uploads/gallery/', $imagePath);
+        $this->cleanupPublicUpload($client, $imagePath);
+    }
+
+    private function tinyJpeg(): string
+    {
+        $path = sys_get_temp_dir().'/hf-gal-'.bin2hex(random_bytes(4)).'.jpg';
+        if (\function_exists('imagecreatetruecolor') && \function_exists('imagejpeg')) {
+            $img = imagecreatetruecolor(16, 16);
+            imagejpeg($img, $path, 80);
+            unset($img);
+
+            return $path;
+        }
+
+        file_put_contents($path, base64_decode(
+            '/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDAREAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAj/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAAGf/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=',
+            true,
+        ));
+
+        return $path;
+    }
+
+    private function cleanupPublicUpload(KernelBrowser $client, string $publicPath): void
+    {
+        $dir = $client->getKernel()->getProjectDir().'/public';
+        $absolute = $dir.$publicPath;
+        @unlink($absolute);
+        $base = preg_replace('/\.[^.]+$/', '', $absolute) ?? $absolute;
+        foreach (['.webp', '-thumb.webp', '-card.webp'] as $suffix) {
+            @unlink($base.$suffix);
+        }
     }
 
     private function adminClient(): KernelBrowser

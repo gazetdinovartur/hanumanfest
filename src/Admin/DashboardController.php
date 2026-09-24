@@ -82,7 +82,7 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::section('Сайт');
         yield MenuItem::linkTo(HomeHeroCrudController::class, 'Главный экран', 'fa fa-image');
-        yield MenuItem::linkTo(HomeHighlightCrudController::class, 'Плитки «О фестивале»', 'fa fa-th');
+        yield MenuItem::linkToRoute('Плитки «О фестивале»', 'fa fa-th', 'admin_highlights');
         yield MenuItem::linkTo(SiteSettingsCrudController::class, 'Настройки', 'fa fa-sliders');
         yield MenuItem::linkTo(GuestPersonCrudController::class, 'Специальные гости', 'fa fa-star');
         yield MenuItem::linkTo(MusicianPersonCrudController::class, 'Музыканты', 'fa fa-music');

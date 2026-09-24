@@ -14,7 +14,6 @@ final class GalleryUploadService
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly ImageOptimizer $imageOptimizer,
         #[Autowire('%kernel.project_dir%')]
         private readonly string $projectDir,
     ) {
@@ -39,8 +38,11 @@ final class GalleryUploadService
         }
 
         foreach ($files as $file) {
-            if (!$file instanceof UploadedFile || !$file->isValid()) {
+            if (!$file instanceof UploadedFile) {
                 continue;
+            }
+            if (!$file->isValid()) {
+                $this->throwIfUploadRejected($file);
             }
             $mime = $file->getMimeType() ?? '';
             if (!in_array($mime, self::ALLOWED, true)) {
@@ -55,7 +57,6 @@ final class GalleryUploadService
             $file->move($dir, $name);
 
             $publicPath = '/uploads/gallery/'.$name;
-            $this->imageOptimizer->optimizePublicPath($publicPath);
 
             $item = new GalleryItem();
             $item->setImagePath($publicPath);
@@ -68,5 +69,15 @@ final class GalleryUploadService
         $this->em->flush();
 
         return $created;
+    }
+
+    private function throwIfUploadRejected(UploadedFile $file): never
+    {
+        $error = $file->getError();
+        if (\UPLOAD_ERR_INI_SIZE === $error || \UPLOAD_ERR_FORM_SIZE === $error) {
+            throw new \InvalidArgumentException('Файл слишком большой.');
+        }
+
+        throw new \InvalidArgumentException('Не удалось принять файл.');
     }
 }

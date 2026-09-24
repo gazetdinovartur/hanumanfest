@@ -5,22 +5,18 @@ namespace App\Service\Content;
 /**
  * Normalizes public upload paths between DB storage (/uploads/…) and EasyAdmin fields.
  *
- * Files in the expected subdirectory are reduced to basename; legacy paths (e.g. wp/…) stay
- * relative to public/uploads/ so the form can locate them on disk.
+ * Form values are always relative to public/uploads/ (e.g. hero/a.jpg, wp/2025/10/x.jpg)
+ * so legacy WP files and new uploads share the same upload_dir.
  */
 final class UploadPathNormalizer
 {
-    /** @var array<int, array<string, bool>> spl_object_id => property => uses uploads root */
-    private array $usesUploadsRoot = [];
-
     /**
      * @param array<string, string> $map property name => default uploads subdirectory
      */
     public function stripForForm(object $entity, array $map): void
     {
-        $objectId = spl_object_id($entity);
-
         foreach ($map as $property => $subdir) {
+            unset($subdir);
             $getter = 'get'.ucfirst($property);
             $setter = 'set'.ucfirst($property);
             if (!method_exists($entity, $getter) || !method_exists($entity, $setter)) {
@@ -32,25 +28,12 @@ final class UploadPathNormalizer
                 continue;
             }
 
-            $parsed = PublicUploadPath::parseStored($value);
-            if (null === $parsed) {
-                continue;
-            }
-
-            $expectedDir = PublicUploadPath::downloadDir($subdir);
-            if ($parsed['downloadDir'] === $expectedDir) {
-                $entity->$setter($parsed['basename']);
-                unset($this->usesUploadsRoot[$objectId][$property]);
-                continue;
-            }
-
             $relative = PublicUploadPath::relativeWithinUploads($value);
             if (null === $relative) {
                 continue;
             }
 
             $entity->$setter($relative);
-            $this->usesUploadsRoot[$objectId][$property] = true;
         }
     }
 
@@ -67,7 +50,8 @@ final class UploadPathNormalizer
             }
 
             $value = $entity->$getter();
-            if (!\is_string($value) || '' === $value) {
+            if (!\is_string($value) || '' === trim($value)) {
+                $this->setEmpty($entity, $setter);
                 continue;
             }
 
@@ -85,13 +69,17 @@ final class UploadPathNormalizer
         }
     }
 
-    public function usesUploadsRoot(object $entity, string $property): bool
-    {
-        return $this->usesUploadsRoot[spl_object_id($entity)][$property] ?? false;
-    }
-
     public function reset(object $entity): void
     {
-        unset($this->usesUploadsRoot[spl_object_id($entity)]);
+    }
+
+    private function setEmpty(object $entity, string $setter): void
+    {
+        $parameter = (new \ReflectionMethod($entity, $setter))->getParameters()[0] ?? null;
+        if (null === $parameter || !$parameter->allowsNull()) {
+            return;
+        }
+
+        $entity->$setter(null);
     }
 }

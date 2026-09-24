@@ -58,6 +58,7 @@ final class SitePagesTest extends WebTestCase
         self::assertStringContainsString('href="/#about"', $html);
         self::assertStringContainsString('class="is-home"', $html);
         self::assertStringContainsString('Море йоги, музыки и творчества', $html);
+        self::assertStringContainsString('class="tile wide">Широкая слева', $html);
         self::assertStringContainsString('code.jivo.ru/widget/qNhdVN9jC1', $html);
     }
 
@@ -349,7 +350,14 @@ final class SitePagesTest extends WebTestCase
             ->setStyle(HomeHighlightStyle::Big)
             ->setSortOrder(1)
             ->setPublished(true);
+        $wide = (new HomeHighlight())
+            ->setText('Широкая слева')
+            ->setColumnSide(HomeHighlightColumn::Left)
+            ->setStyle(HomeHighlightStyle::Wide)
+            ->setSortOrder(2)
+            ->setPublished(true);
         $em->persist($tile);
+        $em->persist($wide);
         $em->flush();
     }
 }

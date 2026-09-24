@@ -240,7 +240,7 @@ final class SiteContentService
         try {
             return $this->em->getRepository(HomeHighlight::class)->findBy(
                 ['columnSide' => $column, 'published' => true],
-                ['sortOrder' => 'ASC'],
+                ['sortOrder' => 'ASC', 'id' => 'ASC'],
             );
         } catch (\Throwable) {
             return [];

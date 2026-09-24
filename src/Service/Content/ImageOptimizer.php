@@ -30,6 +30,11 @@ final class ImageOptimizer
     ) {
     }
 
+    public function isAvailable(): bool
+    {
+        return \extension_loaded('gd') && \function_exists('imagewebp');
+    }
+
     public function assertAvailable(): void
     {
         if (!\extension_loaded('gd')) {
@@ -45,7 +50,9 @@ final class ImageOptimizer
      */
     public function optimizePublicPath(string $storedPath): array
     {
-        $this->assertAvailable();
+        if (!$this->isAvailable()) {
+            return [];
+        }
         $absolute = $this->absoluteFromPublicPath($storedPath);
         if (!is_file($absolute)) {
             throw new \InvalidArgumentException('Файл не найден: '.$storedPath);
@@ -87,7 +94,9 @@ final class ImageOptimizer
      */
     public function optimizeAbsolute(string $absolutePath): array
     {
-        $this->assertAvailable();
+        if (!$this->isAvailable()) {
+            return [];
+        }
         $info = pathinfo($absolutePath);
         $dir = $info['dirname'] ?? '';
         $filename = $info['filename'] ?? '';

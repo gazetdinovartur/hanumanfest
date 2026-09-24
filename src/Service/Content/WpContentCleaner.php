@@ -7,7 +7,32 @@ namespace App\Service\Content;
  */
 final class WpContentCleaner
 {
-    private const ALLOWED_TAGS = '<p><br><strong><b><em><i><u><h3><h4><ul><ol><li><a>';
+    /**
+     * HTML5 content tags. Anything else is stripped (inner text kept).
+     * Media/embeds are removed earlier: img, video, iframe, figure, picture, source, audio, object, embed, svg.
+     */
+    private const ALLOWED_TAGS = [
+        'a', 'abbr', 'address', 'article', 'aside',
+        'b', 'bdi', 'bdo', 'blockquote', 'br',
+        'caption', 'center', 'cite', 'code', 'col', 'colgroup',
+        'data', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt',
+        'em',
+        'figcaption', 'font', 'footer',
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr',
+        'i', 'ins',
+        'kbd',
+        'li',
+        'main', 'mark',
+        'nav',
+        'ol',
+        'p', 'pre',
+        'q',
+        's', 'samp', 'section', 'small', 'span', 'strike', 'strong', 'sub', 'summary', 'sup',
+        'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'time', 'tr',
+        'u', 'ul',
+        'var',
+        'wbr',
+    ];
 
     public function cleanHtml(?string $html): ?string
     {
@@ -19,7 +44,7 @@ final class WpContentCleaner
         $html = preg_replace('/\r\n|\r/u', "\n", $html) ?? $html;
 
         $html = $this->stripMediaAndWpChrome($html);
-        $html = strip_tags($html, self::ALLOWED_TAGS);
+        $html = strip_tags($html, '<'.implode('><', self::ALLOWED_TAGS).'>');
         $html = $this->sanitizeAnchors($html);
         $html = preg_replace("/\n{3,}/u", "\n\n", $html) ?? $html;
         $html = trim($html);

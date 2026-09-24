@@ -48,12 +48,12 @@
         <div class="highlights-grid tiles">
             <div class="tiles-column left">
                 {% for tile in highlightsLeft %}
-                    <div class="tile{% if tile.style.value == 'big' %} big{% endif %}">{{ tile.text }}</div>
+                    <div class="tile{% if tile.style.value == 'big' %} big{% endif %}{% if tile.style.value == 'wide' %} wide{% endif %}">{{ tile.text }}</div>
                 {% endfor %}
             </div>
             <div class="tiles-column right">
                 {% for tile in highlightsRight %}
-                    <div class="tile{% if tile.style.value == 'wide' %} wide{% endif %}">{{ tile.text }}</div>
+                    <div class="tile{% if tile.style.value == 'big' %} big{% endif %}{% if tile.style.value == 'wide' %} wide{% endif %}">{{ tile.text }}</div>
                 {% endfor %}
             </div>
         </div>
@@ -175,7 +175,7 @@
             </div>
         </div>
         <p class="text-center mt-4 mb-0">
-            <a href="{{ path('site_program') }}" class="contact-link fw-semibold">Полное расписание на отдельной странице →</a>
+            <a href="{{ path('site_program') }}" class="contact-link fw-semibold">Перейти к расписанию →</a>
         </p>
     </div>
 </section>

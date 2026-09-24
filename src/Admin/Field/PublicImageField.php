@@ -2,20 +2,23 @@
 
 namespace App\Admin\Field;
 
+use App\Service\Content\PublicUploadPath;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 
 final class PublicImageField
 {
     public static function new(string $propertyName, string $label, string $subdir): ImageField
     {
-        $base = 'uploads/'.$subdir;
+        $subdir = trim($subdir, '/');
 
         return ImageField::new($propertyName, $label)
             ->setBasePath('uploads')
-            ->setUploadDir('public/'.$base)
-            ->setUploadedFileNamePattern('[uuid].[extension]')
+            ->setUploadDir('public/uploads/')
+            ->setUploadedFileNamePattern($subdir.'/[uuid].[extension]')
+            ->setRequired(false)
             ->setTemplatePath('admin/field/public_image.html.twig')
-            ->setFormTypeOption('attr', ['data-hf-image-field' => '1']);
+            ->setFormTypeOption('attr', ['data-hf-image-field' => '1'])
+            ->setFormTypeOption('upload_delete', PublicUploadPath::deleteLocalFileUnlessSharedWp(...));
     }
 
     public static function thumbnail(string $propertyName, string $subdir): ImageField

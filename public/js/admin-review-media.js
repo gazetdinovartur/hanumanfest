@@ -44,6 +44,23 @@
       window.setTimeout(() => alertSuccess.classList.add('is-hidden'), 3500);
     }
 
+    async function readAdminJson(res) {
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        if (res.status === 413) {
+          throw new Error('Файл слишком большой для сервера.');
+        }
+        throw new Error('Не удалось загрузить. Обновите страницу и попробуйте снова.');
+      }
+      if (!res.ok || data.ok === false) {
+        throw new Error(data.error || data.detail || data.message || 'Ошибка загрузки');
+      }
+      return data;
+    }
+
     function clearAlerts() {
       alertError?.classList.add('is-hidden');
       alertSuccess?.classList.add('is-hidden');
@@ -123,8 +140,7 @@
           headers: { Accept: 'application/json', 'X-Review-Media-Token': csrf },
           body: form,
         });
-        const data = await res.json();
-        if (!res.ok || !data.ok) throw new Error(data.error || 'Ошибка загрузки');
+        const data = await readAdminJson(res);
         (data.items || []).forEach((item) => appendCard(item));
         pendingFiles = [];
         renderBatch();
@@ -179,8 +195,7 @@
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
           body: JSON.stringify({ published: input.checked, _token: csrf }),
         });
-        const data = await res.json();
-        if (!res.ok || !data.ok) throw new Error(data.error || 'Ошибка');
+        const data = await readAdminJson(res);
         card.dataset.published = input.checked ? '1' : '0';
         const badge = card.querySelector('.hf-gallery__badge');
         if (!input.checked && !badge) {
@@ -209,8 +224,7 @@
           method: 'DELETE',
           headers: { Accept: 'application/json', 'X-Review-Media-Token': csrf },
         });
-        const data = await res.json();
-        if (!res.ok || !data.ok) throw new Error(data.error || 'Ошибка');
+        await readAdminJson(res);
         card.remove();
         updateEmpty();
         showSuccess('Удалено');
@@ -233,8 +247,7 @@
               headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
               body: JSON.stringify({ ids, _token: csrf }),
             });
-            const data = await res.json();
-            if (!res.ok || !data.ok) throw new Error(data.error || 'Ошибка сортировки');
+            await readAdminJson(res);
           } catch (err) {
             showError(err.message || 'Не удалось сохранить порядок');
           }

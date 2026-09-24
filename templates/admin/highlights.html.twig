@@ -1,0 +1,59 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Плитки «О фестивале»{% endblock %}
+
+{% block head_stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/admin-highlights.css') }}">
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+    <script src="{{ asset('js/admin-highlights.js') }}" defer></script>
+{% endblock %}
+
+{% block main %}
+<div
+    class="hf-hl"
+    data-hf-highlights
+    data-reorder-url="{{ path('admin_highlights_reorder') }}"
+    data-csrf="{{ highlightsCsrf }}"
+>
+    <p class="hf-hl__lead">
+        Схема как на
+        <a href="{{ path('site_home') }}#about" target="_blank" rel="noopener">главной ↗</a>.
+        Перетаскивайте плитки внутри колонки или из одной в другую — порядок сохраняется сразу.
+        Скрытые плитки полупрозрачные: на сайте их нет.
+    </p>
+
+    <div class="hf-hl__alert hf-hl__alert--error is-hidden" data-alert-error role="alert"></div>
+    <div class="hf-hl__alert hf-hl__alert--success is-hidden" data-alert-success role="status"></div>
+
+    <div class="hf-hl__grid">
+        {% for column, tiles in { left: left, right: right } %}
+            <section class="hf-hl__pane">
+                <header class="hf-hl__pane-head">
+                    <h2 class="hf-hl__pane-title">{{ column == 'left' ? 'Слева' : 'Справа' }}</h2>
+                    <a class="btn btn-secondary btn-sm" href="{{ column == 'left' ? newLeftUrl : newRightUrl }}">Добавить</a>
+                </header>
+                <div class="hf-hl__column" data-column="{{ column }}">
+                    {% for tile in tiles %}
+                        <article
+                            class="hf-hl-tile{% if tile.style == 'big' %} hf-hl-tile--big{% endif %}{% if tile.style == 'wide' %} hf-hl-tile--wide{% endif %}{% if not tile.published %} hf-hl-tile--hidden{% endif %}"
+                            data-id="{{ tile.id }}"
+                        >
+                            <button type="button" class="hf-hl-tile__drag" data-drag-handle title="Перетащить" aria-label="Перетащить">⋮⋮</button>
+                            {% if not tile.published %}
+                                <span class="hf-hl-tile__badge">Скрыта</span>
+                            {% endif %}
+                            <p class="hf-hl-tile__text">{{ tile.text }}</p>
+                            <a class="hf-hl-tile__edit" href="{{ tile.editUrl }}">Изменить</a>
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

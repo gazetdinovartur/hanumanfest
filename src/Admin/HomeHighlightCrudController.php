@@ -5,23 +5,24 @@ namespace App\Admin;
 use App\Entity\HomeHighlight;
 use App\Enum\HomeHighlightColumn;
 use App\Enum\HomeHighlightStyle;
-use App\Service\Content\UploadPathNormalizer;
+use App\Repository\HomeHighlightRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
+use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
-class HomeHighlightCrudController extends AbstractSortableUploadCrudController
+class HomeHighlightCrudController extends AbstractCrudController
 {
     public function __construct(
-        UploadPathNormalizer $uploadPathNormalizer,
-        CsrfTokenManagerInterface $csrfTokenManager,
+        private readonly HomeHighlightRepository $highlights,
     ) {
-        parent::__construct($uploadPathNormalizer, $csrfTokenManager);
     }
 
     public static function getEntityFqcn(): string
@@ -31,7 +32,7 @@ class HomeHighlightCrudController extends AbstractSortableUploadCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return $this->applySortableCrudDefaults($crud)
+        return $crud
             ->setEntityLabelInSingular('Плитка')
             ->setEntityLabelInPlural('Плитки «О фестивале»')
             ->setPageTitle(Crud::PAGE_INDEX, 'Плитки «О фестивале»')
@@ -39,49 +40,80 @@ class HomeHighlightCrudController extends AbstractSortableUploadCrudController
             ->setPageTitle(Crud::PAGE_EDIT, 'Редактировать плитку');
     }
 
-    protected function sortableKind(): string
+    public function configureActions(Actions $actions): Actions
     {
-        return 'highlight';
+        return $actions
+            ->disable(Action::DETAIL, Action::BATCH_DELETE)
+            ->update(
+                Crud::PAGE_EDIT,
+                Action::SAVE_AND_RETURN,
+                static fn (Action $action): Action => $action->setLabel('Сохранить'),
+            )
+            ->update(
+                Crud::PAGE_NEW,
+                Action::SAVE_AND_RETURN,
+                static fn (Action $action): Action => $action->setLabel('Сохранить'),
+            );
     }
 
-    protected function uploadPathMap(): array
+    public function index(AdminContext $context): RedirectResponse
     {
-        return [];
+        return $this->redirectToRoute('admin_highlights');
+    }
+
+    public function createEntity(string $entityFqcn): object
+    {
+        $tile = new HomeHighlight();
+        $column = HomeHighlightColumn::tryFrom((string) $this->getContext()?->getRequest()->query->get('column'));
+        if (HomeHighlightColumn::Left === $column) {
+            $tile->setColumnSide(HomeHighlightColumn::Left);
+            $tile->setStyle(HomeHighlightStyle::Big);
+        } elseif (HomeHighlightColumn::Right === $column) {
+            $tile->setColumnSide(HomeHighlightColumn::Right);
+            $tile->setStyle(HomeHighlightStyle::Normal);
+        }
+
+        return $tile;
+    }
+
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if ($entityInstance instanceof HomeHighlight && 0 === $entityInstance->getSortOrder()) {
+            $entityInstance->setSortOrder($this->highlights->nextSortOrder($entityInstance->getColumnSide()));
+        }
+
+        parent::persistEntity($entityManager, $entityInstance);
+    }
+
+    protected function getRedirectResponseAfterSave(AdminContext $context, string $action): RedirectResponse
+    {
+        $submitButtonName = $context->getRequest()->request->all()['ea']['newForm']['btn'] ?? null;
+        if (Action::SAVE_AND_CONTINUE === $submitButtonName) {
+            return parent::getRedirectResponseAfterSave($context, $action);
+        }
+
+        return $this->redirectToRoute('admin_highlights');
     }
 
     public function configureFields(string $pageName): iterable
     {
-        if (Crud::PAGE_INDEX === $pageName) {
-            yield IdField::new('id', ' ')
-                ->setTemplatePath('admin/field/drag.html.twig')
-                ->setSortable(false);
-            yield TextareaField::new('text', 'Текст');
-            yield ChoiceField::new('columnSide', 'Колонка')
-                ->setChoices([
-                    'Слева' => HomeHighlightColumn::Left,
-                    'Справа' => HomeHighlightColumn::Right,
-                ]);
-            yield BooleanField::new('published', 'На сайте');
-
-            return;
-        }
-
         yield FormField::addFieldset('Плитка');
         yield TextareaField::new('text', 'Текст')->setNumOfRows(3)->setRequired(true);
         yield ChoiceField::new('columnSide', 'Колонка')
             ->setChoices([
-                'Слева (широкие)' => HomeHighlightColumn::Left,
+                'Слева' => HomeHighlightColumn::Left,
                 'Справа' => HomeHighlightColumn::Right,
             ])
-            ->renderAsNativeWidget();
-        yield ChoiceField::new('style', 'Размер')
+            ->renderAsNativeWidget()
+            ->setHelp('Порядок внутри колонки задаётся перетаскиванием на схеме.');
+        yield ChoiceField::new('style', 'Вид')
             ->setChoices([
-                'Большая (слева)' => HomeHighlightStyle::Big,
+                'Крупный шрифт' => HomeHighlightStyle::Big,
                 'Обычная' => HomeHighlightStyle::Normal,
-                'Широкая (справа)' => HomeHighlightStyle::Wide,
+                'На всю ширину колонки' => HomeHighlightStyle::Wide,
             ])
-            ->renderAsNativeWidget();
-        yield IntegerField::new('sortOrder', 'Порядок');
-        yield BooleanField::new('published', 'Опубликовано');
+            ->renderAsNativeWidget()
+            ->setHelp('Слева обычно крупный шрифт. Справа обычные плитки, нижняя часто на всю ширину.');
+        yield BooleanField::new('published', 'Показывать на сайте');
     }
 }

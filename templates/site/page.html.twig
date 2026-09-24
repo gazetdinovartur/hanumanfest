@@ -4,10 +4,8 @@
 
 {% block body %}
 <main class="page-content container">
-    <h1 class="text-brand-main mb-5">{{ page.title }}</h1>
-    <div class="entry-content">
-        {{ page.contentHtml|raw }}
-    </div>
+    <h1 class="text-brand-main mb-3">{{ page.title }}</h1>
+    {{ page.contentHtml|raw }}
 </main>
 
 {% if page.template.value == 'kitchen' and page.kitchenVideos is not empty %}

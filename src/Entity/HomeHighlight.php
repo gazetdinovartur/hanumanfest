@@ -4,9 +4,10 @@ namespace App\Entity;
 
 use App\Enum\HomeHighlightColumn;
 use App\Enum\HomeHighlightStyle;
+use App\Repository\HomeHighlightRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: HomeHighlightRepository::class)]
 #[ORM\Table(name: 'home_highlight')]
 class HomeHighlight
 {

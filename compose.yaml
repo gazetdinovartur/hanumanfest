@@ -6,6 +6,7 @@ services:
       dockerfile: docker/php/Dockerfile
     volumes:
       - .:/app
+      - ./docker/php/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
     depends_on:
       database:
         condition: service_healthy

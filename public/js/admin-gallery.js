@@ -45,6 +45,23 @@
     window.setTimeout(() => alertSuccess.classList.add('is-hidden'), 3500);
   }
 
+  async function readAdminJson(res) {
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      if (res.status === 413) {
+        throw new Error('Файл слишком большой для сервера.');
+      }
+      throw new Error('Не удалось загрузить. Обновите страницу и попробуйте снова.');
+    }
+    if (!res.ok || data.ok === false) {
+      throw new Error(data.error || data.detail || data.message || 'Ошибка загрузки');
+    }
+    return data;
+  }
+
   function clearAlerts() {
     alertError.classList.add('is-hidden');
     alertSuccess.classList.add('is-hidden');
@@ -165,10 +182,7 @@
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({ ids, _token: csrf }),
     });
-    const data = await res.json();
-    if (!res.ok || !data.ok) {
-      throw new Error(data.error || 'Не удалось сохранить порядок');
-    }
+    return readAdminJson(res);
   }
 
   async function patchItem(id, payload) {
@@ -177,10 +191,7 @@
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({ ...payload, _token: csrf }),
     });
-    const data = await res.json();
-    if (!res.ok || !data.ok) {
-      throw new Error(data.error || 'Ошибка сохранения');
-    }
+    const data = await readAdminJson(res);
     return data.item;
   }
 
@@ -189,10 +200,7 @@
       method: 'DELETE',
       headers: { Accept: 'application/json', 'X-Gallery-Token': csrf },
     });
-    const data = await res.json();
-    if (!res.ok || !data.ok) {
-      throw new Error(data.error || 'Ошибка удаления');
-    }
+    await readAdminJson(res);
   }
 
   function syncCardPublished(card, published) {
@@ -257,8 +265,7 @@
         body: form,
         headers: { Accept: 'application/json', 'X-Gallery-Token': csrf },
       });
-      const data = await res.json();
-      if (!res.ok || !data.ok) throw new Error(data.error || 'Ошибка загрузки');
+      const data = await readAdminJson(res);
 
       data.items.forEach((item) => grid.appendChild(createCard(item)));
       updateCount();
